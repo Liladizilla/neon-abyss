@@ -58,7 +58,80 @@ func _roads():
     marks.material_override=lm
     add_child(marks)
     _street_furniture()
+    _street_detail_kit()
     _transit_infrastructure()
+
+func _street_detail_kit() -> void:
+    # Continuous raised pedestrian edges, drain hardware and marked crossings.
+    var sidewalk_tx:Array[Transform3D]=[]
+    var sidewalk_colors:Array[Color]=[]
+    var curb_tx:Array[Transform3D]=[]
+    var curb_colors:Array[Color]=[]
+    var drain_tx:Array[Transform3D]=[]
+    var drain_colors:Array[Color]=[]
+    var bollard_tx:Array[Transform3D]=[]
+    var bollard_colors:Array[Color]=[]
+    var crossing_tx:Array[Transform3D]=[]
+    var crossing_colors:Array[Color]=[]
+    var utility_tx:Array[Transform3D]=[]
+    var utility_colors:Array[Color]=[]
+    var sidewalk_y:=0.19
+    for side in [-1.0,1.0]:
+        var offset:=side*9.25
+        sidewalk_tx.append(Transform3D(Basis.from_scale(Vector3(2.45,0.32,size)),Vector3(size*0.5+offset,sidewalk_y,size*0.5)))
+        sidewalk_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.32,2.45)),Vector3(size*0.5,sidewalk_y,size*0.5+offset)))
+        sidewalk_colors.append(Color(0.18,0.2,0.25))
+        sidewalk_colors.append(Color(0.18,0.2,0.25))
+        curb_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,0.38,size)),Vector3(size*0.5+offset+side*1.34,0.18,size*0.5)))
+        curb_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.38,0.22)),Vector3(size*0.5,0.18,size*0.5+offset+side*1.34)))
+        curb_colors.append(Color(0.3,0.32,0.38))
+        curb_colors.append(Color(0.3,0.32,0.38))
+        for along in range(10,int(size)-10,8):
+            drain_tx.append(Transform3D(Basis.from_scale(Vector3(0.55,0.055,0.32)),Vector3(float(along),0.13,size*0.5+offset+side*1.52)))
+            drain_tx.append(Transform3D(Basis.from_scale(Vector3(0.32,0.055,0.55)),Vector3(size*0.5+offset+side*1.52,0.13,float(along))))
+            drain_colors.append(Color(0.035,0.045,0.06))
+            drain_colors.append(Color(0.035,0.045,0.06))
+            utility_tx.append(Transform3D(Basis.from_scale(Vector3(0.08,0.07,1.2)),Vector3(size*0.5+offset,0.37,float(along))))
+            utility_tx.append(Transform3D(Basis.from_scale(Vector3(1.2,0.07,0.08)),Vector3(float(along),0.37,size*0.5+offset)))
+            utility_colors.append(Color(0.08,0.45,0.55))
+            utility_colors.append(Color(0.08,0.45,0.55))
+        for approach in [-1.0,1.0]:
+            for stripe in range(7):
+                var lane:=float(stripe)*0.72-2.16
+                crossing_tx.append(Transform3D(Basis.from_scale(Vector3(0.46,0.035,2.8)),Vector3(size*0.5+lane,0.045,size*0.5+approach*12.4)))
+                crossing_tx.append(Transform3D(Basis.from_scale(Vector3(2.8,0.035,0.46)),Vector3(size*0.5+approach*12.4,0.045,size*0.5+lane)))
+                crossing_colors.append(Color(0.72,0.76,0.82))
+                crossing_colors.append(Color(0.72,0.76,0.82))
+            for n in range(4):
+                var along:=size*0.5+approach*(7.4+float(n)*0.72)
+                bollard_tx.append(Transform3D(Basis.from_scale(Vector3(0.18,0.78,0.18)),Vector3(size*0.5+side*7.65,0.39,along)))
+                bollard_tx.append(Transform3D(Basis.from_scale(Vector3(0.18,0.78,0.18)),Vector3(along,0.39,size*0.5+side*7.65)))
+                bollard_colors.append(Color(0.08,0.12,0.18))
+                bollard_colors.append(Color(0.08,0.12,0.18))
+    _instances("ContinuousSidewalks",sidewalk_tx,sidewalk_colors,Color(0.18,0.2,0.25),false)
+    _instances("RaisedSidewalkCurbs",curb_tx,curb_colors,Color(0.3,0.32,0.38),false)
+    _instances("RoadDrainGrates",drain_tx,drain_colors,Color(0.035,0.045,0.06),false)
+    _instances("ZebraCrossingStripes",crossing_tx,crossing_colors,Color(0.72,0.76,0.82),false)
+    _instances("CrossingProtectionBollards",bollard_tx,bollard_colors,Color(0.08,0.12,0.18),false,CylinderMesh.new())
+    _instances("SidewalkUtilityRuns",utility_tx,utility_colors,Color(0.08,0.45,0.55),false)
+    var sidewalk_physics:=StaticBody3D.new()
+    sidewalk_physics.name="SidewalkAndCurbCollision"
+    for data in sidewalk_tx:
+        var shape:=BoxShape3D.new()
+        shape.size=data.basis.get_scale()
+        var collision:=CollisionShape3D.new()
+        collision.shape=shape
+        collision.position=data.origin
+        sidewalk_physics.add_child(collision)
+    for data in curb_tx:
+        var shape:=BoxShape3D.new()
+        shape.size=data.basis.get_scale()
+        var collision:=CollisionShape3D.new()
+        collision.shape=shape
+        collision.position=data.origin
+        sidewalk_physics.add_child(collision)
+    add_child(sidewalk_physics)
+
 func _transit_infrastructure():
     # Elevated guideway follows the district's east-west arterial.
     var rails:Array[Transform3D]=[]
