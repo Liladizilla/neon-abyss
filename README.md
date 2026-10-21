@@ -2,7 +2,7 @@
 
 Native Godot 4 endless cyberpunk city exploration game.
 
-Includes deterministic streamed districts, MultiMesh architecture and facade windows, rooftop equipment, wet asphalt shader, filmic tonemapping, glow, SSAO, SSIL, volumetric fog, directional moon shadows, first-person movement, flight mode, throwable physics props, ENet host/join, remote avatar interpolation, GPU rain and pooled traffic.
+Includes deterministic streamed districts, MultiMesh architecture and facade windows, rooftop equipment, wet asphalt shader, filmic tonemapping, glow, SSAO, SSIL, distance fog for legacy GPU support, directional moon shadows, first-person movement, flight mode, throwable physics props, ENet host/join, remote avatar interpolation, GPU rain and pooled traffic.
 
 ## Run
 Install Godot 4.4 or newer, clone this repository and open it in Godot Project Manager.
