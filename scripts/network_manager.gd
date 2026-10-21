@@ -47,7 +47,7 @@ func _peer_left(id):
     _despawn(id)
     if multiplayer.is_server():_despawn_avatar.rpc(id)
 func _spawn(id):
-    if avatars.has(id):return
+    if id==multiplayer.get_unique_id() or avatars.has(id):return
     var a=AVATAR.instantiate()
     a.name="Peer_%d"%id
     a.set_multiplayer_authority(id)
