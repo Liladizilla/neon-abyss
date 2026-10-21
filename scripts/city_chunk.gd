@@ -67,7 +67,7 @@ func _transit_infrastructure():
         supports.append(Transform3D(Basis.from_scale(Vector3(0.8,6.0,0.8)),Vector3(along,6.0,size*0.5)))
     _instances("ElevatedTransitRails",rails,[],Color(0.16,0.2,0.29),false)
     _instances("TransitGuidewayPylons",supports,[],Color(0.12,0.16,0.23),false)
-    if posmod(coord.x,3)==0 and posmod(coord.y,3)==0:
+    if posmod(coord.x,3)==0:
         var station=Node3D.new()
         station.name="ElevatedTransitStation"
         station.position=Vector3.ZERO
