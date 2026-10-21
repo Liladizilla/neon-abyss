@@ -347,7 +347,7 @@ func _enter_unit(room_id:String):
     var building:Dictionary=buildings[building_id]
     var floor_height=float(building.get("floor_height",3.6))
     # Each rented suite sits at its real tower-floor elevation beside the exterior lift core.
-    var interior_origin=Vector3(building.entrance.x+12.0,building.entrance.y-1.0+float(floor_number-1)*floor_height,building.entrance.z-4.0)
+    var interior_origin=Vector3(building.entrance.x+12.0,building.entrance.y-1.0+float(floor_number-1)*floor_height,building.entrance.z)
     active_interior=INTERIOR.new()
     active_interior.configure(room_id,interior_origin)
     active_interior.rotation.y=-PI*0.5
