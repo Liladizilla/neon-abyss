@@ -211,7 +211,7 @@ func _build():
                 lift_landing_colors.append(Color(0.02,0.72,1.0))
                 # Guardrails protect the exposed sides while leaving the tower-to-lift route clear.
                 for rail_side in [-1.0,1.0]:
-                    var rail_pos:=facade_bridge+Vector3(0.0,0.48,rail_side*1.34)
+                    var rail_pos: Vector3 = facade_bridge+Vector3(0.0,0.48,rail_side*1.34)
                     var rail_size:=Vector3(3.0,0.92,0.10)
                     lift_landing_tx.append(Transform3D(Basis.from_scale(rail_size),rail_pos))
                     lift_landing_colors.append(Color(0.035,0.13,0.19))
