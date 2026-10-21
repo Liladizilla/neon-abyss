@@ -497,26 +497,25 @@ func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Ar
             {"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(x+hx-0.24,cy,z+stair_opening_z*0.5+side_depth*0.5)},
             {"size":Vector3(fw,wall_height,0.48),"pos":Vector3(x,cy,z+hz-0.24)}
         ]
-        if fire_escape_enabled:
-            # Leave a real opening in the front wall instead of placing a decorative door over solid collision.
-            var doorway_width:float=1.55
-            var doorway_height:float=minf(2.35,wall_height-0.25)
-            var side_width:float=maxf(0.5,(fw-doorway_width)*0.5)
-            wall_specs.append({"size":Vector3(side_width,wall_height,0.48),"pos":Vector3(x-(doorway_width*0.5+side_width*0.5),cy,z-hz+0.24)})
-            wall_specs.append({"size":Vector3(side_width,wall_height,0.48),"pos":Vector3(x+(doorway_width*0.5+side_width*0.5),cy,z-hz+0.24)})
-            var header_height:float=wall_height-doorway_height
-            wall_specs.append({"size":Vector3(doorway_width,header_height,0.48),"pos":Vector3(x,y0+doorway_height+header_height*0.5,z-hz+0.24)})
-            # Cyan jambs and header make the floor exit visible from the landing.
-            var exit_trim:Color=Color(0.02,0.72,0.88)
-            for jamb_side in [-1.0,1.0]:
-                var jamb_size:=Vector3(0.10,doorway_height,0.10)
-                var jamb_pos:=Vector3(x+jamb_side*(doorway_width*0.5+0.04),y0+doorway_height*0.5,z-hz-0.035)
-                tx.append(Transform3D(Basis.from_scale(jamb_size),jamb_pos))
-                colors.append(exit_trim)
-            var exit_header_size:=Vector3(doorway_width+0.18,0.10,0.10)
-            var exit_header_pos:=Vector3(x,y0+doorway_height+0.04,z-hz-0.035)
-            tx.append(Transform3D(Basis.from_scale(exit_header_size),exit_header_pos))
+        # Leave a real opening in the front wall instead of placing a decorative door over solid collision.
+        var doorway_width:float=1.55
+        var doorway_height:float=minf(2.35,wall_height-0.25)
+        var side_width:float=maxf(0.5,(fw-doorway_width)*0.5)
+        wall_specs.append({"size":Vector3(side_width,wall_height,0.48),"pos":Vector3(x-(doorway_width*0.5+side_width*0.5),cy,z-hz+0.24)})
+        wall_specs.append({"size":Vector3(side_width,wall_height,0.48),"pos":Vector3(x+(doorway_width*0.5+side_width*0.5),cy,z-hz+0.24)})
+        var header_height:float=wall_height-doorway_height
+        wall_specs.append({"size":Vector3(doorway_width,header_height,0.48),"pos":Vector3(x,y0+doorway_height+header_height*0.5,z-hz+0.24)})
+        # Cyan jambs and header make the floor exit visible from the landing.
+        var exit_trim:Color=Color(0.02,0.72,0.88)
+        for jamb_side in [-1.0,1.0]:
+            var jamb_size:=Vector3(0.10,doorway_height,0.10)
+            var jamb_pos:=Vector3(x+jamb_side*(doorway_width*0.5+0.04),y0+doorway_height*0.5,z-hz-0.035)
+            tx.append(Transform3D(Basis.from_scale(jamb_size),jamb_pos))
             colors.append(exit_trim)
+        var exit_header_size:=Vector3(doorway_width+0.18,0.10,0.10)
+        var exit_header_pos:=Vector3(x,y0+doorway_height+0.04,z-hz-0.035)
+        tx.append(Transform3D(Basis.from_scale(exit_header_size),exit_header_pos))
+        colors.append(exit_trim)
         for wall in wall_specs:
             var dims:Vector3=wall.size
             var at:Vector3=wall.pos
