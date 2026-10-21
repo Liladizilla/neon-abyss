@@ -79,3 +79,14 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Extend core-script parsing and CI structural checks for the landing controller, signals and bridge colliders.
 - [ ] Connect each landing to a clearly traversable tower corridor and the apartment entrance.
 - [ ] Validate first-person boarding, door clearance, stairs and return routes in a graphical Godot session.
+
+
+## Building traversal milestone: continuous floor-to-lift access
+- [x] Size each tower-to-elevator bridge from the actual floor footprint so upper-floor setbacks do not leave visual or physical gaps.
+- [x] Extend collision-enabled guardrails across the complete bridge span, including deeper upper-level setbacks.
+- [x] Add restrained illuminated corridor guide strips that lead toward the elevator opening without obstructing the walking path.
+- [x] Mark the tower-side elevator opening with a consistent lit doorway frame on each floor.
+- [x] Add readable floor-number labels beside each elevator landing display.
+- [x] Extend CI structural assertions for setback-aware bridges, guide strips, doorway trim and floor labels.
+- [ ] Verify traversal visually in first person across low and upper floors, including stair transitions and door clearance.
+- [ ] Connect a rented unit's interior entrance directly to its matching floor landing instead of treating the interior as a separate scene transition.
