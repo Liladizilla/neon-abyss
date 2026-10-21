@@ -105,5 +105,6 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Replace prototype flight slabs with eight individual tread meshes per flight and matching collision shapes; add collision to landing platforms.
 - [x] Add paired continuous sloped handrails with intermediate support posts along each stair flight.
 - [x] Add collision to landing guardrails, guardrail posts, sloped handrails and handrail supports.
-- [ ] Connect landings to actual floor doors.
+- [x] Add real front-wall doorway openings and illuminated jambs on fire-escape-enabled towers, aligned to centered exterior landings.
+- [ ] Validate façade clearance, landing overlap and traversal in a graphical first-person playtest.
 - [ ] Validate façade clearance, landing overlap and traversal in a graphical first-person playtest.
