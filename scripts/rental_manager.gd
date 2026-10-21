@@ -359,7 +359,7 @@ func _enter_unit(room_id:String):
     var unit_offsets:Dictionary={1:-18.3,2:-6.1,3:6.1,4:18.3}
     var unit_z:float=building_center.z+float(unit_offsets.get(unit_number,0.0))
     # The suite front doorway faces the elevator core; four units occupy separate lateral bays.
-    var interior_origin:Vector3=Vector3(facade_x+8.5,float(building.entrance.y)-1.0+float(floor_number-1)*floor_height,unit_z)
+    var interior_origin:Vector3=Vector3(facade_x+8.5,float(building.entrance.y)-1.0+float(floor_number-1)*floor_height+0.24,unit_z)
     active_interior=INTERIOR.new()
     active_interior.name="PrivateApartment_%s"%room_id.replace("/","_")
     active_interior.configure(room_id,interior_origin)
