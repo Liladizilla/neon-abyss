@@ -387,7 +387,6 @@ func _build():
                         var sz=Vector3(0.075,0.9,0.72) if fx else Vector3(0.72,0.9,0.075)
                         var pos=Vector3(x+sign*(w/2+0.035),y,z+u*d) if fx else Vector3(x+u*w,y,z+sign*(d/2+0.035))
                         var lit_window:bool=rng.randf()>0.28
-                        var lit_window:bool=rng.randf()>0.28
                         win_tx.append(Transform3D(Basis.from_scale(sz),pos))
                         win_colors.append(neon if lit_window else Color(0.015,0.02,0.035))
                         # A dark recessed surround, metal jambs and a projecting sill give each pane depth.
