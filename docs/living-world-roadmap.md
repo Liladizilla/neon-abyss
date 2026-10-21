@@ -205,3 +205,13 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [ ] In-engine verify each frontage profile against the real shell doorway, lift access and street props; confirm the lobby remains reachable.
 - [ ] Verify sidewalks, ramps, lane markings and vegetation remain clear and visually continuous across neighboring chunks.
 - [ ] Next: add profile-specific functional interactions only after actual doors, shutters and collision are wired to authoritative building access.
+
+## Doorway-alignment and traversal-safety pass
+- [x] Keep residential lobby glazing on side wings so the centered shell doorway remains visually open.
+- [x] Move maintenance-door visuals onto the existing centered opening instead of depicting a side door over solid wall.
+- [x] Center loading-shutter slats and guards on the existing opening; do not imply an unrelated opening in the facade.
+- [x] Keep the frontage kit visual-only; the hollow tower shell remains the authority for collision.
+- [ ] In-engine inspect all four frontage profiles at eye level and from the street approach.
+- [ ] Confirm closed-looking decorative panels do not mislead players into assuming a working door; next implementation should connect actual access state to the rental/building interaction system.
+- [ ] Walk from street to lobby, elevator landing, and apartment interior on multiple generated floors.
+- [ ] Check that crosswalks, tactile pads, street furniture, and vegetation leave a continuous accessible route.
