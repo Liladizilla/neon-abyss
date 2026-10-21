@@ -75,6 +75,13 @@ func register_building(chunk:Vector2i,index:int,floors:int,entrance:Vector3,styl
     if buildings.has(building_id):
         return
     buildings[building_id]={"id":building_id,"chunk":chunk,"index":index,"floors":floors,"entrance":entrance,"style":style}
+func unregister_chunk(chunk:Vector2i):
+    for building_id in buildings.keys():
+        var entry:Dictionary=buildings[building_id]
+        if entry.chunk==chunk:
+            buildings.erase(building_id)
+    if nearest_building!="" and not buildings.has(nearest_building):
+        nearest_building=""
 func _build_ui():
     panel=CanvasLayer.new()
     panel.layer=20
