@@ -187,6 +187,7 @@ func _build():
             # Exterior glass elevator core with a visible landing for every generated floor.
             var lift_x=x+w*0.5+4.6
             var floor_height=h/float(floors)
+            _add_elevator_car(lift_x,z,h,floors,building_index)
             for side_x in [-1.0,1.0]:
                 for side_z in [-1.0,1.0]:
                     lift_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,h,0.22)),Vector3(lift_x+side_x*1.35,h*0.5,z+side_z*1.35)))
@@ -295,6 +296,39 @@ func _build():
             cs.position=data.p
             physics.add_child(cs)
         add_child(physics)
+func _add_elevator_car(local_x:float,local_z:float,height:float,floors:int,building_index:int):
+    var car=Node3D.new()
+    car.name="ElevatorCab_%d"%building_index
+    car.position=Vector3(local_x,0.7,local_z)
+    add_child(car)
+    var shell=MeshInstance3D.new()
+    var shell_mesh=BoxMesh.new()
+    shell_mesh.size=Vector3(2.35,2.35,2.35)
+    shell.mesh=shell_mesh
+    var frame=StandardMaterial3D.new()
+    frame.albedo_color=Color(0.035,0.07,0.12)
+    frame.metallic=0.72
+    frame.roughness=0.25
+    shell.material_override=frame
+    car.add_child(shell)
+    var glass=MeshInstance3D.new()
+    var glass_mesh=BoxMesh.new()
+    glass_mesh.size=Vector3(2.15,1.75,2.15)
+    glass.mesh=glass_mesh
+    var glass_mat=StandardMaterial3D.new()
+    glass_mat.albedo_color=Color(0.015,0.5,0.68,0.34)
+    glass_mat.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+    glass_mat.metallic=0.6
+    glass_mat.roughness=0.18
+    glass_mat.emission_enabled=true
+    glass_mat.emission=Color(0.01,0.24,0.42)
+    glass_mat.emission_energy_multiplier=1.2
+    glass.material_override=glass_mat
+    car.add_child(glass)
+    var duration=maxf(5.0,float(floors)*0.45)
+    var tween=create_tween().set_loops()
+    tween.tween_property(car,"position:y",maxf(1.0,height-1.4),duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+    tween.tween_property(car,"position:y",0.7,duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 func _add_lobby_terminal(local_position:Vector3,building_index:int):
     var kiosk=Node3D.new()
     kiosk.name="RentalTerminal_%d"%building_index
