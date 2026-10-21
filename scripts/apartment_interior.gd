@@ -19,12 +19,14 @@ func update_entry_doors(delta:float) -> void:
     var local_player=get_tree().get_first_node_in_group("local_player")
     var door_point=to_global(Vector3(0,1.0,3.9))
     var should_open=is_instance_valid(local_player) and local_player.global_position.distance_to(door_point)<2.4
+    print("DOOR_METHOD_TRACE valid=", is_instance_valid(local_player), " distance=", local_player.global_position.distance_to(door_point) if is_instance_valid(local_player) else -1.0, " open=", should_open)
     for panel_data in entry_door_panels:
         var door:AnimatableBody3D=panel_data.body
         var side:float=panel_data.side
         var closed_x:float=panel_data.closed_x
         var target_x:float=closed_x+side*(1.05 if should_open else 0.0)
         door.position.x=move_toward(door.position.x,target_x,delta*3.0)
+        print("DOOR_PANEL_TRACE side=", side, " closed=", closed_x, " target=", target_x, " now=", door.position.x, " delta=", delta)
 func _build_room():
     var floor_mat=_material(Color(0.045,0.065,0.095),0.38,0.72)
     var wall_mat=_material(Color(0.07,0.085,0.12),0.28,0.58)
