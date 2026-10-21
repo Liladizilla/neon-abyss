@@ -337,6 +337,8 @@ func _build():
                 trim_colors.append(neon)
             var entrance_local=Vector3(x+w*0.5+2.4,0,z)
             _add_lobby_terminal(entrance_local,building_index)
+            if posmod(building_index,3)==0 and floors>=4:
+                _add_fire_escape(Vector3(x+w*0.5+0.18,0,z-d*0.5-0.18),w,d,h,floors,building_index)
             _add_job_board(entrance_local+Vector3(-1.5,0,1.6),building_index)
             var manager=get_tree().get_first_node_in_group("rental_manager")
             if is_instance_valid(manager):
@@ -687,3 +689,69 @@ func _district_landmark():
         stripe.position=Vector3(side*18,24,0)
         stripe.material_override=glow
         landmark.add_child(stripe)
+
+
+func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,total_height:float,floors:int,building_index:int)->void:
+    # Shared exterior fire-escape kit: landings, alternating flights, guardrails and cage posts.
+    # Geometry is intentionally modular so streamed buildings reuse the same small set of parts.
+    var escape:=Node3D.new()
+    escape.name="FireEscape_B%03d" % building_index
+    escape.position=anchor
+    add_child(escape)
+    var steel:=StandardMaterial3D.new()
+    steel.albedo_color=Color(0.075,0.095,0.12)
+    steel.metallic=0.78
+    steel.roughness=0.36
+    var safety:=StandardMaterial3D.new()
+    safety.albedo_color=Color(0.95,0.34,0.09)
+    safety.metallic=0.42
+    safety.roughness=0.44
+    var levels: int=mini(floors,12)
+    var floor_step:float=total_height/float(maxi(1,floors))
+    var landing_width:float=clampf(building_depth*0.48,2.6,4.2)
+    var landing_depth:float=1.5
+    var offset_x:float=0.0
+    for level in range(levels):
+        var y:float=float(level)*floor_step+0.18
+        var side:float=-1.0 if level%2==0 else 1.0
+        var landing:=MeshInstance3D.new()
+        var landing_mesh:=BoxMesh.new()
+        landing_mesh.size=Vector3(landing_width,0.16,landing_depth)
+        landing.mesh=landing_mesh
+        landing.material_override=steel
+        landing.position=Vector3(offset_x,y,0)
+        escape.add_child(landing)
+        for rail_side in [-1.0,1.0]:
+            var rail:=MeshInstance3D.new()
+            var rail_mesh:=BoxMesh.new()
+            rail_mesh.size=Vector3(landing_width,0.95,0.07)
+            rail.mesh=rail_mesh
+            rail.material_override=safety if rail_side==1.0 else steel
+            rail.position=Vector3(offset_x,y+0.52,rail_side*landing_depth*0.46)
+            escape.add_child(rail)
+            for post_x in [-0.45,0.45]:
+                var post:=MeshInstance3D.new()
+                var post_mesh:=BoxMesh.new()
+                post_mesh.size=Vector3(0.07,0.95,0.07)
+                post.mesh=post_mesh
+                post.material_override=steel
+                post.position=Vector3(offset_x+post_x*landing_width,y+0.52,rail_side*landing_depth*0.46)
+                escape.add_child(post)
+        if level<levels-1:
+            var flight:=MeshInstance3D.new()
+            var flight_mesh:=BoxMesh.new()
+            flight_mesh.size=Vector3(landing_width*0.72,maxf(0.18,floor_step*0.72),0.72)
+            flight.mesh=flight_mesh
+            flight.material_override=steel
+            flight.position=Vector3(offset_x+side*landing_width*0.42,y+floor_step*0.5,0)
+            flight.rotation.z=-side*atan2(floor_step*0.72,landing_width*0.72)
+            escape.add_child(flight)
+            var stringer:=MeshInstance3D.new()
+            var stringer_mesh:=BoxMesh.new()
+            stringer_mesh.size=Vector3(landing_width*0.78,0.12,0.12)
+            stringer.mesh=stringer_mesh
+            stringer.material_override=safety
+            stringer.position=Vector3(offset_x+side*landing_width*0.42,y+floor_step*0.5+0.55,0)
+            stringer.rotation.z=-side*atan2(floor_step*0.72,landing_width*0.72)
+            escape.add_child(stringer)
+            offset_x+=side*landing_width*0.18
