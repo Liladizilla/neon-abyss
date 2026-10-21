@@ -17,6 +17,8 @@ jobs:
           include-templates: false
       - name: Import and parse project headlessly
         run: godot --headless --editor --path . --quit
+      - name: Parse all core scripts explicitly
+        run: godot --headless --path . --script tests/parse_scripts.gd
       - name: Run the game scene for 120 frames
         shell: bash
         run: |
