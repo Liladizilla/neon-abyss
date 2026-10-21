@@ -224,6 +224,9 @@ func _build():
             var manager=get_tree().get_first_node_in_group("rental_manager")
             if is_instance_valid(manager):
                 manager.register_building(coord,building_index,floors,to_global(entrance_local+Vector3(0,1,0)),style)
+            var employment=get_tree().get_first_node_in_group("employment_manager")
+            if is_instance_valid(employment):
+                employment.register_workplace(to_global(entrance_local+Vector3(0,0,1.8)))
     # Skybridges join adjacent towers only when both have tall enough structural cores.
     for i in colliders.size():
         for j in range(i+1,colliders.size()):
