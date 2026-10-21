@@ -2,6 +2,8 @@ extends SceneTree
 
 const CHUNK = preload("res://scripts/city_chunk.gd")
 const RENTAL = preload("res://scripts/rental_manager.gd")
+const INTERIOR = preload("res://scripts/apartment_interior.gd")
+const PLAYER_SCENE = preload("res://scenes/player.tscn")
 const VALID_PROFILES = ["retail", "residential_lobby", "maintenance", "loading"]
 
 func _initialize() -> void:
@@ -34,8 +36,53 @@ func _run() -> void:
             failures.append("Building %s has no rentable floors." % building_id)
         checked_profiles[profile] = true
 
+    # Exercise an apartment's physical shell without rendering the city.
+    var interior = INTERIOR.new()
+    interior.configure("HEADLESS/F01/U1", Vector3(0, 0, 0), 4.5)
+    interior.rotation.y = PI * 0.5
+    root.add_child(interior)
+    var player = PLAYER_SCENE.instantiate()
+    player.name = "HeadlessCollisionPlayer"
+    player.visible = true
+    player.set_physics_process(false)
+    root.add_child(player)
+    player.global_position = interior.to_global(Vector3(0, 1.0, -2.8))
+    await physics_frame
+    var wall_body = interior.get_node_or_null("BackWall_Collision")
+    if not is_instance_valid(wall_body) or wall_body.get_node_or_null("CollisionShape3D") == null:
+        failures.append("Apartment back wall is missing its collision shape.")
+    else:
+        var target_position: Vector3 = interior.to_global(Vector3(0, 1.0, -5.0))
+        var collision = player.move_and_collide(target_position - player.global_position)
+        if collision == null:
+            failures.append("Player passed through the apartment back wall.")
+
+    # Door panels must have physics shapes and slide open when the player approaches.
+    if interior.entry_door_panels.size() != 2:
+        failures.append("Apartment entry did not create two sliding door panels.")
+    else:
+        var door_has_collision := true
+        var closed_positions: Array[float] = []
+        for panel_data in interior.entry_door_panels:
+            var door: AnimatableBody3D = panel_data.body
+            closed_positions.append(door.position.x)
+            if door.get_node_or_null("CollisionShape3D") == null:
+                door_has_collision = false
+        if not door_has_collision:
+            failures.append("One or more apartment door panels lack collision shapes.")
+        player.global_position = interior.to_global(Vector3(0, 0.12, 3.1))
+        await process_frame
+        await process_frame
+        var opened := false
+        for i in range(interior.entry_door_panels.size()):
+            var door: AnimatableBody3D = interior.entry_door_panels[i].body
+            if absf(door.position.x - closed_positions[i]) > 0.01:
+                opened = true
+        if not opened:
+            failures.append("Apartment sliding doors did not respond to nearby player.")
+
     if failures.is_empty():
-        print("CITY_SMOKE_OK buildings=%d profiles=%s" % [manager.buildings.size(), str(checked_profiles.keys())])
+        print("CITY_SMOKE_OK buildings=%d profiles=%s apartment_collision=ok sliding_doors=ok" % [manager.buildings.size(), str(checked_profiles.keys())])
         quit(0)
     else:
         for failure in failures:
