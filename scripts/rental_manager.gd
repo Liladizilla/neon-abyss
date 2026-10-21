@@ -371,6 +371,9 @@ func _server_enter_unit(room_id:String,peer_id:int):
     if not buildings.has(building_id):
         _send_status(peer_id,"This tower is not currently streamed. Return to its lobby and try again.")
         return
+    if not _can_peer_reach(peer_id,building_id):
+        _send_status(peer_id,"Return to the tower lobby before entering your unit.")
+        return
     interior_rooms_by_peer[peer_id]=room_id
     if peer_id==1:
         _open_unit_local(room_id)
@@ -381,10 +384,17 @@ func _grant_unit_entry(room_id:String):
     if not contracts.has(room_id) or str(contracts[room_id].get("owner",""))!=_identity():
         status_label.text="Entry cancelled: the lease is no longer valid."
         return
-    if not is_instance_valid(player) or is_instance_valid(active_interior):
-        status_label.text="Cannot open the apartment while another interior is active."
+    if not is_instance_valid(player) or is_instance_valid(active_interior) or not buildings.has(str(contracts[room_id].get("building",""))):
+        status_label.text="Cannot open this apartment from the current session."
+        _cancel_entry_request.rpc_id(1,room_id)
         return
     _open_unit_local(room_id)
+@rpc("any_peer","call_remote","reliable")
+func _cancel_entry_request(room_id:String):
+    if not multiplayer.is_server():return
+    var peer_id=multiplayer.get_remote_sender_id()
+    if str(interior_rooms_by_peer.get(peer_id,""))==room_id:
+        interior_rooms_by_peer.erase(peer_id)
 @rpc("any_peer","call_remote","reliable")
 func _request_exit_unit(room_id:String):
     if not multiplayer.is_server():return
