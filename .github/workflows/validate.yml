@@ -53,6 +53,7 @@ jobs:
           grep -q '_append_hollow_tower' scripts/city_chunk.gd
           grep -q 'stair_opening_x' scripts/city_chunk.gd
           grep -q 'stair_color' scripts/city_chunk.gd
+          grep -q 'rail_angle' scripts/city_chunk.gd
           grep -q '_add_elevator_car' scripts/city_chunk.gd
           grep -q 'ElevatorFloorLandings' scripts/city_chunk.gd
           grep -q 'elevator_car.gd' scripts/city_chunk.gd
