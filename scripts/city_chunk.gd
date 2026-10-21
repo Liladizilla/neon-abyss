@@ -547,6 +547,7 @@ func _build():
             # Ground-floor use profile is deterministic per building and district.
             # The kit is visual-only; solid tower walls and real doorway collision remain authoritative.
             var frontage_kind:int=posmod(building_index+district_profile,4)
+            var building_use:String=["retail","residential_lobby","maintenance","loading"][frontage_kind]
             var frontage_z:float=z-d*0.5-0.30
             var pane_count:int=maxi(3,int(w/3.2))
             var service_x:float=x+w*0.5-1.05
@@ -602,7 +603,7 @@ func _build():
             _add_job_board(entrance_local+Vector3(-1.5,0,1.6),building_index)
             var manager=get_tree().get_first_node_in_group("rental_manager")
             if is_instance_valid(manager):
-                manager.register_building(coord,building_index,floors,to_global(entrance_local+Vector3(0,1,0)),style,to_global(Vector3(x,0,z)),Vector3(w,h,d),h/float(floors),to_global(Vector3(lift_x,0,z)).x,upper_w,base_h)
+                manager.register_building(coord,building_index,floors,to_global(entrance_local+Vector3(0,1,0)),style,to_global(Vector3(x,0,z)),Vector3(w,h,d),h/float(floors),to_global(Vector3(lift_x,0,z)).x,upper_w,base_h,building_use)
             var employment=get_tree().get_first_node_in_group("employment_manager")
             if is_instance_valid(employment):
                 employment.register_workplace(to_global(entrance_local+Vector3(0,0,1.8)))
