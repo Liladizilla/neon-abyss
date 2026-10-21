@@ -204,6 +204,11 @@ func _build():
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.7,0.18,3.7)),Vector3(lift_x,landing_y,z)))
                 lift_landing_colors.append(Color(0.07,0.12,0.19))
                 lift_colliders.append({"p":Vector3(lift_x,landing_y,z),"s":Vector3(3.7,0.18,3.7)})
+                # Short bridge joins the lift landing to the tower facade.
+                var facade_bridge=Vector3(x+w*0.5+1.35,landing_y,z)
+                lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.0,0.18,2.8)),facade_bridge))
+                lift_landing_colors.append(Color(0.07,0.12,0.19))
+                lift_colliders.append({"p":facade_bridge,"s":Vector3(3.0,0.18,2.8)})
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.65,0.06,0.08)),Vector3(lift_x,landing_y+0.12,z-1.82)))
                 lift_landing_colors.append(Color(0.02,0.72,1.0))
             # Service tanks, antenna masts and roof plant add a non-box silhouette layer.
