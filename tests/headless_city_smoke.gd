@@ -37,6 +37,10 @@ func _run() -> void:
         checked_profiles[profile] = true
 
     # Exercise an apartment's physical shell without rendering the city.
+    for action_name in ["move_left", "move_right", "move_forward", "move_back", "sprint", "jump", "toggle_flight", "throw_prop", "interact", "ui_cancel"]:
+        if not InputMap.has_action(action_name):
+            InputMap.add_action(action_name)
+
     var interior = INTERIOR.new()
     interior.configure("HEADLESS/F01/U1", Vector3(0, 0, 0), 4.5)
     interior.rotation.y = PI * 0.5
@@ -48,8 +52,13 @@ func _run() -> void:
     root.add_child(player)
     player.global_position = interior.to_global(Vector3(0, 1.0, -2.8))
     await physics_frame
-    var wall_body = interior.get_node_or_null("BackWall_Collision")
-    if not is_instance_valid(wall_body) or wall_body.get_node_or_null("CollisionShape3D") == null:
+    var wall_body = interior.find_child("BackWall_Collision", true, false)
+    var wall_has_shape := false
+    if is_instance_valid(wall_body):
+        for child in wall_body.get_children():
+            if child is CollisionShape3D and child.shape != null:
+                wall_has_shape = true
+    if not wall_has_shape:
         failures.append("Apartment back wall is missing its collision shape.")
     else:
         var target_position: Vector3 = interior.to_global(Vector3(0, 1.0, -5.0))
@@ -66,13 +75,16 @@ func _run() -> void:
         for panel_data in interior.entry_door_panels:
             var door: AnimatableBody3D = panel_data.body
             closed_positions.append(door.position.x)
-            if door.get_node_or_null("CollisionShape3D") == null:
+            var panel_has_shape := false
+            for child in door.get_children():
+                if child is CollisionShape3D and child.shape != null:
+                    panel_has_shape = true
+            if not panel_has_shape:
                 door_has_collision = false
         if not door_has_collision:
             failures.append("One or more apartment door panels lack collision shapes.")
         player.global_position = interior.to_global(Vector3(0, 0.12, 3.1))
-        await process_frame
-        await process_frame
+        interior._process(1.0)
         var opened := false
         for i in range(interior.entry_door_panels.size()):
             var door: AnimatableBody3D = interior.entry_door_panels[i].body
