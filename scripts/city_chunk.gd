@@ -263,6 +263,11 @@ func _decorate_street_level()->void:
     # A repeatable streetscape kit dresses every streamed district without spawning people.
     var sidewalk_tx:Array[Transform3D]=[]
     var sidewalk_colors:Array[Color]=[]
+    var curb_tx:Array[Transform3D]=[]
+    var curb_colors:Array[Color]=[]
+    var lane_tx:Array[Transform3D]=[]
+    var lane_colors:Array[Color]=[]
+    var tactile_tx:Array[Transform3D]=[]
     var grate_tx:Array[Transform3D]=[]
     var planter_tx:Array[Transform3D]=[]
     var planter_colors:Array[Color]=[]
@@ -286,8 +291,18 @@ func _decorate_street_level()->void:
             var offset=size*0.5+side*12.0
             sidewalk_tx.append(Transform3D(Basis.from_scale(Vector3(5.2,0.16,7.8)),Vector3(offset,0.04,float(along))))
             sidewalk_colors.append(sidewalk_mat_colors[rng.randi_range(0,sidewalk_mat_colors.size()-1)])
+            # A raised curb physically and visually separates pedestrian paving from the carriageway.
+            curb_tx.append(Transform3D(Basis.from_scale(Vector3(5.2,0.28,0.34)),Vector3(offset-side*2.65,0.18,float(along))))
+            curb_colors.append(Color(0.24,0.27,0.31))
             sidewalk_tx.append(Transform3D(Basis.from_scale(Vector3(7.8,0.16,5.2)),Vector3(float(along),0.04,offset)))
             sidewalk_colors.append(sidewalk_mat_colors[rng.randi_range(0,sidewalk_mat_colors.size()-1)])
+            curb_tx.append(Transform3D(Basis.from_scale(Vector3(0.34,0.28,5.2)),Vector3(float(along),0.18,offset-side*2.65)))
+            curb_colors.append(Color(0.24,0.27,0.31))
+            # Short broken lane markings are shared modules along both road axes.
+            lane_tx.append(Transform3D(Basis.from_scale(Vector3(0.12,0.025,2.6)),Vector3(size*0.5+side*5.5,0.018,float(along))))
+            lane_colors.append(Color(0.72,0.65,0.38))
+            lane_tx.append(Transform3D(Basis.from_scale(Vector3(2.6,0.025,0.12)),Vector3(float(along),0.018,size*0.5+side*5.5)))
+            lane_colors.append(Color(0.72,0.65,0.38))
         # Drainage channels and metal grates sit at the foot of each curb.
         for side in [-1.0,1.0]:
             grate_tx.append(Transform3D(Basis.from_scale(Vector3(1.2,0.035,0.7)),Vector3(size*0.5+side*9.7,0.145,float(along))))
@@ -324,6 +339,8 @@ func _decorate_street_level()->void:
             signpost_tx.append(Transform3D(Basis.from_scale(Vector3(0.95,0.52,0.12)),Vector3(cabinet_pos.x+side*0.9,2.65,cabinet_pos.z)))
             signpost_colors.append(Color(0.02,0.46,0.58))
     _instances("PedestrianPromenadeTiles",sidewalk_tx,sidewalk_colors,Color(0.13,0.15,0.19),false)
+    _instances("RaisedSidewalkCurbs",curb_tx,curb_colors,Color(0.24,0.27,0.31),false)
+    _instances("BrokenRoadLaneMarkings",lane_tx,lane_colors,Color(0.72,0.65,0.38),false)
     _instances("StormDrainGrates",grate_tx,[],Color(0.045,0.055,0.075),false)
     _instances("StreetPlanters",planter_tx,planter_colors,Color(0.08,0.1,0.14),false)
     _instances("JungleTreeTrunks",trunk_tx,[],Color(0.12,0.16,0.13),false,CylinderMesh.new())
