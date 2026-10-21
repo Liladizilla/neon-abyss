@@ -258,6 +258,16 @@ func _build():
                 lift_landing_colors.append(Color(0.02,0.88,1.0))
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.07,0.07,0.035)),display_pos+Vector3(0,-0.12,0.055)))
                 lift_landing_colors.append(Color(1.0,0.24,0.12))
+                # Explicit floor labels make the landing legible without relying on color alone.
+                var floor_label := Label3D.new()
+                floor_label.name = "LiftFloorLabel_B%d_F%02d" % [building_index,floor_level]
+                floor_label.text = "F%02d" % floor_level
+                floor_label.font_size = 32
+                floor_label.outline_size = 6
+                floor_label.modulate = Color(0.2,0.9,1.0)
+                floor_label.position = display_pos+Vector3(0.0,0.0,0.12)
+                floor_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+                add_child(floor_label)
             # Service tanks, antenna masts and roof plant add a non-box silhouette layer.
             for tank in range(2):
                 var tx=x+rng.randf_range(-w*0.28,w*0.28)
