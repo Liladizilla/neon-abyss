@@ -50,6 +50,9 @@ jobs:
           grep -q 'fog_enabled' scripts/game_root.gd
           grep -q 'rental_manager.gd' scripts/game_root.gd
           grep -q 'register_building' scripts/city_chunk.gd
+          grep -q '_append_hollow_tower' scripts/city_chunk.gd
+          grep -q 'stair_opening_x' scripts/city_chunk.gd
+          grep -q 'stair_color' scripts/city_chunk.gd
           grep -q '_add_elevator_car' scripts/city_chunk.gd
           grep -q 'ElevatorFloorLandings' scripts/city_chunk.gd
           grep -q 'elevator_car.gd' scripts/city_chunk.gd
