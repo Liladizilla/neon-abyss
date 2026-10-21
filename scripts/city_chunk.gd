@@ -77,7 +77,7 @@ func _street_detail_kit() -> void:
     var utility_colors:Array[Color]=[]
     var sidewalk_y:=0.02
     for side in [-1.0,1.0]:
-        var offset:=side*9.25
+        var offset:float=side*9.25
         sidewalk_tx.append(Transform3D(Basis.from_scale(Vector3(2.45,0.24,size)),Vector3(size*0.5+offset,sidewalk_y,size*0.5)))
         sidewalk_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.24,2.45)),Vector3(size*0.5,sidewalk_y,size*0.5+offset)))
         sidewalk_colors.append(Color(0.18,0.2,0.25))
@@ -103,7 +103,7 @@ func _street_detail_kit() -> void:
                 crossing_colors.append(Color(0.72,0.76,0.82))
                 crossing_colors.append(Color(0.72,0.76,0.82))
             for n in range(4):
-                var along:=size*0.5+approach*(7.4+float(n)*0.72)
+                var along:float=size*0.5+approach*(7.4+float(n)*0.72)
                 bollard_tx.append(Transform3D(Basis.from_scale(Vector3(0.18,0.78,0.18)),Vector3(size*0.5+side*7.65,0.39,along)))
                 bollard_tx.append(Transform3D(Basis.from_scale(Vector3(0.18,0.78,0.18)),Vector3(along,0.39,size*0.5+side*7.65)))
                 bollard_colors.append(Color(0.08,0.12,0.18))
