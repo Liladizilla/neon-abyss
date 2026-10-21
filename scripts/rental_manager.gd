@@ -375,8 +375,54 @@ func _enter_unit(room_id:String):
     var network=get_tree().get_first_node_in_group("network_manager")
     if is_instance_valid(network):network.set_local_interior(true)
     status_label.text="Apartment entered. Press R to return to the city."
+func _build_apartment_access(facade_x:float,lift_x:float,unit_z:float,center_z:float,floor_y:float,room_id:String)->void:
+    var access:=Node3D.new()
+    access.name="ApartmentAccess_%s"%room_id.replace("/","_")
+    get_tree().current_scene.add_child(access)
+    var floor_mat:=StandardMaterial3D.new()
+    floor_mat.albedo_color=Color(0.045,0.075,0.11)
+    floor_mat.metallic=0.68
+    floor_mat.roughness=0.28
+    var rail_mat:=StandardMaterial3D.new()
+    rail_mat.albedo_color=Color(0.02,0.48,0.62)
+    rail_mat.emission_enabled=true
+    rail_mat.emission=Color(0.01,0.22,0.34)
+    rail_mat.emission_energy_multiplier=1.2
+    var corridor_mid_z:float=(center_z+unit_z)*0.5
+    var corridor_length:float=maxf(1.0,absf(unit_z-center_z))
+    _add_access_segment(access,"LandingCorridor",Vector3(lift_x,floor_y-0.12,corridor_mid_z),Vector3(2.8,0.18,corridor_length+2.8),floor_mat,true)
+    var door_x:float=facade_x+4.5
+    var connector_length:float=maxf(0.8,absf(lift_x-door_x))
+    _add_access_segment(access,"UnitConnector",Vector3((lift_x+door_x)*0.5,floor_y-0.12,unit_z),Vector3(connector_length+0.6,0.18,2.8),floor_mat,true)
+    for side in [-1.0,1.0]:
+        _add_access_segment(access,"CorridorRail",Vector3(lift_x+side*1.34,floor_y+0.42,corridor_mid_z),Vector3(0.10,0.92,corridor_length+2.8),rail_mat,true)
+        _add_access_segment(access,"ConnectorRail",Vector3((lift_x+door_x)*0.5,floor_y+0.42,unit_z+side*1.34),Vector3(connector_length+0.6,0.92,0.10),rail_mat,true)
+    if is_instance_valid(active_interior):
+        active_interior.set_meta("access_corridor",access)
+func _add_access_segment(parent:Node3D,label:String,at:Vector3,dimensions:Vector3,material:Material,collide:bool)->void:
+    var mesh_node:=MeshInstance3D.new()
+    mesh_node.name=label
+    var mesh:=BoxMesh.new()
+    mesh.size=dimensions
+    mesh_node.mesh=mesh
+    mesh_node.material_override=material
+    mesh_node.position=at
+    parent.add_child(mesh_node)
+    if collide:
+        var body:=StaticBody3D.new()
+        body.name=label+"_Collision"
+        var shape:=CollisionShape3D.new()
+        var box:=BoxShape3D.new()
+        box.size=dimensions
+        shape.shape=box
+        body.position=at
+        body.add_child(shape)
+        parent.add_child(body)
 func _exit_unit():
     if not is_instance_valid(active_interior):return
+    if active_interior.has_meta("access_corridor"):
+        var access:Node3D=active_interior.get_meta("access_corridor")
+        if is_instance_valid(access):access.queue_free()
     active_interior.queue_free()
     active_interior=null
     if is_instance_valid(player):
