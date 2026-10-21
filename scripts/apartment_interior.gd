@@ -61,6 +61,30 @@ func _build_room():
     sign_label.pixel_size=0.006
     sign_label.modulate=Color(0.1,0.88,1.0)
     add_child(sign_label)
+    # Compact kitchenette: durable cabinets, counter, sink, hob and a fridge.
+    var cabinet_mat=_material(Color(0.055,0.075,0.095),0.34,0.62)
+    var counter_mat=_material(Color(0.24,0.27,0.3),0.24,0.42)
+    _box("KitchenBaseCabinets",Vector3(2.5,0.82,0.62),Vector3(4.45,0.42,1.65),cabinet_mat,true)
+    _box("KitchenCounter",Vector3(2.62,0.12,0.72),Vector3(4.45,0.9,1.65),counter_mat,true)
+    _box("KitchenBacksplash",Vector3(2.55,0.72,0.08),Vector3(4.45,1.35,2.0),wall_mat,false)
+    _box("KitchenUpperCabinets",Vector3(2.35,0.62,0.42),Vector3(4.45,2.15,1.76),cabinet_mat,true)
+    _box("KitchenSink",Vector3(0.62,0.045,0.42),Vector3(4.05,0.99,1.62),_material(Color(0.42,0.48,0.54),0.18,0.82),false)
+    _box("Cooktop",Vector3(0.65,0.045,0.48),Vector3(4.92,0.99,1.62),_material(Color(0.015,0.02,0.03),0.16,0.45),false)
+    _box("CooktopBurnerA",Vector3(0.22,0.018,0.22),Vector3(4.78,1.02,1.52),trim_mat,false)
+    _box("CooktopBurnerB",Vector3(0.22,0.018,0.22),Vector3(5.05,1.02,1.72),trim_mat,false)
+    _box("Refrigerator",Vector3(0.72,1.95,0.72),Vector3(5.18,0.98,2.75),_material(Color(0.16,0.2,0.25),0.22,0.72),true)
+    _box("FridgeHandle",Vector3(0.035,0.62,0.045),Vector3(4.98,1.08,2.38),trim_mat,false)
+    # Small washroom zone; low partitions preserve sightlines while providing a usable layout.
+    var tile_mat=_material(Color(0.11,0.14,0.18),0.62,0.18)
+    _box("WashroomFloor",Vector3(2.25,0.08,2.25),Vector3(-4.45,0.03,2.45),tile_mat,false)
+    _box("WashroomPartitionSide",Vector3(0.12,2.25,2.2),Vector3(-5.12,1.1,2.15),wall_mat,true)
+    _box("WashroomPartitionBack",Vector3(2.1,2.25,0.12),Vector3(-4.12,1.1,3.48),wall_mat,true)
+    _box("ShowerTray",Vector3(0.82,0.12,0.82),Vector3(-4.72,0.16,2.95),counter_mat,true)
+    _box("ShowerGlass",Vector3(0.04,1.8,0.82),Vector3(-4.28,1.05,2.95),_material(Color(0.18,0.45,0.52,0.32),0.12,0.25),false)
+    _box("WashroomVanity",Vector3(0.78,0.72,0.42),Vector3(-3.7,0.38,2.92),cabinet_mat,true)
+    _box("WashroomBasin",Vector3(0.62,0.08,0.38),Vector3(-3.7,0.78,2.92),counter_mat,false)
+    _box("ToiletBase",Vector3(0.42,0.42,0.62),Vector3(-4.0,0.24,1.75),_material(Color(0.55,0.61,0.67),0.24,0.08),true)
+    _box("ToiletSeat",Vector3(0.46,0.08,0.64),Vector3(-4.0,0.48,1.75),_material(Color(0.72,0.76,0.79),0.22,0.04),false)
 func _material(color:Color,roughness:float,metallic:float,emissive:bool=false)->StandardMaterial3D:
     var mat=StandardMaterial3D.new()
     mat.albedo_color=color
