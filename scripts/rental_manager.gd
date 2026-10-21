@@ -234,7 +234,7 @@ func _server_rent(room_id:String,building_id:String,floor_number:int,unit_number
         _send_status(peer_id,"Move closer to this building's rental terminal.")
         return
     var price=_rent_for(building,floor_number,unit_number)
-    var identity="creator" if not multiplayer.has_multiplayer_peer() else "peer_%d"%peer_id
+    var identity="creator" if not multiplayer.has_multiplayer_peer() or peer_id==1 else "peer_%d"%peer_id
     if _has_contract_for(identity):
         _send_status(peer_id,"You already have a unit. Release it before renting another.")
         return
@@ -260,7 +260,7 @@ func _has_contract_for(identity:String)->bool:
         if str(contracts[room_id].get("owner",""))==identity:return true
     return false
 func _identity()->String:
-    return "creator" if not multiplayer.has_multiplayer_peer() else "peer_%d"%multiplayer.get_unique_id()
+    return "creator" if not multiplayer.has_multiplayer_peer() or multiplayer.is_server() else "peer_%d"%multiplayer.get_unique_id()
 func _wallet()->int:
     return int(wallets.get(_identity(),2500))
 func _send_status(peer_id:int,message:String):
@@ -283,7 +283,7 @@ func _server_release(room_id:String,peer_id:int):
     if not contracts.has(room_id):
         _send_status(peer_id,"That lease is no longer active.")
         return
-    var identity="creator" if not multiplayer.has_multiplayer_peer() else "peer_%d"%peer_id
+    var identity="creator" if not multiplayer.has_multiplayer_peer() or peer_id==1 else "peer_%d"%peer_id
     if str(contracts[room_id].get("owner",""))!=identity:
         _send_status(peer_id,"You do not own that lease.")
         return
