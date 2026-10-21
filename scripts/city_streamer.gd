@@ -39,7 +39,7 @@ func _process(_delta):
         for c in active_centers:
             _queue_ring(c)
         for key in chunks.keys():
-            var chunk_node:Node3D=chunks[key]
+            var chunk_node=chunks[key]
             var keep_chunk:bool=_is_near_any(key,active_centers)
             var needs_collision:bool=_needs_collision(key,active_centers)
             if not keep_chunk or chunk_node.collision_enabled!=needs_collision:
