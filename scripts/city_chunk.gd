@@ -10,6 +10,7 @@ func configure(c,s,seed_in,collide):
     size=s
     seed_value=seed_in
     collision_enabled=collide
+    position=Vector3(c.x*s,0,c.y*s)
 func _ready():
     rng.seed=hash(Vector3i(coord.x,seed_value,coord.y))
     _roads()
@@ -26,6 +27,7 @@ func _roads():
     add_child(road)
     var side_mat=StandardMaterial3D.new()
     side_mat.albedo_color=Color(0.1,0.11,0.17)
+    side_mat.roughness=0.8
     for e in range(4):
         var side=MeshInstance3D.new()
         var box=BoxMesh.new()
@@ -34,6 +36,25 @@ func _roads():
         side.material_override=side_mat
         side.position=Vector3(size/2,0.06,2.75 if e==0 else size-2.75) if e<2 else Vector3(2.75 if e==2 else size-2.75,0.06,size/2)
         add_child(side)
+    var mm=MultiMesh.new()
+    mm.transform_format=MultiMesh.TRANSFORM_3D
+    var dash=BoxMesh.new()
+    dash.size=Vector3(0.22,0.025,3.2)
+    mm.mesh=dash
+    var tx:Array[Transform3D]=[]
+    for z in [size*0.5-5.0,size*0.5+5.0]:
+        for x in range(5,int(size-5),9): tx.append(Transform3D(Basis.IDENTITY,Vector3(float(x),0.015,z)))
+    mm.instance_count=tx.size()
+    for i in tx.size(): mm.set_instance_transform(i,tx[i])
+    var marks=MultiMeshInstance3D.new()
+    marks.multimesh=mm
+    var lm=StandardMaterial3D.new()
+    lm.albedo_color=Color(0.8,0.65,0.28)
+    lm.emission_enabled=true
+    lm.emission=Color(0.22,0.12,0.025)
+    lm.emission_energy_multiplier=0.8
+    marks.material_override=lm
+    add_child(marks)
 func _build():
     var body_tx:Array[Transform3D]=[]
     var body_colors:Array[Color]=[]
@@ -51,11 +72,21 @@ func _build():
             var d=rng.randf_range(18,27)
             var floors=rng.randi_range(7,34)
             var h=float(floors)*rng.randf_range(3.0,4.1)
+            var style=rng.randi_range(0,4)
             var neon:Color=NEON[rng.randi_range(0,NEON.size()-1)]
-            body_tx.append(Transform3D(Basis.from_scale(Vector3(w,h,d)),Vector3(x,h/2,z)))
-            body_colors.append(Color(0.68,0.72,0.86).lerp(Color(0.12,0.14,0.23),rng.randf()))
+            var base_h=h*(0.58 if style==2 or style==4 else 0.72)
+            body_tx.append(Transform3D(Basis.from_scale(Vector3(w,base_h,d)),Vector3(x,base_h/2,z)))
+            body_colors.append(Color(0.68,0.72,0.86).lerp(Color(0.12,0.14,0.23),rng.randf_range(0.25,0.82)))
+            # Setback crowns and podiums turn each mass into a distinct skyline silhouette.
+            body_tx.append(Transform3D(Basis.from_scale(Vector3(w*1.08,2.4,d*1.08)),Vector3(x,1.2,z)))
+            body_colors.append(Color(0.12,0.16,0.25))
+            var upper_h=h-base_h
+            var upper_w=w*(0.58 if style==1 or style==4 else 0.78)
+            var upper_d=d*(0.62 if style==0 or style==3 else 0.78)
+            body_tx.append(Transform3D(Basis.from_scale(Vector3(upper_w,upper_h,upper_d)),Vector3(x,base_h+upper_h/2,z)))
+            body_colors.append(Color(0.58,0.66,0.82).lerp(Color(0.09,0.11,0.19),rng.randf()))
             colliders.append({"p":Vector3(x,h/2,z),"s":Vector3(w,h,d)})
-            roof_tx.append(Transform3D(Basis.from_scale(Vector3(w*0.62,2,d*0.62)),Vector3(x,h+1,z)))
+            roof_tx.append(Transform3D(Basis.from_scale(Vector3(upper_w*0.78,2,upper_d*0.78)),Vector3(x,h+1,z)))
             roof_tx.append(Transform3D(Basis.from_scale(Vector3(1.1,rng.randf_range(5,15),1.1)),Vector3(x+w*0.22,h+7,z-d*0.2)))
             for level in range(2,floors,3):
                 var y=float(level)*h/float(floors)
@@ -73,6 +104,12 @@ func _build():
                 if level%6==2:
                     trim_tx.append(Transform3D(Basis.from_scale(Vector3(w*1.025,0.18,d*1.025)),Vector3(x,y,z)))
                     trim_colors.append(neon)
+            # Roof plant, vents, aerials, facade billboards and corner light bars.
+            for n in range(rng.randi_range(3,7)):
+                var rx=x+rng.randf_range(-w*0.36,w*0.36)
+                var rz=z+rng.randf_range(-d*0.36,d*0.36)
+                var rh=rng.randf_range(1.0,5.0)
+                roof_tx.append(Transform3D(Basis.from_scale(Vector3(rng.randf_range(1.0,3.0),rh,rng.randf_range(1.0,3.0))),Vector3(rx,h+rh/2,rz)))
             for sign_i in range(rng.randi_range(1,3)):
                 var side=rng.randi_range(0,3)
                 var pos=Vector3(x,rng.randf_range(4,minf(h-1,18)),z)
@@ -87,6 +124,7 @@ func _build():
     _instances("RooftopMachinery",roof_tx,[],Color(0.09,0.14,0.21),false)
     if collision_enabled:
         var physics=StaticBody3D.new()
+        physics.name="BuildingCollision"
         for data in colliders:
             var cs=CollisionShape3D.new()
             var shape=BoxShape3D.new()
@@ -99,8 +137,7 @@ func _instances(label,tx:Array[Transform3D],colors:Array[Color],tint:Color,emiss
     var mm=MultiMesh.new()
     mm.transform_format=MultiMesh.TRANSFORM_3D
     mm.use_colors=true
-    var box=BoxMesh.new()
-    mm.mesh=box
+    mm.mesh=BoxMesh.new()
     mm.instance_count=tx.size()
     for i in tx.size():
         mm.set_instance_transform(i,tx[i])
