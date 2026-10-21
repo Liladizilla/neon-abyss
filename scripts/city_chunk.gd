@@ -215,8 +215,8 @@ func _build():
                 lift_colliders.append({"p":facade_bridge,"s":bridge_size})
                 # Recessed corridor guide strips lead to the elevator opening without blocking movement.
                 for guide_side in [-1.0,1.0]:
-                    var guide_size: Vector3 = Vector3(maxf(1.0, floor_width-4.2),0.035,0.055)
-                    var guide_pos: Vector3 = Vector3(x+floor_width*0.25,landing_y+0.17,z+guide_side*1.22)
+                    var guide_size: Vector3 = Vector3(maxf(1.0, floor_width*0.5-2.1),0.035,0.055)
+                    var guide_pos: Vector3 = Vector3(x+floor_width*0.25,landing_y+0.13,z+guide_side*1.22)
                     lift_landing_tx.append(Transform3D(Basis.from_scale(guide_size),guide_pos))
                     lift_landing_colors.append(Color(0.02,0.48,0.72))
                 # Lit doorway trim marks the real opening in the tower's side wall.
