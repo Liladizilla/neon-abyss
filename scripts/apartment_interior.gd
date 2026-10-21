@@ -1,11 +1,24 @@
 extends Node3D
 ## Reusable private apartment shell with collision and a small furnishing kit.
 var room_id=""
+var entry_door_panels:Array[Dictionary]=[]
 func configure(unit_id:String,world_origin:Vector3):
     room_id=unit_id
     position=world_origin
 func _ready():
     _build_room()
+func _process(delta:float):
+    if entry_door_panels.is_empty():
+        return
+    var local_player=get_tree().get_first_node_in_group("local_player")
+    var door_point=to_global(Vector3(0,1.0,3.9))
+    var should_open=is_instance_valid(local_player) and local_player.global_position.distance_to(door_point)<2.4
+    for panel_data in entry_door_panels:
+        var door:AnimatableBody3D=panel_data.body
+        var side:float=panel_data.side
+        var closed_x:float=panel_data.closed_x
+        var target_x:float=closed_x+side*(1.05 if should_open else 0.0)
+        door.position.x=move_toward(door.position.x,target_x,delta*3.0)
 func _build_room():
     var floor_mat=_material(Color(0.045,0.065,0.095),0.38,0.72)
     var wall_mat=_material(Color(0.07,0.085,0.12),0.28,0.58)
@@ -17,13 +30,19 @@ func _build_room():
     _box("LeftWall",Vector3(0.22,3.4,8),Vector3(-6,1.6,0),wall_mat,true)
     _box("RightWall",Vector3(0.22,3.4,8),Vector3(6,1.6,0),wall_mat,true)
     # Front wall leaves a proper doorway rather than trapping the player in a sealed box.
-    _box("FrontWallLeft",Vector3(4.3,3.4,0.22),Vector3(-3.85,1.6,4),wall_mat,true)
-    _box("FrontWallRight",Vector3(4.3,3.4,0.22),Vector3(3.85,1.6,4),wall_mat,true)
+    _box("FrontWallLeft",Vector3(5.1,3.4,0.22),Vector3(-3.45,1.6,4),wall_mat,true)
+    _box("FrontWallRight",Vector3(5.1,3.4,0.22),Vector3(3.45,1.6,4),wall_mat,true)
     _box("DoorHeader",Vector3(3.4,0.45,0.22),Vector3(0,3.0,4),wall_mat,true)
-    # Exterior access bridge aligns with the tower's elevator landing at this floor.
+    _box("EntryFrameLeft",Vector3(0.12,2.45,0.16),Vector3(-0.96,1.18,3.88),trim_mat,false)
+    _box("EntryFrameRight",Vector3(0.12,2.45,0.16),Vector3(0.96,1.18,3.88),trim_mat,false)
+    _box("EntryFrameTop",Vector3(2.0,0.12,0.16),Vector3(0,2.42,3.88),trim_mat,false)
+    _build_entry_doors(trim_mat)
+    # Collision-enabled bridge extends from the apartment threshold toward the matching lift landing.
     _box("ElevatorAccessBridge",Vector3(2.8,0.16,5.4),Vector3(0,-0.08,6.7),floor_mat,true)
     _box("BridgeRailLeft",Vector3(0.12,0.95,5.4),Vector3(-1.34,0.43,6.7),trim_mat,true)
     _box("BridgeRailRight",Vector3(0.12,0.95,5.4),Vector3(1.34,0.43,6.7),trim_mat,true)
+    _box("BridgeGuideLeft",Vector3(0.055,0.025,4.8),Vector3(-1.02,0.015,6.8),trim_mat,false)
+    _box("BridgeGuideRight",Vector3(0.055,0.025,4.8),Vector3(1.02,0.015,6.8),trim_mat,false)
     _box("WindowFrameTop",Vector3(4.2,0.12,0.16),Vector3(0,2.9,-3.84),trim_mat,false)
     _box("WindowFrameBottom",Vector3(4.2,0.12,0.16),Vector3(0,1.0,-3.84),trim_mat,false)
     _box("WindowFrameLeft",Vector3(0.12,1.9,0.16),Vector3(-2.05,1.95,-3.84),trim_mat,false)
@@ -61,6 +80,26 @@ func _build_room():
     sign_label.pixel_size=0.006
     sign_label.modulate=Color(0.1,0.88,1.0)
     add_child(sign_label)
+func _build_entry_doors(mat:Material):
+    for side in [-1.0,1.0]:
+        var door:=AnimatableBody3D.new()
+        door.name="SlidingEntryDoorLeft" if side<0.0 else "SlidingEntryDoorRight"
+        door.sync_to_physics=true
+        door.position=Vector3(side*0.46,1.12,3.88)
+        var mesh_node:=MeshInstance3D.new()
+        mesh_node.name="DoorPanel"
+        var panel_mesh:=BoxMesh.new()
+        panel_mesh.size=Vector3(0.94,2.18,0.12)
+        mesh_node.mesh=panel_mesh
+        mesh_node.material_override=mat
+        door.add_child(mesh_node)
+        var collision:=CollisionShape3D.new()
+        var shape:=BoxShape3D.new()
+        shape.size=panel_mesh.size
+        collision.shape=shape
+        door.add_child(collision)
+        add_child(door)
+        entry_door_panels.append({"body":door,"side":side,"closed_x":side*0.46})
 func _material(color:Color,roughness:float,metallic:float,emissive:bool=false)->StandardMaterial3D:
     var mat=StandardMaterial3D.new()
     mat.albedo_color=color
