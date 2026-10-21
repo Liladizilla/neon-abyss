@@ -120,3 +120,13 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Align rented-suite placement to the registered tower footprint and spawn residents just inside the actual entry doorway.
 - [x] Add proximity-triggered sliding apartment doors with matching collision and CI checks for the traversal components.
 - [ ] Graphically test the complete street → lift → floor landing → apartment → return route, including stair transitions and door clearance.
+
+
+## Six-task apartment-to-lift alignment pass
+- [x] Register each generated tower's actual lift center, upper-floor width and podium/setback height with the housing registry.
+- [x] Compute the apartment threshold from the selected floor's real façade width instead of a fixed guessed offset.
+- [x] Rotate the suite so its outward-facing entry and access bridge point toward the elevator landing.
+- [x] Align the apartment floor surface vertically with the collision-enabled landing platform.
+- [x] Size the bridge, side rails and guide strips to the actual gap between the floor façade and lift landing, including upper-floor setbacks.
+- [x] Extend CI assertions for registered footprint data, façade placement, suite orientation and variable bridge geometry.
+- [ ] Graphically walk the bridge from a rented unit into the matching lift landing on podium and recessed upper floors; headless tests cannot certify this route.
