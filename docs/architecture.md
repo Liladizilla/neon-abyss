@@ -7,4 +7,4 @@
 - network_manager.gd handles ENet peers, remote avatar lifecycle and 20 Hz transform replication.
 - UI scripts provide host/join menu and runtime telemetry.
 
-Rendering uses filmic tonemapping, glow, SSAO, SSIL, volumetric fog and a four-split directional moon light. MultiMesh facade instances reduce draw calls. Multiplayer needs multi-client playtesting before production readiness.
+Rendering uses filmic tonemapping, glow, distance fog, and a four-split directional moon light; the Compatibility renderer is selected for older integrated GPUs. MultiMesh facade instances reduce draw calls. Multiplayer needs multi-client playtesting before production readiness.
