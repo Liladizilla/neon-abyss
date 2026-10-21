@@ -3,8 +3,8 @@ extends Node3D
 var floor_number := 1
 var door_y := 1.23
 var _is_open := false
-var _left: MeshInstance3D
-var _right: MeshInstance3D
+var _left: AnimatableBody3D
+var _right: AnimatableBody3D
 
 func configure(level: int, landing_height: float) -> void:
     floor_number = maxi(1, level)
@@ -20,18 +20,8 @@ func _ready() -> void:
     door_material.emission_energy_multiplier = 0.8
     var panel_mesh := BoxMesh.new()
     panel_mesh.size = Vector3(0.82, 1.85, 0.09)
-    _left = MeshInstance3D.new()
-    _left.name = "LandingDoorLeft_F%02d" % floor_number
-    _left.mesh = panel_mesh
-    _left.material_override = door_material
-    _left.position = Vector3(-0.43, door_y, 1.78)
-    add_child(_left)
-    _right = MeshInstance3D.new()
-    _right.name = "LandingDoorRight_F%02d" % floor_number
-    _right.mesh = panel_mesh
-    _right.material_override = door_material
-    _right.position = Vector3(0.43, door_y, 1.78)
-    add_child(_right)
+    _left = _make_panel("LandingDoorLeft_F%02d" % floor_number, -0.43, panel_mesh, door_material)
+    _right = _make_panel("LandingDoorRight_F%02d" % floor_number, 0.43, panel_mesh, door_material)
     var seam_material := StandardMaterial3D.new()
     seam_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
     seam_material.albedo_color = Color(0.02, 0.78, 1.0)
@@ -75,3 +65,19 @@ func _set_open(open: bool, animated: bool) -> void:
     tween.set_parallel(true)
     tween.tween_property(_left, "position:x", left_target, 0.28).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
     tween.tween_property(_right, "position:x", right_target, 0.28).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+func _make_panel(panel_name: String, x: float, panel_mesh: BoxMesh, door_material: StandardMaterial3D) -> AnimatableBody3D:
+    var body := AnimatableBody3D.new()
+    body.name = panel_name
+    body.position = Vector3(x, door_y, 1.78)
+    var mesh_node := MeshInstance3D.new()
+    mesh_node.mesh = panel_mesh
+    mesh_node.material_override = door_material
+    body.add_child(mesh_node)
+    var collision := CollisionShape3D.new()
+    var shape := BoxShape3D.new()
+    shape.size = panel_mesh.size
+    collision.shape = shape
+    body.add_child(collision)
+    add_child(body)
+    return body
