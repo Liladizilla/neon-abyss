@@ -68,6 +68,7 @@ jobs:
           grep -q '_receive_lift_snapshot.rpc_id(peer_id, position.y, _busy, _target_floor, _doors_open)' scripts/elevator_car.gd
           grep -q 'button.disabled = _busy or is_current_floor' scripts/elevator_car.gd
           grep -q 'The lift is already at that floor.' scripts/elevator_car.gd
+          grep -q 'floor_arrived.emit(destination_floor)' scripts/elevator_car.gd
           grep -q '_build_cab_doors' scripts/elevator_car.gd
           grep -q '_set_doors_open' scripts/elevator_car.gd
           grep -q 'travel_started' scripts/elevator_car.gd
