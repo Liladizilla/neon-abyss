@@ -161,6 +161,7 @@ func _build():
     var lift_colors:Array[Color]=[]
     var lift_landing_tx:Array[Transform3D]=[]
     var lift_landing_colors:Array[Color]=[]
+    var lift_colliders:Array[Dictionary]=[]
     for ix in range(2):
         for iz in range(2):
             var x=24.0+ix*48.0+rng.randf_range(-3,3)
@@ -201,6 +202,7 @@ func _build():
                 var landing_y=float(floor_level-1)*floor_height+0.15
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.7,0.18,3.7)),Vector3(lift_x,landing_y,z)))
                 lift_landing_colors.append(Color(0.07,0.12,0.19))
+                lift_colliders.append({"p":Vector3(lift_x,landing_y,z),"s":Vector3(3.7,0.18,3.7)})
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.65,0.06,0.08)),Vector3(lift_x,landing_y+0.12,z-1.82)))
                 lift_landing_colors.append(Color(0.02,0.72,1.0))
             # Service tanks, antenna masts and roof plant add a non-box silhouette layer.
@@ -285,7 +287,7 @@ func _build():
     if collision_enabled:
         var physics=StaticBody3D.new()
         physics.name="BuildingCollision"
-        for data in colliders:
+        for data in colliders+lift_colliders:
             var cs=CollisionShape3D.new()
             var shape=BoxShape3D.new()
             shape.size=data.s
