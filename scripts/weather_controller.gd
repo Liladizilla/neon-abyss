@@ -1,5 +1,5 @@
 extends Node3D
-## Camera-following GPU rain field with a small, local simulation volume.
+## Camera-following rain volume; GPU particles keep cost bounded near the player.
 var target: Node3D
 func set_target(node: Node3D) -> void:
     target=node
@@ -8,7 +8,6 @@ func _ready() -> void:
     rain.name="RainField"
     rain.amount=1800
     rain.lifetime=1.1
-    rain.explosiveness=0.0
     rain.local_coords=true
     rain.emitting=true
     var process=ParticleProcessMaterial.new()
@@ -21,7 +20,6 @@ func _ready() -> void:
     rain.process_material=process
     var streak=QuadMesh.new()
     streak.size=Vector2(0.025,0.85)
-    rain.draw_pass_1=streak
     var material=StandardMaterial3D.new()
     material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
     material.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -30,6 +28,7 @@ func _ready() -> void:
     material.emission=Color(0.12,0.28,0.55)
     material.emission_energy_multiplier=0.35
     streak.material=material
+    rain.draw_pass_1=streak
     add_child(rain)
 func _process(_delta: float) -> void:
     if is_instance_valid(target):
