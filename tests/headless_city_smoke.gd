@@ -47,6 +47,7 @@ func _run() -> void:
     root.add_child(interior)
     var player = PLAYER_SCENE.instantiate()
     player.name = "HeadlessCollisionPlayer"
+    player.add_to_group("local_player")
     player.visible = true
     player.set_physics_process(false)
     root.add_child(player)
@@ -83,7 +84,7 @@ func _run() -> void:
                 door_has_collision = false
         if not door_has_collision:
             failures.append("One or more apartment door panels lack collision shapes.")
-        player.global_position = interior.to_global(Vector3(0, 0.12, 3.1))
+        player.global_position = interior.to_global(Vector3(0, 1.0, 3.9))
         interior._process(1.0)
         var opened := false
         for i in range(interior.entry_door_panels.size()):
