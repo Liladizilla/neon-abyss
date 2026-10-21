@@ -246,6 +246,9 @@ func _build():
     var trim_colors:Array[Color]=[]
     var win_tx:Array[Transform3D]=[]
     var win_colors:Array[Color]=[]
+    var window_frame_tx:Array[Transform3D]=[]
+    var window_frame_colors:Array[Color]=[]
+    var facade_pipe_tx:Array[Transform3D]=[]
     var roof_tx:Array[Transform3D]=[]
     var cylinder_tx:Array[Transform3D]=[]
     var colliders:Array[Dictionary]=[]
@@ -372,7 +375,7 @@ func _build():
             cylinder_tx.append(Transform3D(Basis.from_scale(Vector3(0.16,rng.randf_range(5.0,12.0),0.16)),Vector3(x+w*0.22,h+6.0,z-d*0.2)))
             roof_tx.append(Transform3D(Basis.from_scale(Vector3(upper_w*0.78,2,upper_d*0.78)),Vector3(x,h+1,z)))
             roof_tx.append(Transform3D(Basis.from_scale(Vector3(1.1,rng.randf_range(5,15),1.1)),Vector3(x+w*0.22,h+7,z-d*0.2)))
-            for level in range(2,floors,3):
+            for level in range(1,floors):
                 var y=float(level)*h/float(floors)
                 for side in range(4):
                     var fx=side<2
@@ -383,8 +386,18 @@ func _build():
                         var u=(float(wi)+0.5)/count-0.5
                         var sz=Vector3(0.075,0.9,0.72) if fx else Vector3(0.72,0.9,0.075)
                         var pos=Vector3(x+sign*(w/2+0.035),y,z+u*d) if fx else Vector3(x+u*w,y,z+sign*(d/2+0.035))
+                        var lit_window:bool=rng.randf()>0.28
                         win_tx.append(Transform3D(Basis.from_scale(sz),pos))
-                        win_colors.append(neon if rng.randf()>0.28 else Color(0.015,0.02,0.035))
+                        win_colors.append(neon if lit_window else Color(0.015,0.02,0.035))
+                        # A dark recessed surround, metal jambs and a projecting sill give each pane depth.
+                        var frame_pos:Vector3=pos+Vector3(sign*0.075,0.0,0.0) if fx else pos+Vector3(0.0,0.0,sign*0.075)
+                        var frame_size:Vector3=Vector3(0.12,1.16,0.98) if fx else Vector3(0.98,1.16,0.12)
+                        window_frame_tx.append(Transform3D(Basis.from_scale(frame_size),frame_pos))
+                        window_frame_colors.append(Color(0.035,0.055,0.085))
+                        var sill_pos:Vector3=pos+Vector3(sign*0.12,-0.53,0.0) if fx else pos+Vector3(0.0,-0.53,sign*0.12)
+                        var sill_size:Vector3=Vector3(0.25,0.09,1.08) if fx else Vector3(1.08,0.09,0.25)
+                        window_frame_tx.append(Transform3D(Basis.from_scale(sill_size),sill_pos))
+                        window_frame_colors.append(Color(0.16,0.2,0.28))
                 if level%6==2:
                     trim_tx.append(Transform3D(Basis.from_scale(Vector3(w*1.025,0.18,d*1.025)),Vector3(x,y,z)))
                     trim_colors.append(neon)
@@ -402,6 +415,14 @@ func _build():
                 pos.z+=(d/2+0.22)*(-1.0 if side==2 else 1.0) if side>=2 else 0.0
                 trim_tx.append(Transform3D(Basis.from_scale(sz),pos))
                 trim_colors.append(neon)
+            # Reusable service conduits, junction boxes and maintenance access repeat by building seed.
+            for side in [-1.0,1.0]:
+                var pipe_x:float=x+side*(w*0.5+0.12)
+                facade_pipe_tx.append(Transform3D(Basis.from_scale(Vector3(0.13,h*0.88,0.13)),Vector3(pipe_x,h*0.46,z-d*0.28)))
+                facade_pipe_tx.append(Transform3D(Basis.from_scale(Vector3(0.13,h*0.88,0.13)),Vector3(pipe_x,h*0.46,z+d*0.28)))
+                for service_level in range(1,floors,4):
+                    var service_y:float=float(service_level)*floor_height
+                    roof_tx.append(Transform3D(Basis.from_scale(Vector3(0.48,0.38,0.32)),Vector3(pipe_x,service_y,z-d*0.28)))
             var entrance_local=Vector3(x+w*0.5+2.4,0,z)
             _append_building_frontage(frontage_tx,frontage_colors,frontage_glow_tx,frontage_glow_colors,x,z,w,d,floors,building_index,style,neon)
             _add_lobby_terminal(entrance_local,building_index)
@@ -436,6 +457,8 @@ func _build():
                 trim_colors.append(NEON[(i+j)%NEON.size()])
     _instances("BuildingMasses",body_tx,body_colors,Color(0.2,0.23,0.34),false)
     _instances("NeonBandsAndSigns",trim_tx,trim_colors,Color(0.2,0.5,0.6),true)
+    _instances("WindowRecessesAndSills",window_frame_tx,window_frame_colors,Color(0.035,0.055,0.085),false)
+    _instances("FacadeServiceConduits",facade_pipe_tx,[],Color(0.11,0.15,0.21),false,CylinderMesh.new())
     _instances("WindowGrid",win_tx,win_colors,Color(0,0.65,0.9),true)
     _instances("RooftopMachinery",roof_tx,[],Color(0.09,0.14,0.21),false)
     _instances("CylindricalServiceTanksAndMasts",cylinder_tx,[],Color(0.18,0.23,0.31),false,CylinderMesh.new())
