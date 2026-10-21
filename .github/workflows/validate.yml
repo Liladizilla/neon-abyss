@@ -98,4 +98,12 @@ jobs:
           grep -q 'BridgeGuideLeft' scripts/apartment_interior.gd
           grep -q 'lift_center_x' scripts/rental_manager.gd
           grep -q 'active_interior.to_global(Vector3(0,0.12,2.7))' scripts/rental_manager.gd
+          grep -q 'upper_width:float,base_height:float' scripts/rental_manager.gd
+          grep -q '"lift_x":lift_x' scripts/rental_manager.gd
+          grep -q 'var facade_x:float=float(building.center.x)+floor_width\*0.5' scripts/rental_manager.gd
+          grep -q 'var landing_inner_x:float=float(building.lift_x)-1.85' scripts/rental_manager.gd
+          grep -q 'active_interior.rotation.y=PI\*0.5' scripts/rental_manager.gd
+          grep -q 'access_bridge_length:float=5.4' scripts/apartment_interior.gd
+          grep -q 'Vector3(2.8,0.16,access_bridge_length)' scripts/apartment_interior.gd
+          grep -q 'var guide_length:float=maxf(1.0,access_bridge_length-0.6)' scripts/apartment_interior.gd
           echo "Godot import, runtime and structure checks passed."
