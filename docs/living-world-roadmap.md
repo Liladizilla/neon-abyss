@@ -101,3 +101,17 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Remove temporary access geometry when the resident returns to the city and add CI structural checks for the new route.
 - [ ] Verify visually in first-person that each unit's door, corridor and elevator landing meet without gaps or collision snags.
 - [ ] Replace the prototype's local interior instancing with a server-authoritative, instanced interior model for multiple simultaneous residents.
+
+
+## Multiplayer housing milestone: host-validated entry and exit
+- [x] Route multiplayer apartment-entry requests through the authoritative host instead of opening a room solely from client-side lease data.
+- [x] Validate lease ownership against the sender's current host-side identity before granting entry.
+- [x] Require the resident to be near the registered tower before the host grants access.
+- [x] Track one active private interior per peer and reject entry to a second apartment until the first is exited.
+- [x] Release host-side interior occupancy on an authenticated exit request, failed local entry, or peer disconnect.
+- [x] Prevent a lease from being released while its resident is registered inside the unit.
+- [x] Clear stale world-presence state when a multiplayer peer disconnects.
+- [x] Extend CI structural checks for the host-side entry, exit, cancellation and occupancy paths.
+- [ ] Run a two-client Godot session to verify entry denial, interior privacy, disconnect cleanup and return-to-city behavior.
+- [ ] Replace temporary peer-ID identities with authenticated stable accounts before persistent public multiplayer.
+- [ ] Move housing and interior occupancy to a dedicated authoritative server with durable transactional storage before public launch.
