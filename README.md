@@ -26,3 +26,6 @@ Host or join on UDP port 27015. Internet play requires a reachable host and inbo
 
 ## Important limits
 This is the housing prototype, not yet a persistent worldwide virtual world. The current host is an ENet session, rental data is stored on that host's local filesystem, and multiplayer identities are temporary peer IDs. A real public world still needs authenticated stable accounts, a dedicated always-on server, a production database with backups, server-authoritative economy/physics, moderation, abuse prevention, and load-tested hosting. The apartment shell is a reusable first interior, not a complete building floorplan editor or customizable home system. Detailed authored architecture, pedestrians, interactive city services and multi-client rental tests remain open milestones.
+
+## World systems roadmap
+See [the phased living-world roadmap](docs/living-world-roadmap.md) for the plan covering housing, city services, physics, and worldwide persistence.
