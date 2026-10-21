@@ -106,5 +106,6 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Add paired continuous sloped handrails with intermediate support posts along each stair flight.
 - [x] Add collision to landing guardrails, guardrail posts, sloped handrails and handrail supports.
 - [x] Add real front-wall doorway openings and illuminated jambs on fire-escape-enabled towers, aligned to centered exterior landings.
+- [x] Add collision-enabled connector bridges where upper-floor setbacks leave a gap between fire-escape landings and the matching doorway.
 - [ ] Validate façade clearance, landing overlap and traversal in a graphical first-person playtest.
 - [ ] Validate façade clearance, landing overlap and traversal in a graphical first-person playtest.
