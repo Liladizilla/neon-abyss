@@ -7,6 +7,7 @@ var avatars={}
 var clock=0.0
 func set_local_player(p): local_player=p
 func _ready():
+    add_to_group("network_manager")
     multiplayer.peer_connected.connect(_peer_joined)
     multiplayer.peer_disconnected.connect(_peer_left)
     multiplayer.connected_to_server.connect(func(): connection_status.emit("Connected"))
