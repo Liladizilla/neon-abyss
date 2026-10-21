@@ -34,8 +34,8 @@ func _ready() -> void:
     seam.name = "LandingDoorSeam_F%02d" % floor_number
     seam.mesh = seam_mesh
     seam.material_override = seam_material
-    seam.position = Vector3(0.0, door_y, 1.835)
-    add_child(seam)
+    seam.position = Vector3(0.43, 0.0, 0.055)
+    _left.add_child(seam)
 
 func on_travel_started(_target_floor: int) -> void:
     if _is_open:
