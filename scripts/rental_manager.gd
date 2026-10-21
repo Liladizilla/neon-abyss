@@ -367,6 +367,9 @@ func _server_enter_unit(room_id:String,peer_id:int):
     if interior_rooms_by_peer.has(peer_id):
         _send_status(peer_id,"Exit your current apartment before entering another.")
         return
+    if peer_id==1 and (not is_instance_valid(player) or is_instance_valid(active_interior)):
+        _send_status(peer_id,"Exit your current apartment before entering another.")
+        return
     var building_id=str(contracts[room_id].get("building",""))
     if not buildings.has(building_id):
         _send_status(peer_id,"This tower is not currently streamed. Return to its lobby and try again.")
@@ -383,6 +386,7 @@ func _server_enter_unit(room_id:String,peer_id:int):
 func _grant_unit_entry(room_id:String):
     if not contracts.has(room_id) or str(contracts[room_id].get("owner",""))!=_identity():
         status_label.text="Entry cancelled: the lease is no longer valid."
+        _cancel_entry_request.rpc_id(1,room_id)
         return
     if not is_instance_valid(player) or is_instance_valid(active_interior) or not buildings.has(str(contracts[room_id].get("building",""))):
         status_label.text="Cannot open this apartment from the current session."
