@@ -154,6 +154,10 @@ func _open_building(building_id:String):
         owned.text="MY RENTED UNIT  •  "+owned_room
         owned.pressed.connect(_enter_unit.bind(owned_room))
         list_box.add_child(owned)
+        var release=Button.new()
+        release.text="RELEASE LEASE  •  NO REFUND"
+        release.pressed.connect(_release_lease.bind(owned_room))
+        list_box.add_child(release)
     var shown=0
     for floor_number in range(1,int(building.floors)+1):
         for unit_number in range(1,UNITS_PER_FLOOR+1):
@@ -262,6 +266,29 @@ func _request_rent(room_id:String,building_id:String,floor_number:int,unit_numbe
     if not multiplayer.is_server():return
     var peer_id=multiplayer.get_remote_sender_id()
     _server_rent(room_id,building_id,floor_number,unit_number,peer_id)
+func _release_lease(room_id:String):
+    if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+        _request_release.rpc_id(1,room_id)
+        status_label.text="Lease release requested..."
+        return
+    _server_release(room_id,1)
+func _server_release(room_id:String,peer_id:int):
+    if not contracts.has(room_id):
+        _send_status(peer_id,"That lease is no longer active.")
+        return
+    var identity="creator" if not multiplayer.has_multiplayer_peer() else "peer_%d"%peer_id
+    if str(contracts[room_id].get("owner",""))!=identity:
+        _send_status(peer_id,"You do not own that lease.")
+        return
+    contracts.erase(room_id)
+    _save_ledger()
+    if multiplayer.has_multiplayer_peer():_sync_ledger.rpc(contracts,wallets)
+    _send_status(peer_id,"Lease released. No refund is issued.")
+    if peer_id==1 and buildings.has(nearest_building):_open_building(nearest_building)
+@rpc("any_peer","call_remote","reliable")
+func _request_release(room_id:String):
+    if not multiplayer.is_server():return
+    _server_release(room_id,multiplayer.get_remote_sender_id())
 @rpc("authority","call_remote","reliable")
 func _sync_ledger(new_contracts:Dictionary,new_wallets:Dictionary):
     contracts=new_contracts.duplicate(true)
