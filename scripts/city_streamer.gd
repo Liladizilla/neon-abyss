@@ -11,7 +11,7 @@ func _ready():
     floor.name="InfiniteGround"
     var cs=CollisionShape3D.new()
     var boundary=WorldBoundaryShape3D.new()
-    boundary.normal=Vector3.UP
+    boundary.plane=Plane(Vector3.UP,0.0)
     cs.shape=boundary
     floor.add_child(cs)
     add_child(floor)
