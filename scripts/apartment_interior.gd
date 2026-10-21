@@ -25,7 +25,6 @@ func _build_room():
     var door_mat:=_material(Color(0.025,0.12,0.18),0.24,0.78,true)
     _entry_door_left=_make_entry_door("EntryDoorLeft",-0.79,door_mat)
     _entry_door_right=_make_entry_door("EntryDoorRight",0.79,door_mat)
-    # Exterior access bridge aligns with the tower's elevator landing at this floor.
     _box("WindowFrameTop",Vector3(4.2,0.12,0.16),Vector3(0,2.9,-3.84),trim_mat,false)
     _box("WindowFrameBottom",Vector3(4.2,0.12,0.16),Vector3(0,1.0,-3.84),trim_mat,false)
     _box("WindowFrameLeft",Vector3(0.12,1.9,0.16),Vector3(-2.05,1.95,-3.84),trim_mat,false)
@@ -67,7 +66,7 @@ func _build_room():
 func _make_entry_door(label:String,x:float,mat:StandardMaterial3D)->AnimatableBody3D:
     var body:=AnimatableBody3D.new()
     body.name=label
-    body.position=Vector3(x,1.35,4.0)
+    body.position=Vector3(x,1.35,3.78)
     var mesh_node:=MeshInstance3D.new()
     var mesh:=BoxMesh.new()
     mesh.size=Vector3(1.55,2.6,0.12)
