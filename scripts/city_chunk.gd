@@ -359,17 +359,17 @@ func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Ar
         var rail_angle:=atan(floor_height/2.7)*stair_direction
         var rail_size:=Vector3(0.075,0.075,3.15)
         for rail_side in [-1.0,1.0]:
-            var rail_x:=x+(0.78 if level%2==0 else -0.78)+rail_side*0.68
-            var rail_y:=y0+floor_height*0.52+0.42
+            var rail_x:float=x+(0.78 if level%2==0 else -0.78)+rail_side*0.68
+            var rail_y:float=y0+floor_height*0.52+0.42
             var rail_basis:=Basis.from_euler(Vector3(-rail_angle,0,0)).scaled(rail_size)
             tx.append(Transform3D(rail_basis,Vector3(rail_x,rail_y,z)))
             colors.append(rail_color)
             for post_index in range(4):
-                var post_t:=float(post_index)/3.0
-                var post_z:=z-1.35+post_t*2.7
+                var post_t:float=float(post_index)/3.0
+                var post_z:float=z-1.35+post_t*2.7
                 if level%2==1:
                     post_z=z+1.35-post_t*2.7
-                var post_y:=y0+post_t*floor_height+0.45
+                var post_y:float=y0+post_t*floor_height+0.45
                 var post_size:=Vector3(0.075,0.9,0.075)
                 var post_at:=Vector3(rail_x,post_y,post_z)
                 tx.append(Transform3D(Basis.from_scale(post_size),post_at))
