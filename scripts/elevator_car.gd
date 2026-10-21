@@ -10,6 +10,9 @@ var panel: CanvasLayer
 var floor_list: VBoxContainer
 var status_label: Label
 var _busy := false
+var _door_left: MeshInstance3D
+var _door_right: MeshInstance3D
+var _doors_open := true
 
 func configure(floors: int, height: float, index: String, enable_physics: bool) -> void:
     floor_count = maxi(1, floors)
@@ -26,7 +29,45 @@ func _ready() -> void:
     _build_controls()
     if collision_layer != 0:
         _build_cab_collision()
+    _build_cab_doors()
     multiplayer.peer_connected.connect(_on_peer_connected)
+
+func _build_cab_doors() -> void:
+    var material := StandardMaterial3D.new()
+    material.albedo_color = Color(0.025, 0.075, 0.12)
+    material.metallic = 0.72
+    material.roughness = 0.24
+    material.emission_enabled = true
+    material.emission = Color(0.005, 0.11, 0.16)
+    material.emission_energy_multiplier = 0.8
+    var panel_mesh := BoxMesh.new()
+    panel_mesh.size = Vector3(0.92, 2.05, 0.075)
+    _door_left = MeshInstance3D.new()
+    _door_left.name = "CabDoorLeft"
+    _door_left.mesh = panel_mesh
+    _door_left.material_override = material
+    _door_left.position = Vector3(-0.46, 0.0, 1.015)
+    add_child(_door_left)
+    _door_right = MeshInstance3D.new()
+    _door_right.name = "CabDoorRight"
+    _door_right.mesh = panel_mesh
+    _door_right.material_override = material
+    _door_right.position = Vector3(0.46, 0.0, 1.015)
+    add_child(_door_right)
+    var seam_material := StandardMaterial3D.new()
+    seam_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    seam_material.albedo_color = Color(0.02, 0.78, 1.0)
+    seam_material.emission_enabled = true
+    seam_material.emission = Color(0.01, 0.45, 1.0)
+    seam_material.emission_energy_multiplier = 1.8
+    for side in [-1.0, 1.0]:
+        var seam := MeshInstance3D.new()
+        var seam_mesh := BoxMesh.new()
+        seam_mesh.size = Vector3(0.025, 1.9, 0.018)
+        seam.mesh = seam_mesh
+        seam.material_override = seam_material
+        seam.position = Vector3(side * 0.04, 0.0, 1.06)
+        add_child(seam)
 
 func _build_cab_collision() -> void:
     var shape_node := CollisionShape3D.new()
@@ -167,14 +208,30 @@ func _begin_travel(floor_number: int) -> void:
     if is_instance_valid(lift_tween) and lift_tween.is_running():
         lift_tween.kill()
     _busy = true
-    var duration := maxf(1.5, absf(position.y - _floor_y(floor_number)) / 5.0)
     lift_tween = create_tween()
+    if _doors_open:
+        lift_tween.tween_callback(_set_doors_open.bind(false))
+        lift_tween.tween_interval(0.22)
+    var duration := maxf(1.5, absf(position.y - _floor_y(floor_number)) / 5.0)
     lift_tween.tween_property(self, "position:y", _floor_y(floor_number), duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+    lift_tween.tween_interval(0.12)
+    lift_tween.tween_callback(_set_doors_open.bind(true))
     lift_tween.finished.connect(func() -> void:
         _busy = false
         if panel.visible:
             _open_panel()
     )
+
+func _set_doors_open(open: bool) -> void:
+    _doors_open = open
+    if not is_instance_valid(_door_left) or not is_instance_valid(_door_right):
+        return
+    var door_tween := create_tween()
+    door_tween.set_parallel(true)
+    var target_left := -0.92 if open else -0.46
+    var target_right := 0.92 if open else 0.46
+    door_tween.tween_property(_door_left, "position:x", target_left, 0.28).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+    door_tween.tween_property(_door_right, "position:x", target_right, 0.28).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func _floor_y(floor_number: int) -> float:
     return BASE_Y + float(floor_number - 1) * floor_height
