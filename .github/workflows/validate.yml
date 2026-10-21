@@ -41,5 +41,5 @@ jobs:
           test -f shaders/wet_asphalt.gdshader
           grep -q 'ENetMultiplayerPeer' scripts/network_manager.gd
           grep -q 'MultiMeshInstance3D' scripts/city_chunk.gd
-          grep -q 'volumetric_fog_enabled' scripts/game_root.gd
+          grep -q 'fog_enabled' scripts/game_root.gd
           echo "Godot import, runtime and structure checks passed."
