@@ -85,6 +85,31 @@ func _build_room():
     _box("WashroomBasin",Vector3(0.62,0.08,0.38),Vector3(-3.7,0.78,2.92),counter_mat,false)
     _box("ToiletBase",Vector3(0.42,0.42,0.62),Vector3(-4.0,0.24,1.75),_material(Color(0.55,0.61,0.67),0.24,0.08),true)
     _box("ToiletSeat",Vector3(0.46,0.08,0.64),Vector3(-4.0,0.48,1.75),_material(Color(0.72,0.76,0.79),0.22,0.04),false)
+    # Finish details make the apartment read as a lived-in unit, not a prop showroom.
+    _box("EntryFrameLeft",Vector3(0.12,2.65,0.28),Vector3(-1.72,1.32,3.94),trim_mat,false)
+    _box("EntryFrameRight",Vector3(0.12,2.65,0.28),Vector3(1.72,1.32,3.94),trim_mat,false)
+    _box("EntryThreshold",Vector3(3.25,0.07,0.42),Vector3(0,0.015,4.03),counter_mat,false)
+    _box("KitchenDrawerLineA",Vector3(0.72,0.025,0.025),Vector3(3.72,0.46,1.325),trim_mat,false)
+    _box("KitchenDrawerLineB",Vector3(0.72,0.025,0.025),Vector3(4.55,0.46,1.325),trim_mat,false)
+    _box("KitchenDrawerLineC",Vector3(0.72,0.025,0.025),Vector3(3.72,0.7,1.325),trim_mat,false)
+    _box("KitchenDrawerLineD",Vector3(0.72,0.025,0.025),Vector3(4.55,0.7,1.325),trim_mat,false)
+    # Visible tap and shower hardware are separate meshes for readable silhouettes.
+    var chrome_mat=_material(Color(0.48,0.58,0.66),0.16,0.86)
+    _box("KitchenTapStem",Vector3(0.055,0.18,0.055),Vector3(4.05,1.105,1.43),chrome_mat,false)
+    _box("KitchenTapSpout",Vector3(0.055,0.045,0.22),Vector3(4.05,1.19,1.52),chrome_mat,false)
+    _box("ShowerPipe",Vector3(0.045,1.25,0.045),Vector3(-5.0,1.0,2.95),chrome_mat,false)
+    _box("ShowerHead",Vector3(0.3,0.08,0.22),Vector3(-4.88,1.62,2.95),chrome_mat,false)
+    _box("VanityMirror",Vector3(0.62,0.68,0.045),Vector3(-3.7,1.52,3.0),_material(Color(0.12,0.35,0.43),0.12,0.7),false)
+    _box("BedsideCabinet",Vector3(0.58,0.62,0.58),Vector3(-5.0,0.31,-1.15),furniture_mat,true)
+    _box("BedsideTop",Vector3(0.64,0.07,0.64),Vector3(-5.0,0.655,-1.15),counter_mat,false)
+    _box("Wardrobe",Vector3(1.15,2.35,0.62),Vector3(-5.0,1.175,-2.65),furniture_mat,true)
+    _box("WardrobeDoorSeam",Vector3(0.025,2.1,0.025),Vector3(-5.0,1.2,-2.325),trim_mat,false)
+    _box("WardrobeHandle",Vector3(0.035,0.32,0.045),Vector3(-4.78,1.2,-2.3),chrome_mat,false)
+    _box("DeskShelf",Vector3(1.8,0.09,0.28),Vector3(3.45,2.35,-3.25),furniture_mat,true)
+    _box("WindowSill",Vector3(4.15,0.12,0.28),Vector3(0,1.02,-3.76),counter_mat,false)
+    # Recessed ceiling fixtures add layered practical light without heavy real-time effects.
+    for lamp_x in [-3.8,0.0,3.8]:
+        var lamp=_box("CeilingDownlight",Vector3(0.32,0.06,0.32),Vector3(lamp_x,3.2,-0.2),trim_mat,false)
 func _material(color:Color,roughness:float,metallic:float,emissive:bool=false)->StandardMaterial3D:
     var mat=StandardMaterial3D.new()
     mat.albedo_color=color
