@@ -127,3 +127,11 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [ ] Playtest intersections, storefront clearance, vegetation clipping and pedestrian routes in Godot; some decorative props are visual-only and still need selected physical collision.
 - [ ] Expand beyond the current four-tower district pattern into a varied block plan with low-rise housing, markets, clinics, workshops, service alleys, plazas and connected parks.
 - [ ] Replace prototype exterior forms with authored modular building kits, varied facade materials, decals, signage textures, grime, water runoff and building-specific silhouettes.
+
+
+## Modular facade and stacked-city milestone
+- [x] Expand tower glazing to per-floor windows with reusable dark recesses, metal surrounds and projecting sills.
+- [x] Add repeatable facade service conduits and maintenance junction details while retaining instanced geometry for performance.
+- [ ] Continue the modular facade kit with detailed door assemblies, fire stairs, balcony and landing handrails, rain gutters, drain outlets and service access panels; tune visibility by distance.
+- [ ] Build a layered urban circulation graph linking ground roads, elevated streets, skybridges, transit platforms, stair and elevator cores, and underground concourses so stacked routes remain traversable rather than decorative.
+- [ ] Add district archetypes and controlled asset variation so low-rise housing, markets, clinics, workshops, service alleys and plazas appear between landmark towers.
