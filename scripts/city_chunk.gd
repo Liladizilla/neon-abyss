@@ -59,6 +59,7 @@ func _roads():
     add_child(marks)
     _street_furniture()
     _street_detail_kit()
+    _street_life_layer()
     _transit_infrastructure()
 
 func _street_detail_kit() -> void:
@@ -136,6 +137,103 @@ func _street_detail_kit() -> void:
             collision.position=data.origin
             sidewalk_physics.add_child(collision)
         add_child(sidewalk_physics)
+
+
+func _street_life_layer() -> void:
+    # Reusable street-level props make the exterior city feel inhabited without spawning NPCs.
+    # Placement is deterministic per district, and all visual pieces remain instanced.
+    var planter_tx:Array[Transform3D]=[]
+    var planter_colors:Array[Color]=[]
+    var foliage_tx:Array[Transform3D]=[]
+    var foliage_colors:Array[Color]=[]
+    var bin_tx:Array[Transform3D]=[]
+    var bin_colors:Array[Color]=[]
+    var bin_lid_tx:Array[Transform3D]=[]
+    var bench_tx:Array[Transform3D]=[]
+    var bench_colors:Array[Color]=[]
+    var bench_back_tx:Array[Transform3D]=[]
+    var bench_leg_tx:Array[Transform3D]=[]
+    var utility_tx:Array[Transform3D]=[]
+    var utility_colors:Array[Color]=[]
+    var utility_trim_tx:Array[Transform3D]=[]
+    var colliders:Array[Dictionary]=[]
+    var planter_mat:=Color(0.065,0.085,0.105)
+    var bench_mat:=Color(0.12,0.15,0.19)
+    var utility_mat:=Color(0.045,0.065,0.09)
+    var foliage_palette:Array[Color]=[Color(0.055,0.19,0.12),Color(0.09,0.24,0.14),Color(0.13,0.22,0.12)]
+    for axis in [0,1]:
+        for side in [-1.0,1.0]:
+            for slot in range(4):
+                var along:float=[16.0,28.0,68.0,80.0][slot]
+                var p:Vector3
+                if axis==0:
+                    p=Vector3(size*0.5+side*9.25,0.0,along)
+                else:
+                    p=Vector3(along,0.0,size*0.5+side*9.25)
+                var yaw:float=PI*0.5 if axis==0 else 0.0
+                match slot:
+                    0:
+                        var planter_size:=Vector3(1.45,0.58,0.72)
+                        planter_tx.append(Transform3D(Basis.from_scale(planter_size),p+Vector3(0,0.29,0)))
+                        planter_colors.append(planter_mat)
+                        var foliage_size:=Vector3(0.64,0.72,0.46)
+                        foliage_tx.append(Transform3D(Basis.from_scale(foliage_size),p+Vector3(0,0.88,0)))
+                        foliage_colors.append(foliage_palette[posmod(coord.x+coord.y+int(side),foliage_palette.size())])
+                        colliders.append({"p":p+Vector3(0,0.29,0),"s":planter_size,"yaw":0.0})
+                    1:
+                        var bin_size:=Vector3(0.48,0.88,0.48)
+                        bin_tx.append(Transform3D(Basis.from_scale(bin_size),p+Vector3(0,0.46,0)))
+                        bin_colors.append(Color(0.035,0.055,0.07))
+                        bin_lid_tx.append(Transform3D(Basis.from_scale(Vector3(0.56,0.09,0.56)),p+Vector3(0,0.92,0)))
+                        colliders.append({"p":p+Vector3(0,0.46,0),"s":Vector3(0.56,0.94,0.56),"yaw":0.0})
+                    2:
+                        var seat_size:=Vector3(1.55,0.13,0.44)
+                        var seat_pos:=p+Vector3(0,0.52,0)
+                        var back_size:=Vector3(1.55,0.62,0.12)
+                        var back_pos:=p+Vector3(0,0.86,-0.19)
+                        var basis:=Basis.from_euler(Vector3(0,yaw,0))
+                        bench_tx.append(Transform3D(basis.scaled(seat_size),seat_pos))
+                        bench_colors.append(bench_mat)
+                        bench_back_tx.append(Transform3D(basis.scaled(back_size),back_pos))
+                        for leg_x in [-0.62,0.62]:
+                            var leg_size:=Vector3(0.09,0.48,0.09)
+                            var leg_pos:=p+basis*Vector3(leg_x,0.25,0)
+                            bench_leg_tx.append(Transform3D(basis.scaled(leg_size),leg_pos))
+                        colliders.append({"p":seat_pos,"s":seat_size,"yaw":yaw})
+                        colliders.append({"p":back_pos,"s":back_size,"yaw":yaw})
+                    3:
+                        var cabinet_size:=Vector3(0.72,1.05,0.54)
+                        var cabinet_pos:=p+Vector3(0,0.53,0)
+                        utility_tx.append(Transform3D(Basis.from_scale(cabinet_size),cabinet_pos))
+                        utility_colors.append(utility_mat)
+                        var trim_size:=Vector3(0.055,0.72,0.035)
+                        var trim_pos:=cabinet_pos+Vector3(0.0,0.0,0.29)
+                        utility_trim_tx.append(Transform3D(Basis.from_scale(trim_size),trim_pos))
+                        colliders.append({"p":cabinet_pos,"s":cabinet_size,"yaw":0.0})
+    _instances("StreetPlanterTroughs",planter_tx,planter_colors,planter_mat,false)
+    _instances("StreetOvergrowth",foliage_tx,foliage_colors,Color(0.08,0.2,0.12),false,SphereMesh.new())
+    _instances("StreetWasteBins",bin_tx,bin_colors,Color(0.035,0.055,0.07),false,CylinderMesh.new())
+    _instances("StreetWasteBinLids",bin_lid_tx,[],Color(0.09,0.12,0.16),false)
+    _instances("StreetBenchSeats",bench_tx,bench_colors,bench_mat,false)
+    _instances("StreetBenchBacks",bench_back_tx,[],bench_mat,false)
+    _instances("StreetBenchLegs",bench_leg_tx,[],Color(0.045,0.06,0.08),false)
+    _instances("StreetUtilityCabinets",utility_tx,utility_colors,utility_mat,false)
+    _instances("StreetUtilityCabinetTrim",utility_trim_tx,[],Color(0.02,0.72,0.88),true)
+    # One district body keeps prop collisions cheap; visual-only chunks remain non-solid.
+    if collision_enabled:
+        var prop_body:=StaticBody3D.new()
+        prop_body.name="StreetLifePropCollision"
+        prop_body.collision_layer=1
+        prop_body.collision_mask=1
+        for data in colliders:
+            var shape:=BoxShape3D.new()
+            shape.size=data.s
+            var collision:=CollisionShape3D.new()
+            collision.shape=shape
+            collision.position=data.p
+            collision.rotation.y=float(data.get("yaw",0.0))
+            prop_body.add_child(collision)
+        add_child(prop_body)
 
 func _transit_infrastructure():
     # Elevated guideway follows the district's east-west arterial.
