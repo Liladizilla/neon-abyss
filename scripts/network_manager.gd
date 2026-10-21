@@ -5,6 +5,8 @@ var peer:ENetMultiplayerPeer
 var local_player:Node3D
 var avatars={}
 var clock=0.0
+var local_interior=false
+var interior_peers={}
 func set_local_player(p): local_player=p
 func _ready():
     add_to_group("network_manager")
@@ -27,7 +29,7 @@ func join_game(address,port=27015)->Error:
     multiplayer.multiplayer_peer=peer
     return OK
 func _process(delta):
-    if not is_instance_valid(local_player) or not local_player.visible or multiplayer.multiplayer_peer==null:return
+    if not is_instance_valid(local_player) or not local_player.visible or multiplayer.multiplayer_peer==null or local_interior:return
     clock+=delta
     if clock<0.05:return
     clock=0.0
@@ -37,11 +39,36 @@ func _process(delta):
         _apply(1,pos,yaw)
         _relay.rpc(1,pos,yaw)
     else:_submit.rpc_id(1,pos,yaw)
+func set_local_interior(active:bool):
+    if local_interior==active:return
+    local_interior=active
+    if not multiplayer.has_multiplayer_peer():return
+    if multiplayer.is_server():
+        interior_peers[1]=active
+        _apply_presence(1,not active)
+        _set_presence.rpc(1,not active)
+    else:
+        _request_presence.rpc_id(1,active)
+@rpc("any_peer","call_remote","reliable")
+func _request_presence(active:bool):
+    if not multiplayer.is_server():return
+    var id=multiplayer.get_remote_sender_id()
+    interior_peers[id]=active
+    _apply_presence(id,not active)
+    _set_presence.rpc(id,not active)
+@rpc("authority","call_remote","reliable")
+func _set_presence(id:int,is_visible:bool):
+    _apply_presence(id,is_visible)
+func _apply_presence(id:int,is_visible:bool):
+    if avatars.has(id) and is_instance_valid(avatars[id]):
+        avatars[id].visible=is_visible
 func _peer_joined(id):
     if not multiplayer.is_server():return
     _spawn_avatar.rpc_id(id,1)
     for old in multiplayer.get_peers():
-        if old!=id:_spawn_avatar.rpc_id(id,old)
+        if old!=id:
+            _spawn_avatar.rpc_id(id,old)
+            _set_presence.rpc_id(id,old,not bool(interior_peers.get(old,false)))
     _spawn(id)
     _spawn_avatar.rpc(id)
 func _peer_left(id):
