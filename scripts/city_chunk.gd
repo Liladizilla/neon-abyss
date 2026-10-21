@@ -564,33 +564,31 @@ func _build():
                 frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(minf(w*0.72,12.0),0.34,0.16)),Vector3(x,3.0,frontage_z-0.08)))
                 frontage_frame_colors.append(frontage_neon)
             elif frontage_kind==1:
-                # Residential lobby: a taller glazed entry surround and restrained wayfinding header.
-                frontage_glass_tx.append(Transform3D(Basis.from_scale(Vector3(2.2,2.15,0.075)),Vector3(x,1.35,frontage_z)))
-                frontage_glass_colors.append(Color(0.025,0.12,0.16))
+                # Residential lobby: frame the actual centered shell opening without glazing over it.
+                for wing_side in [-1.0,1.0]:
+                    frontage_glass_tx.append(Transform3D(Basis.from_scale(Vector3(0.48,1.95,0.075)),Vector3(x+wing_side*1.43,1.20,frontage_z)))
+                    frontage_glass_colors.append(Color(0.025,0.12,0.16))
+                    frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.10,2.35,0.14)),Vector3(x+wing_side*1.28,1.22,frontage_z-0.08)))
+                    frontage_frame_colors.append(frontage_neon)
                 frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(2.55,0.16,0.14)),Vector3(x,2.55,frontage_z-0.08)))
                 frontage_frame_colors.append(frontage_neon)
-                frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.10,2.35,0.14)),Vector3(x-1.28,1.22,frontage_z-0.08)))
-                frontage_frame_colors.append(frontage_neon)
-                frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.10,2.35,0.14)),Vector3(x+1.28,1.22,frontage_z-0.08)))
-                frontage_frame_colors.append(frontage_neon)
             elif frontage_kind==2:
-                # Maintenance frontage: one narrow, clearly framed utility door and a small warning light.
-                service_door_tx.append(Transform3D(Basis.from_scale(Vector3(1.05,2.15,0.10)),Vector3(service_x,1.08,frontage_z-0.07)))
+                # Maintenance profile uses the real centered shell opening, not a fake side door in solid wall.
+                service_door_tx.append(Transform3D(Basis.from_scale(Vector3(1.28,2.10,0.055)),Vector3(x,1.08,frontage_z-0.07)))
                 service_door_colors.append(Color(0.035,0.045,0.06))
                 for jamb_side in [-1.0,1.0]:
-                    frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.08,2.22,0.12)),Vector3(service_x+jamb_side*0.56,1.08,frontage_z-0.12)))
+                    frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.08,2.22,0.12)),Vector3(x+jamb_side*0.83,1.08,frontage_z-0.12)))
                     frontage_frame_colors.append(frontage_neon)
-                frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,0.22,0.12)),Vector3(service_x,2.38,frontage_z-0.14)))
+                frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,0.22,0.12)),Vector3(x,2.38,frontage_z-0.14)))
                 frontage_frame_colors.append(Color(1.0,0.18,0.06))
             else:
-                # Loading frontage: segmented shutter slats and side guards, not a fake open doorway.
-                var shutter_width:float=minf(w*0.38,5.4)
-                var shutter_x:float=x-w*0.18
+                # Loading shutter detail stays centered on the existing opening and remains visual-only.
+                var shutter_width:float=1.35
                 for slat in range(7):
-                    frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(shutter_width,0.07,0.12)),Vector3(shutter_x,0.42+float(slat)*0.25,frontage_z-0.10)))
+                    frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(shutter_width,0.07,0.12)),Vector3(x,0.42+float(slat)*0.25,frontage_z-0.10)))
                     frontage_frame_colors.append(Color(0.22,0.27,0.32))
                 for guard_side in [-1.0,1.0]:
-                    frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.12,2.05,0.14)),Vector3(shutter_x+guard_side*(shutter_width*0.5+0.12),1.0,frontage_z-0.10)))
+                    frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.12,2.05,0.14)),Vector3(x+guard_side*0.78,1.0,frontage_z-0.10)))
                     frontage_frame_colors.append(frontage_neon)
             # Keep a little vegetation at podium corners, but clear the service/lobby approach.
             for growth_side in [-1.0,1.0]:
