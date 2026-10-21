@@ -184,3 +184,13 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Group active-district prop collision under one StaticBody3D while keeping visual-only streamed chunks non-solid.
 - [ ] Graphically verify prop placement against curb ramps, crossings, and building entrances; check that benches and cabinets do not obstruct accessible routes.
 - [ ] Add varied street-front shopfronts, service entrances, and block-specific ground-floor uses without spawning ambient human NPCs.
+
+
+## Six-task district identity and exterior frontage pass
+- [x] Give each deterministic district a restrained palette identity while retaining full facade, window, roof-plant and structural detail.
+- [x] Add instanced ground-floor glazing, sign bands, service doors and lit jambs to distinguish commercial and service frontage from blank tower bases.
+- [x] Add small reclaimed-growth pockets at podium corners without filling the central lobby approach.
+- [x] Add perpendicular arterial lane dashes using the same instanced mesh and consistent local spacing across streamed chunks.
+- [x] Expand sparse deterministic skyline landmarks into transit halos, floodlight spires and damaged skybridge monuments.
+- [ ] Graphically verify that storefront panels do not cover actual door openings, that district landmarks remain visible at distance, and that markings align across all chunk boundaries.
+- [ ] Next: replace generic frontage strips with per-building use profiles (retail, housing lobby, maintenance, loading) and add collision only for real solid elements.
