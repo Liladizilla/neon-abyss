@@ -4,6 +4,8 @@ const CITY=preload("res://scripts/city_streamer.gd")
 const NET=preload("res://scripts/network_manager.gd")
 const HUD=preload("res://scripts/hud.gd")
 const MENU=preload("res://scripts/main_menu.gd")
+const WEATHER=preload("res://scripts/weather_controller.gd")
+const TRAFFIC=preload("res://scripts/traffic_system.gd")
 var player
 var network
 var hud
@@ -21,6 +23,13 @@ func _ready():
     network.name="NetworkManager"
     add_child(network)
     network.set_local_player(player)
+    var weather=WEATHER.new()
+    weather.name="RainAndMist"
+    weather.set_target(player)
+    add_child(weather)
+    var traffic=TRAFFIC.new()
+    traffic.name="TrafficSimulation"
+    add_child(traffic)
     hud=HUD.new()
     add_child(hud)
     hud.set_player(player)
@@ -63,10 +72,12 @@ func _lighting():
     env.volumetric_fog_enabled=true
     env.volumetric_fog_density=0.018
     env.volumetric_fog_albedo=Color(0.21,0.12,0.34)
+    env.volumetric_fog_emission=Color(0.025,0.009,0.045)
     var we=WorldEnvironment.new()
     we.environment=env
     add_child(we)
     var moon=DirectionalLight3D.new()
+    moon.name="MoonKeyLight"
     moon.rotation_degrees=Vector3(-42,-28,0)
     moon.light_color=Color(0.34,0.48,1.0)
     moon.light_energy=0.65
