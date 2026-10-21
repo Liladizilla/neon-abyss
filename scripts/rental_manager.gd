@@ -366,15 +366,15 @@ func _enter_unit(room_id:String):
     active_interior.rotation.y=PI*0.5
     get_tree().current_scene.add_child(active_interior)
     _build_apartment_access(facade_x,lift_x,unit_z,building_center.z,interior_origin.y,room_id)
-    player.global_position=active_interior.to_global(Vector3(0.0,0.12,2.0))
-    player.rotation.y=-PI*0.5
+    player.global_position=Vector3(lift_x,interior_origin.y,building_center.z)
+    player.rotation.y=PI if unit_z>building_center.z else 0.0
     player.add_to_group("private_interior")
     player.velocity=Vector3.ZERO
     panel.hide()
     Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
     var network=get_tree().get_first_node_in_group("network_manager")
     if is_instance_valid(network):network.set_local_interior(true)
-    status_label.text="Apartment entered. Press R to return to the city."
+    status_label.text="Access corridor opened. Follow the floor lights to your unit; press R to return to the city."
 func _build_apartment_access(facade_x:float,lift_x:float,unit_z:float,center_z:float,floor_y:float,room_id:String)->void:
     var access:=Node3D.new()
     access.name="ApartmentAccess_%s"%room_id.replace("/","_")
