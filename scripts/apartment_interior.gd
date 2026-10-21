@@ -80,7 +80,9 @@ func _build_room():
     _box("WashroomPartitionSide",Vector3(0.12,2.25,2.2),Vector3(-5.12,1.1,2.15),wall_mat,true)
     _box("WashroomPartitionBack",Vector3(2.1,2.25,0.12),Vector3(-4.12,1.1,3.48),wall_mat,true)
     _box("ShowerTray",Vector3(0.82,0.12,0.82),Vector3(-4.72,0.16,2.95),counter_mat,true)
-    _box("ShowerGlass",Vector3(0.04,1.8,0.82),Vector3(-4.28,1.05,2.95),_material(Color(0.18,0.45,0.52,0.32),0.12,0.25),false)
+    var shower_glass=_material(Color(0.18,0.45,0.52,0.24),0.12,0.25)
+    shower_glass.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+    _box("ShowerGlass",Vector3(0.04,1.8,0.82),Vector3(-4.28,1.05,2.95),shower_glass,false)
     _box("WashroomVanity",Vector3(0.78,0.72,0.42),Vector3(-3.7,0.38,2.92),cabinet_mat,true)
     _box("WashroomBasin",Vector3(0.62,0.08,0.38),Vector3(-3.7,0.78,2.92),counter_mat,false)
     _box("ToiletBase",Vector3(0.42,0.42,0.62),Vector3(-4.0,0.24,1.75),_material(Color(0.55,0.61,0.67),0.24,0.08),true)
