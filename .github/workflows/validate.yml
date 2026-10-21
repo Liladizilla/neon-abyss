@@ -51,6 +51,8 @@ jobs:
           grep -q 'register_building' scripts/city_chunk.gd
           grep -q '_add_elevator_car' scripts/city_chunk.gd
           grep -q 'ElevatorFloorLandings' scripts/city_chunk.gd
+          grep -q 'facade_bridge' scripts/city_chunk.gd
+          grep -q '_add_elevator_car' scripts/city_chunk.gd
           grep -q 'ElevatorAccessBridge' scripts/apartment_interior.gd
           grep -q 'floor_height' scripts/rental_manager.gd
           grep -q 'register_workplace' scripts/city_chunk.gd
