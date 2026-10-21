@@ -381,7 +381,7 @@ func _build():
     var base_growth_tx:Array[Transform3D]=[]
     var base_growth_colors:Array[Color]=[]
     var district_profile:int=posmod(abs(coord.x*17+coord.y*31+seed_value),4)
-    var district_accent:Array[Color = [Color(0.0,0.72,0.92),Color(1.0,0.25,0.08),Color(0.38,0.95,0.42),Color(0.72,0.32,1.0)]
+    var district_accent:Array[Color]=[Color(0.0,0.72,0.92),Color(1.0,0.25,0.08),Color(0.38,0.95,0.42),Color(0.72,0.32,1.0)]
     var trim_tx:Array[Transform3D]=[]
     var trim_colors:Array[Color]=[]
     var win_tx:Array[Transform3D]=[]
@@ -546,7 +546,7 @@ func _build():
                 trim_colors.append(neon)
             # Ground-floor frontage kit: shop glazing, lit sign bands, service doors and
             # restrained reclaimed growth. All parts are deterministic and remain visual-only.
-            var frontage_z:float=z-d*0.5-0.12
+            var frontage_z:float=z-d*0.5-0.30
             var pane_count:int=maxi(3,int(w/3.2))
             for pane_index in range(pane_count):
                 var pane_x:float=x-w*0.5+(float(pane_index)+0.5)*w/float(pane_count)
