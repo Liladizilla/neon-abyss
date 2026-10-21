@@ -113,7 +113,7 @@ func _process(delta):
         for w in 8:
             var idx=car*8+w
             var side=-1.0 if w<4 else 1.0
-            var along=Vector3(-3.6,-1.2,1.2,3.6)[w%4]
+            var along=[-3.6,-1.2,1.2,3.6][w%4]
             var win_pos=car_pos+Vector3(along,0.15,side*1.54)
             train_windows.multimesh.set_instance_transform(idx,Transform3D(Basis.IDENTITY,win_pos))
             train_windows.multimesh.set_instance_color(idx,Color(0.05,0.78,1.0) if (car+w)%3 else Color(1.0,0.18,0.62))
