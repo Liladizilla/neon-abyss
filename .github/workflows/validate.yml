@@ -18,7 +18,14 @@ jobs:
       - name: Import and parse project headlessly
         run: godot --headless --editor --path . --quit
       - name: Run the game scene for 120 frames
-        run: godot --headless --path . --quit-after 120
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --quit-after 120 2>&1 | tee /tmp/neon-abyss-runtime.log
+          if grep -E 'SCRIPT ERROR:|Parse Error:|ERROR:' /tmp/neon-abyss-runtime.log; then
+            echo "Godot reported runtime errors."
+            exit 1
+          fi
       - name: Validate required systems
         run: |
           set -euo pipefail
