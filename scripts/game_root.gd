@@ -113,6 +113,13 @@ func _join(address,port):
     menu.set_status("Connecting..." if err==OK else error_string(err))
     if err==OK: _start()
 func _unhandled_input(event):
+    # A click recaptures the pointer after it has been released, as in standard FPS controls.
+    # UI buttons consume their own clicks before they reach this handler.
+    if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and event.pressed:
+        if is_instance_valid(player) and player.visible and not menu.visible and Input.mouse_mode!=Input.MOUSE_MODE_CAPTURED:
+            Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
+            get_viewport().set_input_as_handled()
+            return
     if event.is_action_pressed("ui_cancel"):
         Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if Input.mouse_mode==Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
         if Input.mouse_mode==Input.MOUSE_MODE_VISIBLE: menu.show_menu()
