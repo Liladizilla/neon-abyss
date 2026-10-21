@@ -342,6 +342,7 @@ func _enter_unit(room_id:String):
     active_interior.configure(room_id,interior_origin)
     get_tree().current_scene.add_child(active_interior)
     player.global_position=interior_origin+Vector3(0,0.12,0)
+    player.add_to_group("private_interior")
     player.velocity=Vector3.ZERO
     panel.hide()
     Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
@@ -354,6 +355,7 @@ func _exit_unit():
     active_interior=null
     if is_instance_valid(player):
         player.global_position=return_position
+        player.remove_from_group("private_interior")
         player.rotation.y=return_yaw
         player.velocity=Vector3.ZERO
     var network=get_tree().get_first_node_in_group("network_manager")
