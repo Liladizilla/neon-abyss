@@ -208,6 +208,27 @@ func _build():
                 lift_colliders.append({"p":facade_bridge,"s":Vector3(3.0,0.18,2.8)})
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.65,0.06,0.08)),Vector3(lift_x,landing_y+0.12,z-1.82)))
                 lift_landing_colors.append(Color(0.02,0.72,1.0))
+                # Paired landing doors frame the lift opening on every generated floor.
+                var door_y:float=landing_y+1.08
+                var door_z:float=z+1.78
+                var door_h:float=1.85
+                var door_w:float=0.82
+                var door_mat_color:=Color(0.035,0.09,0.14)
+                for door_side in [-1.0,1.0]:
+                    var door_pos:=Vector3(lift_x+door_side*0.43,door_y,door_z)
+                    lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(door_w,door_h,0.09)),door_pos))
+                    lift_landing_colors.append(door_mat_color)
+                    var seam_pos:=Vector3(lift_x+door_side*0.035,door_y,door_z+0.055)
+                    lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.035,door_h,0.025)),seam_pos))
+                    lift_landing_colors.append(Color(0.02,0.72,1.0))
+                # A vertical floor-call display sits beside the doorway.
+                var display_pos:=Vector3(lift_x+1.28,landing_y+1.42,door_z)
+                lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.24,0.62,0.08)),display_pos))
+                lift_landing_colors.append(Color(0.01,0.035,0.055))
+                lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.12,0.025,0.035)),display_pos+Vector3(0,0.13,0.055)))
+                lift_landing_colors.append(Color(0.02,0.88,1.0))
+                lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.07,0.07,0.035)),display_pos+Vector3(0,-0.12,0.055)))
+                lift_landing_colors.append(Color(1.0,0.24,0.12))
             # Service tanks, antenna masts and roof plant add a non-box silhouette layer.
             for tank in range(2):
                 var tx=x+rng.randf_range(-w*0.28,w*0.28)
