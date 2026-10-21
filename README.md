@@ -19,7 +19,7 @@ Host or join on UDP port 27015. Internet play requires a reachable host and inbo
 ## Current milestone: rentable housing
 - Each generated tower exposes four units per floor, with floors matching that building's generated height.
 - Lobby kiosks open the Housing Exchange; room prices vary by floor and building style.
-- A resident can rent one unit, enter a furnished 3D apartment with wall/furniture collision, and return to the city with R.
+- A resident can rent one unit and enter a furnished suite at the selected floor's elevation beside a visible exterior elevator core. The suite connects to the landing through a collision-enabled bridge; press R to return to the street.
 - Contracts bill every 30 real-world days. The host persists contracts and wallets to user://neon_abyss_rentals.json and synchronizes the ledger to connected clients.
 - The creator remains visually absent in solo mode. Visible person avatars exist only during multiplayer, and residents are hidden from other players while using their private apartment instance.
 - District streaming now considers all connected player presences so the host can generate rental buildings around remote residents.
@@ -30,7 +30,7 @@ Host or join on UDP port 27015. Internet play requires a reachable host and inbo
 - Shift progress is session-bound and currently resets on clock-out or server restart. Jobs are player systems, not simulated NPC workers.
 
 ## Important limits
-This is the housing prototype, not yet a persistent worldwide virtual world. The current host is an ENet session, rental data is stored on that host's local filesystem, and multiplayer identities are temporary peer IDs. A real public world still needs authenticated stable accounts, a dedicated always-on server, a production database with backups, server-authoritative economy/physics, moderation, abuse prevention, and load-tested hosting. The apartment shell is a reusable first interior, not a complete building floorplan editor or customizable home system. Detailed authored architecture, pedestrians, interactive city services and multi-client rental tests remain open milestones.
+This is the housing prototype, not yet a persistent worldwide virtual world. The current host is an ENet session, rental data is stored on that host's local filesystem, and multiplayer identities are temporary peer IDs. A real public world still needs authenticated stable accounts, a dedicated always-on server, a production database with backups, server-authoritative economy/physics, moderation, abuse prevention, and load-tested hosting. The apartment shell is a first vertical-access prototype beside the tower, not yet a fully hollow, walkable tower interior or customizable home system. Detailed authored architecture, walkable stairwells, manual elevator controls, pedestrians, interactive city services and multi-client rental tests remain open milestones.
 
 ## World systems roadmap
 See [the phased living-world roadmap](docs/living-world-roadmap.md) for the plan covering housing, city services, physics, and worldwide persistence.
