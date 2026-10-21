@@ -345,14 +345,29 @@ func _enter_unit(room_id:String):
         status_label.text="Return to the tower lobby to reconnect to this building."
         return
     var building:Dictionary=buildings[building_id]
-    var floor_height=float(building.get("floor_height",3.6))
-    # Each rented suite sits at its real tower-floor elevation beside the exterior lift core.
-    var interior_origin=Vector3(building.entrance.x+12.0,building.entrance.y-1.0+float(floor_number-1)*floor_height,building.entrance.z)
+    var floor_height:float=float(building.get("floor_height",3.6))
+    var building_center:Vector3=building.center
+    var dimensions:Vector3=building.dimensions
+    var style:int=int(building.style)
+    var base_height:float=dimensions.y*(0.58 if style==2 or style==4 else 0.72)
+    var upper_width:float=dimensions.x*(0.58 if style==1 or style==4 else 0.78)
+    var floor_mid_y:float=float(floor_number-1)*floor_height+maxf(0.2,floor_height-0.12)*0.5
+    var floor_width:float=upper_width if floor_mid_y>=base_height else dimensions.x
+    var facade_x:float=building_center.x+floor_width*0.5
+    var lift_x:float=building_center.x+dimensions.x*0.5+4.6
+    var unit_number:int=int(str(room_parts[2]).substr(1))
+    var unit_offsets:Dictionary={1:-18.3,2:-6.1,3:6.1,4:18.3}
+    var unit_z:float=building_center.z+float(unit_offsets.get(unit_number,0.0))
+    # The suite front doorway faces the elevator core; four units occupy separate lateral bays.
+    var interior_origin:Vector3=Vector3(facade_x+8.5,float(building.entrance.y)-1.0+float(floor_number-1)*floor_height,unit_z)
     active_interior=INTERIOR.new()
+    active_interior.name="PrivateApartment_%s"%room_id.replace("/","_")
     active_interior.configure(room_id,interior_origin)
-    active_interior.rotation.y=-PI*0.5
+    active_interior.rotation.y=PI*0.5
     get_tree().current_scene.add_child(active_interior)
-    player.global_position=interior_origin+Vector3(0,0.12,0)
+    _build_apartment_access(facade_x,lift_x,unit_z,building_center.z,interior_origin.y,room_id)
+    player.global_position=active_interior.to_global(Vector3(0.0,0.12,2.0))
+    player.rotation.y=-PI*0.5
     player.add_to_group("private_interior")
     player.velocity=Vector3.ZERO
     panel.hide()
