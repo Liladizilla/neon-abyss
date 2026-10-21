@@ -10,6 +10,7 @@ var panel: CanvasLayer
 var floor_list: VBoxContainer
 var status_label: Label
 var _busy := false
+var _target_floor := 1
 var _door_left: MeshInstance3D
 var _door_right: MeshInstance3D
 var _doors_open := true
@@ -210,6 +211,9 @@ func _server_request_floor(floor_number: int, peer_id: int) -> void:
         _begin_travel(floor_number)
 
 func _begin_travel(floor_number: int) -> void:
+    if floor_number < 1 or floor_number > floor_count:
+        return
+    _target_floor = floor_number
     if is_instance_valid(lift_tween) and lift_tween.is_running():
         lift_tween.kill()
     _busy = true
@@ -249,8 +253,10 @@ func _send_status(peer_id: int, message: String) -> void:
     elif is_instance_valid(status_label):
         status_label.text = message
 
-func _on_peer_connected(_peer_id: int) -> void:
-    pass
+func _on_peer_connected(peer_id: int) -> void:
+    if not multiplayer.is_server() or peer_id == 1:
+        return
+    _receive_lift_snapshot.rpc_id(peer_id, position.y, _busy, _target_floor, _doors_open)
 
 @rpc("any_peer", "call_remote", "reliable")
 func _request_floor_rpc(floor_number: int) -> void:
@@ -260,6 +266,21 @@ func _request_floor_rpc(floor_number: int) -> void:
 @rpc("authority", "call_remote", "reliable")
 func _broadcast_floor(floor_number: int) -> void:
     _begin_travel(floor_number)
+
+@rpc("authority", "call_remote", "reliable")
+func _receive_lift_snapshot(cab_y: float, moving: bool, destination_floor: int, doors_open: bool) -> void:
+    if destination_floor < 1 or destination_floor > floor_count:
+        return
+    if is_instance_valid(lift_tween) and lift_tween.is_running():
+        lift_tween.kill()
+    position.y = clampf(cab_y, BASE_Y, BASE_Y + float(floor_count - 1) * floor_height)
+    _target_floor = destination_floor
+    _busy = false
+    _set_doors_open(doors_open and not moving)
+    if moving:
+        _begin_travel(destination_floor)
+    elif panel.visible:
+        _open_panel()
 
 @rpc("authority", "call_remote", "reliable")
 func _status_rpc(message: String) -> void:
