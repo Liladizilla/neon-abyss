@@ -346,13 +346,16 @@ func _enter_unit(room_id:String):
         return
     var building:Dictionary=buildings[building_id]
     var floor_height=float(building.get("floor_height",3.6))
-    # Derive the suite position from the registered tower footprint and lift-core offset.
-    # The bridge reaches back toward the landing, overlapping the landing platform rather than ending short.
-    var lift_center_x:float=float(building.center.x)+float(building.dimensions.x)*0.5+4.6
-    var interior_origin:=Vector3(lift_center_x+9.8,building.entrance.y-1.0+float(floor_number-1)*floor_height,building.center.z)
+    # Place the apartment threshold on the actual façade line for this floor's footprint.
+    var floor_mid_y:float=float(floor_number-1)*floor_height+(floor_height-0.12)*0.5
+    var floor_width:float=float(building.upper_width) if floor_mid_y>=float(building.base_height) else float(building.dimensions.x)
+    var facade_x:float=float(building.center.x)+floor_width*0.5
+    var landing_top_y:float=float(building.center.y)+float(floor_number-1)*floor_height+0.24
+    var interior_origin:=Vector3(facade_x-3.88,landing_top_y,building.center.z)
     active_interior=INTERIOR.new()
     active_interior.configure(room_id,interior_origin)
-    active_interior.rotation.y=-PI*0.5
+    # Local +Z faces outward: the apartment bridge now runs from its threshold toward the lift.
+    active_interior.rotation.y=PI*0.5
     get_tree().current_scene.add_child(active_interior)
     # Spawn just inside the real doorway, not in the middle of the room or inside furniture.
     player.global_position=active_interior.to_global(Vector3(0,0.12,2.7))
