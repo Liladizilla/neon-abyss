@@ -26,8 +26,9 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - Exterior elevator cores on generated towers, animated glass elevator cars, physical cab floors, and collision-enabled floor landings.
 - G opens a floor selector near a lift shaft. Requests are checked by the host, then lift travel is broadcast to connected clients.
 - Rented apartments are positioned at the selected tower-floor elevation beside the lift core, with a collision-enabled access bridge and a return route to the street.
+- Tower shells now use split floor plates, exterior wall segments with elevator-side openings, a central stairwell void, and alternating collision-enabled stair treads between floors.
 - Tower geometry and floor height are stored in the building registry so room entry is tied to a generated building and floor rather than an off-map void.
-- Still outstanding: fully hollow interior floors inside the tower shell, walkable stairwells, elevator door animation, accessible routes, fire exits, service rooms, apartment customization and storage.
+- Still outstanding: detailed room layouts and corridor doors, stair rails and accessible routes, elevator door animation, fire exits, apartment integration into the tower floor plan, customization and storage. Stair traversal and elevator travel still need an actual in-engine playtest.
 
 ## Milestone E — complete city services
 - Shops, markets, restaurants, cafes, bars, hotels and delivery services.
