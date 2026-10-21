@@ -170,3 +170,9 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - Every hollow tower floor now has a real, narrow facade doorway built from side-wall and header segments with matching collision, instead of leaving the entire facade open on towers without a fire escape.
 - Preserve render meshes and material detail. Continue to optimize physics separately by measuring shape count and frame time before consolidating collision primitives.
 - Automated CI passed for commit `c5090a1`; the follow-up input and doorway commits still require a fresh CI run and in-engine graphical verification before the controls/collision fixes can be called complete.
+
+### Quality-preserving physics optimization
+
+- Fire escapes now keep detailed per-tread, per-landing, per-rail, and per-support box collision shapes under one shared StaticBody3D per escape instead of creating a separate physics body for every piece.
+- Render meshes and individual collision shapes remain detailed; this reduces physics-body overhead without simplifying the visible city.
+- Verify in Godot that stair treads, landings, bridges, rails, and doorway access still collide as intended. Measure physics-body count and frame time before/after on the same district.
