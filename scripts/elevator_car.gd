@@ -284,8 +284,11 @@ func _receive_lift_snapshot(cab_y: float, moving: bool, destination_floor: int, 
     _set_doors_open(doors_open and not moving)
     if moving:
         _begin_travel(destination_floor)
-    elif panel.visible:
-        _open_panel()
+    else:
+        travel_started.emit(destination_floor)
+        floor_arrived.emit(destination_floor)
+        if panel.visible:
+            _open_panel()
 
 @rpc("authority", "call_remote", "reliable")
 func _status_rpc(message: String) -> void:
