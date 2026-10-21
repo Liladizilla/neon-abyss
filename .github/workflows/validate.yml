@@ -62,6 +62,8 @@ jobs:
           grep -q 'elevator_use' scripts/game_root.gd
           grep -q '_server_request_floor' scripts/elevator_car.gd
           grep -q '_broadcast_floor' scripts/elevator_car.gd
+          grep -q '_build_cab_doors' scripts/elevator_car.gd
+          grep -q '_set_doors_open' scripts/elevator_car.gd
           grep -q 'facade_bridge' scripts/city_chunk.gd
           grep -q '_add_elevator_car' scripts/city_chunk.gd
           grep -q 'ElevatorAccessBridge' scripts/apartment_interior.gd
