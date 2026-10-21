@@ -7,11 +7,13 @@ const MENU=preload("res://scripts/main_menu.gd")
 const WEATHER=preload("res://scripts/weather_controller.gd")
 const TRAFFIC=preload("res://scripts/traffic_system.gd")
 const RENTAL=preload("res://scripts/rental_manager.gd")
+const EMPLOYMENT=preload("res://scripts/employment_manager.gd")
 var player
 var network
 var hud
 var menu
 var rental_manager
+var employment_manager
 func _ready():
     _inputs()
     _lighting()
@@ -25,6 +27,11 @@ func _ready():
     player.name="LocalPlayer"
     add_child(player)
     rental_manager.set_player(player)
+    employment_manager=EMPLOYMENT.new()
+    employment_manager.name="EmploymentManager"
+    add_child(employment_manager)
+    employment_manager.set_player(player)
+    employment_manager.set_economy(rental_manager)
     network=NET.new()
     network.name="NetworkManager"
     add_child(network)
@@ -48,7 +55,7 @@ func _ready():
     player.visible=false
     player.set_physics_process(false)
 func _inputs():
-    var mapping={"move_forward":[KEY_W,KEY_UP],"move_back":[KEY_S,KEY_DOWN],"move_left":[KEY_A,KEY_LEFT],"move_right":[KEY_D,KEY_RIGHT],"sprint":[KEY_SHIFT],"jump":[KEY_SPACE],"toggle_flight":[KEY_F],"throw_prop":[KEY_E],"interact":[KEY_R],"ui_cancel":[KEY_ESCAPE]}
+    var mapping={"move_forward":[KEY_W,KEY_UP],"move_back":[KEY_S,KEY_DOWN],"move_left":[KEY_A,KEY_LEFT],"move_right":[KEY_D,KEY_RIGHT],"sprint":[KEY_SHIFT],"jump":[KEY_SPACE],"toggle_flight":[KEY_F],"throw_prop":[KEY_E],"interact":[KEY_R],"work_board":[KEY_T],"ui_cancel":[KEY_ESCAPE]}
     for action in mapping:
         if not InputMap.has_action(action): InputMap.add_action(action)
         for key in mapping[action]:
