@@ -125,6 +125,11 @@ func _street_furniture():
     var emitter_colors:Array[Color]=[]
     var curbs:Array[Transform3D]=[]
     var curb_colors:Array[Color]=[]
+    var ramp_tx:Array[Transform3D]=[]
+    var ramp_colors:Array[Color]=[]
+    var tactile_tx:Array[Transform3D]=[]
+    var tactile_colors:Array[Color]=[]
+    var tactile_mat=Color(0.62,0.57,0.39)
     var pole_color=Color(0.13,0.17,0.25)
     for n in range(4):
         var along=12.0+float(n)*24.0
@@ -148,7 +153,29 @@ func _street_furniture():
     _instances("StreetLampPoles",poles,[],pole_color,false,CylinderMesh.new())
     _instances("StreetLampArms",arms,[],pole_color,false)
     _instances("StreetLampEmitters",emitters,emitter_colors,Color.WHITE,true)
+    # Accessible crossing approaches: shallow ramp panels meet the curb edge, with tactile pads at the sidewalk decision point.
+    for side in [-1.0,1.0]:
+        for axis in [0,1]:
+            for approach in [-1.0,1.0]:
+                var p:Vector3
+                var ramp_size:Vector3
+                var rotation:Vector3=Vector3.ZERO
+                if axis==0:
+                    p=Vector3(size*0.5+side*8.25,0.08,size*0.5+approach*11.0)
+                    ramp_size=Vector3(1.7,0.12,2.0)
+                    rotation.z=-side*0.10
+                else:
+                    p=Vector3(size*0.5+approach*11.0,0.08,size*0.5+side*8.25)
+                    ramp_size=Vector3(2.0,0.12,1.7)
+                    rotation.x=side*0.10
+                ramp_tx.append(Transform3D(Basis.from_euler(rotation).scaled(ramp_size),p))
+                ramp_colors.append(Color(0.29,0.32,0.37))
+                var pad_pos=p+Vector3(0,0.09,0)
+                tactile_tx.append(Transform3D(Basis.from_scale(Vector3(1.45,0.035,0.55)),pad_pos))
+                tactile_colors.append(tactile_mat)
     _instances("RaisedCurbSegments",curbs,curb_colors,Color(0.16,0.18,0.24),false)
+    _instances("CrossingCurbRamps",ramp_tx,ramp_colors,Color(0.29,0.32,0.37),false)
+    _instances("TactileCrossingPads",tactile_tx,tactile_colors,tactile_mat,false)
 func _build():
     var body_tx:Array[Transform3D]=[]
     var body_colors:Array[Color]=[]
