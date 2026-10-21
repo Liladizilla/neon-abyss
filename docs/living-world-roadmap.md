@@ -174,5 +174,6 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 ### Quality-preserving physics optimization
 
 - Fire escapes now keep detailed per-tread, per-landing, per-rail, and per-support box collision shapes under one shared StaticBody3D per escape instead of creating a separate physics body for every piece.
+- Visual-only streamed chunks no longer create hidden sidewalk/curb collision bodies or fire-escape collision shapes; the active 3x3 collision neighborhood remains responsible for solid world geometry.
 - Render meshes and individual collision shapes remain detailed; this reduces physics-body overhead without simplifying the visible city.
-- Verify in Godot that stair treads, landings, bridges, rails, and doorway access still collide as intended. Measure physics-body count and frame time before/after on the same district.
+- Verify in Godot that stair treads, landings, bridges, rails, sidewalks, curbs, and doorway access still collide as intended. Measure physics-body count and frame time before/after on the same district.
