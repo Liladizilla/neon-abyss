@@ -95,7 +95,8 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 ## Accessible street crossing pass
 - [x] Add reusable curb-ramp panels at the four arterial crossing approaches.
 - [x] Add tactile paving pads to make crossing decision points visually legible.
-- [ ] Add physical ramp collision and test ramp slope/landing alignment against the player controller.
+- [x] Add physical collision shapes to the curb-ramp panels, matching each panel's placement and rotation.
+- [ ] Test ramp slope and landing alignment against the player controller in a graphical session.
 - [ ] Replace prototype panels with a shared crossing kit that aligns with all procedural road widths and stacked street elevations.
 
 
