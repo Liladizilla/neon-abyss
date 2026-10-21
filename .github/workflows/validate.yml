@@ -1,0 +1,26 @@
+name: Project structure validation
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate required project files
+        run: |
+          set -euo pipefail
+          test -f project.godot
+          test -f scenes/main.tscn
+          test -f scripts/game_root.gd
+          test -f scripts/city_streamer.gd
+          test -f scripts/city_chunk.gd
+          test -f scripts/player_controller.gd
+          test -f scripts/network_manager.gd
+          test -f shaders/wet_asphalt.gdshader
+          grep -q 'ENetMultiplayerPeer' scripts/network_manager.gd
+          grep -q 'MultiMeshInstance3D' scripts/city_chunk.gd
+          grep -q 'volumetric_fog_enabled' scripts/game_root.gd
+          echo "Structure checks passed."
