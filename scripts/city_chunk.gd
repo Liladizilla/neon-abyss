@@ -403,7 +403,7 @@ func _build():
                 trim_tx.append(Transform3D(Basis.from_scale(sz),pos))
                 trim_colors.append(neon)
             var entrance_local=Vector3(x+w*0.5+2.4,0,z)
-            _append_building_frontage(frontage_tx,frontage_colors,frontage_glow_tx,frontage_glow_colors,x,z,w,d,building_index,style,neon)
+            _append_building_frontage(frontage_tx,frontage_colors,frontage_glow_tx,frontage_glow_colors,x,z,w,d,floors,building_index,style,neon)
             _add_lobby_terminal(entrance_local,building_index)
             _add_job_board(entrance_local+Vector3(-1.5,0,1.6),building_index)
             var manager=get_tree().get_first_node_in_group("rental_manager")
@@ -455,7 +455,7 @@ func _build():
             cs.position=data.p
             physics.add_child(cs)
         add_child(physics)
-func _append_building_frontage(tx:Array[Transform3D],colors:Array[Color],glow_tx:Array[Transform3D],glow_colors:Array[Color],x:float,z:float,w:float,d:float,building_index:int,style:int,accent:Color)->void:
+func _append_building_frontage(tx:Array[Transform3D],colors:Array[Color],glow_tx:Array[Transform3D],glow_colors:Array[Color],x:float,z:float,w:float,d:float,floors:int,building_index:int,style:int,accent:Color)->void:
     var facade_x=x+w*0.5
     # Every tower gets a legible, sheltered street entrance and a different ground-floor use.
     tx.append(Transform3D(Basis.from_scale(Vector3(4.2,0.24,4.8)),Vector3(facade_x+2.35,3.0,z)))
@@ -480,7 +480,7 @@ func _append_building_frontage(tx:Array[Transform3D],colors:Array[Color],glow_tx
     var service_names=["HABITAT","NIGHT MARKET","REPAIR EXCHANGE","CLINIC","PARCEL DEPOT"]
     var label:=Label3D.new()
     label.name="BuildingFrontage_%d"%building_index
-    label.text="%s  /  %02d"%[service_names[posmod(style,service_names.size())],building_index+1]
+    label.text="%s  /  %02d\n%d FLOORS  •  %d RENTABLE UNITS"%[service_names[posmod(style,service_names.size())],building_index+1,floors,floors*4]
     label.font_size=32
     label.outline_size=7
     label.modulate=accent
