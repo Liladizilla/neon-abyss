@@ -3,6 +3,7 @@ extends Node
 ## This is a prototype persistence layer; stable accounts and a production database come later.
 signal rental_status(message:String)
 const SAVE_PATH="user://neon_abyss_rentals.json"
+const INTERIOR=preload("res://scripts/apartment_interior.gd")
 const UNITS_PER_FLOOR=4
 const CONTRACT_SECONDS=2592000
 var player:Node3D
@@ -16,6 +17,9 @@ var list_box:VBoxContainer
 var info_label:Label
 var status_label:Label
 var wallet_label:Label
+var active_interior:Node3D
+var return_position=Vector3.ZERO
+var return_yaw=0.0
 var _bill_clock=0.0
 func _ready():
     add_to_group("rental_manager")
@@ -55,6 +59,9 @@ func _unhandled_input(event):
         if panel.visible:
             panel.hide()
             Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
+        elif is_instance_valid(active_interior):
+            _exit_unit()
+            get_viewport().set_input_as_handled()
         elif nearest_building!="":
             _open_building(nearest_building)
             Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
@@ -145,7 +152,7 @@ func _open_building(building_id:String):
     if owned_room!="":
         var owned=Button.new()
         owned.text="MY RENTED UNIT  •  "+owned_room
-        owned.pressed.connect(func(): _enter_unit(owned_room))
+        owned.pressed.connect(_enter_unit.bind(owned_room))
         list_box.add_child(owned)
     var shown=0
     for floor_number in range(1,int(building.floors)+1):
@@ -169,10 +176,10 @@ func _open_building(building_id:String):
             if contract.is_empty():
                 button.text="RENT"
                 button.disabled=not _can_request_here(building_id) or _wallet()<rent or _has_contract()
-                button.pressed.connect(func(): _rent(room_id,building_id,rent))
+                button.pressed.connect(_rent.bind(room_id,building_id,rent))
             elif str(contract.get("owner",""))==_identity():
                 button.text="ENTER"
-                button.pressed.connect(func(): _enter_unit(room_id))
+                button.pressed.connect(_enter_unit.bind(room_id))
             else:
                 button.text="TAKEN"
                 button.disabled=true
@@ -293,7 +300,31 @@ func _enter_unit(room_id:String):
     if not contracts.has(room_id) or str(contracts[room_id].get("owner",""))!=_identity():
         status_label.text="You do not hold this lease."
         return
-    status_label.text="Unit access verified. Interior instancing is the next housing sub-milestone."
+    if not is_instance_valid(player):return
+    return_position=player.global_position
+    return_yaw=player.rotation.y
+    var interior_origin=Vector3(return_position.x-6.0,10000.0,return_position.z-4.0)
+    active_interior=INTERIOR.new()
+    active_interior.configure(room_id,interior_origin)
+    get_tree().current_scene.add_child(active_interior)
+    player.global_position=interior_origin+Vector3(0,0.12,0)
+    player.velocity=Vector3.ZERO
+    panel.hide()
+    Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
+    var network=get_tree().get_first_node_in_group("network_manager")
+    if is_instance_valid(network):network.set_local_interior(true)
+    status_label.text="Apartment entered. Press R to return to the city."
+func _exit_unit():
+    if not is_instance_valid(active_interior):return
+    active_interior.queue_free()
+    active_interior=null
+    if is_instance_valid(player):
+        player.global_position=return_position
+        player.rotation.y=return_yaw
+        player.velocity=Vector3.ZERO
+    var network=get_tree().get_first_node_in_group("network_manager")
+    if is_instance_valid(network):network.set_local_interior(false)
+    Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
 func _save_ledger():
     var file=FileAccess.open(SAVE_PATH,FileAccess.WRITE)
     if file:
