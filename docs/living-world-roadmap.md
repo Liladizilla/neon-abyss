@@ -184,3 +184,34 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Group active-district prop collision under one StaticBody3D while keeping visual-only streamed chunks non-solid.
 - [ ] Graphically verify prop placement against curb ramps, crossings, and building entrances; check that benches and cabinets do not obstruct accessible routes.
 - [ ] Add varied street-front shopfronts, service entrances, and block-specific ground-floor uses without spawning ambient human NPCs.
+
+
+## Six-task district identity and exterior frontage pass
+- [x] Give each deterministic district a restrained palette identity while retaining full facade, window, roof-plant and structural detail.
+- [x] Add instanced ground-floor glazing, sign bands, service doors and lit jambs to distinguish commercial and service frontage from blank tower bases.
+- [x] Add small reclaimed-growth pockets at podium corners without filling the central lobby approach.
+- [x] Add perpendicular arterial lane dashes using the same instanced mesh and consistent local spacing across streamed chunks.
+- [x] Expand sparse deterministic skyline landmarks into transit halos, floodlight spires and damaged skybridge monuments.
+- [ ] Graphically verify that storefront panels do not cover actual door openings, that district landmarks remain visible at distance, and that markings align across all chunk boundaries.
+- [ ] Next: replace generic frontage strips with per-building use profiles (retail, housing lobby, maintenance, loading) and add collision only for real solid elements.
+
+## Six-task building-use and street-continuity pass
+- [x] Assign deterministic per-building ground-floor profiles for retail, residential lobby, maintenance, and loading frontage.
+- [x] Keep retail glazing away from the central lobby axis and reserve the maintenance door for its own profile.
+- [x] Add residential lobby framing and wayfinding accents without replacing the registered lobby terminal.
+- [x] Add a segmented loading-shutter visual that reads as closed infrastructure rather than a walk-through opening.
+- [x] Keep frontage details instanced and visual-only so they do not create extra physics bodies or pretend to be functional doors.
+- [x] Preserve the existing detailed tower shell, floor openings, elevator bridges, and active-chunk collision path.
+- [ ] In-engine verify each frontage profile against the real shell doorway, lift access and street props; confirm the lobby remains reachable.
+- [ ] Verify sidewalks, ramps, lane markings and vegetation remain clear and visually continuous across neighboring chunks.
+- [ ] Next: add profile-specific functional interactions only after actual doors, shutters and collision are wired to authoritative building access.
+
+## Doorway-alignment and traversal-safety pass
+- [x] Keep residential lobby glazing on side wings so the centered shell doorway remains visually open.
+- [x] Move maintenance-door visuals onto the existing centered opening instead of depicting a side door over solid wall.
+- [x] Center loading-shutter slats and guards on the existing opening; do not imply an unrelated opening in the facade.
+- [x] Keep the frontage kit visual-only; the hollow tower shell remains the authority for collision.
+- [ ] In-engine inspect all four frontage profiles at eye level and from the street approach.
+- [ ] Confirm closed-looking decorative panels do not mislead players into assuming a working door; next implementation should connect actual access state to the rental/building interaction system.
+- [ ] Walk from street to lobby, elevator landing, and apartment interior on multiple generated floors.
+- [ ] Check that crosswalks, tactile pads, street furniture, and vegetation leave a continuous accessible route.
