@@ -215,3 +215,13 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [ ] Confirm closed-looking decorative panels do not mislead players into assuming a working door; next implementation should connect actual access state to the rental/building interaction system.
 - [ ] Walk from street to lobby, elevator landing, and apartment interior on multiple generated floors.
 - [ ] Check that crosswalks, tactile pads, street furniture, and vegetation leave a continuous accessible route.
+
+
+## Six-task registered building-use pass
+- [x] Derive one deterministic use-profile key for each generated building: retail, residential lobby, maintenance, or loading.
+- [x] Store the profile in the authoritative local building registry alongside footprint, floor height and lift coordinates.
+- [x] Preserve the four-unit-per-floor rental model for every building regardless of its ground-floor frontage.
+- [x] Display the registered ground-floor use in the housing exchange so the visual profile and building record can be compared during playtests.
+- [x] Keep the profile argument backward-compatible for any other registration callers by providing a residential-lobby default.
+- [ ] Validate the registry label against generated frontages and rental kiosk positions in a graphical Godot session.
+- [ ] Follow-up: wire actual entrance access states to doors and collision; these profile labels are metadata, not functional locks or shutters.
