@@ -19,6 +19,9 @@ func _ready() -> void:
     add_to_group("local_player")
     add_to_group("city_presence")
     body_mesh.visible = false
+    # Keep the player on the same explicit world-collision layer as generated geometry.
+    collision_layer = 1
+    collision_mask = 1
     floor_snap_length = 0.35
     safe_margin = 0.06
     max_slides = 8
