@@ -157,6 +157,10 @@ func _build():
     var roof_tx:Array[Transform3D]=[]
     var cylinder_tx:Array[Transform3D]=[]
     var colliders:Array[Dictionary]=[]
+    var lift_tx:Array[Transform3D]=[]
+    var lift_colors:Array[Color]=[]
+    var lift_landing_tx:Array[Transform3D]=[]
+    var lift_landing_colors:Array[Color]=[]
     for ix in range(2):
         for iz in range(2):
             var x=24.0+ix*48.0+rng.randf_range(-3,3)
@@ -179,6 +183,26 @@ func _build():
             body_tx.append(Transform3D(Basis.from_scale(Vector3(upper_w,upper_h,upper_d)),Vector3(x,base_h+upper_h/2,z)))
             body_colors.append(Color(0.58,0.66,0.82).lerp(Color(0.09,0.11,0.19),rng.randf()))
             colliders.append({"p":Vector3(x,h/2,z),"s":Vector3(w,h,d)})
+            # Exterior glass elevator core with a visible landing for every generated floor.
+            var lift_x=x+w*0.5+4.6
+            var floor_height=h/float(floors)
+            for side_x in [-1.0,1.0]:
+                for side_z in [-1.0,1.0]:
+                    lift_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,h,0.22)),Vector3(lift_x+side_x*1.35,h*0.5,z+side_z*1.35)))
+            lift_tx.append(Transform3D(Basis.from_scale(Vector3(0.08,h,0.08)),Vector3(lift_x-1.35,h*0.5,z)))
+            lift_tx.append(Transform3D(Basis.from_scale(Vector3(0.08,h,0.08)),Vector3(lift_x+1.35,h*0.5,z)))
+            lift_colors.append(Color(0.08,0.16,0.24))
+            lift_colors.append(Color(0.08,0.16,0.24))
+            lift_colors.append(Color(0.08,0.16,0.24))
+            lift_colors.append(Color(0.08,0.16,0.24))
+            lift_colors.append(Color(0.02,0.78,1.0))
+            lift_colors.append(Color(0.02,0.78,1.0))
+            for floor_level in range(1,floors+1):
+                var landing_y=float(floor_level-1)*floor_height+0.15
+                lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.7,0.18,3.7)),Vector3(lift_x,landing_y,z)))
+                lift_landing_colors.append(Color(0.07,0.12,0.19))
+                lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.65,0.06,0.08)),Vector3(lift_x,landing_y+0.12,z-1.82)))
+                lift_landing_colors.append(Color(0.02,0.72,1.0))
             # Service tanks, antenna masts and roof plant add a non-box silhouette layer.
             for tank in range(2):
                 var tx=x+rng.randf_range(-w*0.28,w*0.28)
@@ -224,7 +248,7 @@ func _build():
             _add_job_board(entrance_local+Vector3(-1.5,0,1.6),building_index)
             var manager=get_tree().get_first_node_in_group("rental_manager")
             if is_instance_valid(manager):
-                manager.register_building(coord,building_index,floors,to_global(entrance_local+Vector3(0,1,0)),style)
+                manager.register_building(coord,building_index,floors,to_global(entrance_local+Vector3(0,1,0)),style,to_global(Vector3(x,0,z)),Vector3(w,h,d),h/float(floors))
             var employment=get_tree().get_first_node_in_group("employment_manager")
             if is_instance_valid(employment):
                 employment.register_workplace(to_global(entrance_local+Vector3(0,0,1.8)))
@@ -255,6 +279,8 @@ func _build():
     _instances("WindowGrid",win_tx,win_colors,Color(0,0.65,0.9),true)
     _instances("RooftopMachinery",roof_tx,[],Color(0.09,0.14,0.21),false)
     _instances("CylindricalServiceTanksAndMasts",cylinder_tx,[],Color(0.18,0.23,0.31),false,CylinderMesh.new())
+    _instances("ExteriorElevatorFrames",lift_tx,lift_colors,Color(0.1,0.18,0.26),false)
+    _instances("ElevatorFloorLandings",lift_landing_tx,lift_landing_colors,Color(0.1,0.18,0.26),false)
     _district_landmark()
     if collision_enabled:
         var physics=StaticBody3D.new()
