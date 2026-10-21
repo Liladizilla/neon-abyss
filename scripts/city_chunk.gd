@@ -1,5 +1,6 @@
 extends Node3D
 const ELEVATOR=preload("res://scripts/elevator_car.gd")
+const LANDING_DOORS=preload("res://scripts/elevator_landing_door.gd")
 const NEON=[Color(0,0.92,1),Color(1,0.08,0.72),Color(1,0.56,0.04),Color(0.34,0.2,1),Color(0.12,1,0.48)]
 var coord=Vector2i.ZERO
 var size=96.0
@@ -184,7 +185,7 @@ func _build():
             # Exterior glass elevator core with a visible landing for every generated floor.
             var lift_x=x+w*0.5+4.6
             var floor_height=h/float(floors)
-            _add_elevator_car(lift_x,z,h,floors,building_index)
+            var lift_car: Node3D = _add_elevator_car(lift_x,z,h,floors,building_index)
             for side_x in [-1.0,1.0]:
                 for side_z in [-1.0,1.0]:
                     lift_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,h,0.22)),Vector3(lift_x+side_x*1.35,h*0.5,z+side_z*1.35)))
@@ -208,20 +209,24 @@ func _build():
                 lift_colliders.append({"p":facade_bridge,"s":Vector3(3.0,0.18,2.8)})
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.65,0.06,0.08)),Vector3(lift_x,landing_y+0.12,z-1.82)))
                 lift_landing_colors.append(Color(0.02,0.72,1.0))
-                # Paired landing doors frame the lift opening on every generated floor.
-                var door_y:float=landing_y+1.08
-                var door_z:float=z+1.78
-                var door_h:float=1.85
-                var door_w:float=0.82
-                var door_mat_color:=Color(0.035,0.09,0.14)
-                for door_side in [-1.0,1.0]:
-                    var door_pos:=Vector3(lift_x+door_side*0.43,door_y,door_z)
-                    lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(door_w,door_h,0.09)),door_pos))
-                    lift_landing_colors.append(door_mat_color)
-                    var seam_pos:=Vector3(lift_x+door_side*0.035,door_y,door_z+0.055)
-                    lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.035,door_h,0.025)),seam_pos))
-                    lift_landing_colors.append(Color(0.02,0.72,1.0))
+                # Guardrails protect the exposed sides while leaving the tower-to-lift route clear.
+                for rail_side in [-1.0,1.0]:
+                    var rail_pos:=facade_bridge+Vector3(0.0,0.48,rail_side*1.34)
+                    var rail_size:=Vector3(3.0,0.92,0.10)
+                    lift_landing_tx.append(Transform3D(Basis.from_scale(rail_size),rail_pos))
+                    lift_landing_colors.append(Color(0.035,0.13,0.19))
+                    lift_colliders.append({"p":rail_pos,"s":rail_size})
+                # Landing doors are individual meshes so the correct floor can open on arrival.
+                var landing_door: Node3D = LANDING_DOORS.new()
+                landing_door.position=Vector3(lift_x,0.0,z)
+                landing_door.configure(floor_level,landing_y)
+                add_child(landing_door)
+                lift_car.connect("travel_started",Callable(landing_door,"on_travel_started"))
+                lift_car.connect("floor_arrived",Callable(landing_door,"on_floor_arrived"))
+                if floor_level==1:
+                    landing_door.open_doors(false)
                 # A vertical floor-call display sits beside the doorway.
+                var door_z:float=z+1.78
                 var display_pos:=Vector3(lift_x+1.28,landing_y+1.42,door_z)
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.24,0.62,0.08)),display_pos))
                 lift_landing_colors.append(Color(0.01,0.035,0.055))
@@ -474,6 +479,7 @@ func _add_elevator_car(local_x:float,local_z:float,height:float,floors:int,build
     neon.emission_energy_multiplier=2.2
     door_line.material_override=neon
     car.add_child(door_line)
+    return car
 func _add_lobby_terminal(local_position:Vector3,building_index:int):
     var kiosk=Node3D.new()
     kiosk.name="RentalTerminal_%d"%building_index
