@@ -54,7 +54,9 @@ func _process(_delta):
             continue
         var collision_enabled=false
         for c in active_centers:
-            if k.distance_to(c)<=1.0:
+            # Use a square neighborhood: diagonal adjacent chunks also need collision.
+            # Euclidean distance skipped the four diagonal neighbors, leaving visible walls non-solid.
+            if max(abs(k.x-c.x),abs(k.y-c.y))<=1:
                 collision_enabled=true
                 break
         var ch=CHUNK.new()
