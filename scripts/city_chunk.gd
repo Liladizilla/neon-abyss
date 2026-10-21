@@ -55,6 +55,39 @@ func _roads():
     lm.emission_energy_multiplier=0.8
     marks.material_override=lm
     add_child(marks)
+    _street_furniture()
+func _street_furniture():
+    # Street furniture is instanced per district to keep draw calls bounded.
+    var poles:Array[Transform3D]=[]
+    var arms:Array[Transform3D]=[]
+    var emitters:Array[Transform3D]=[]
+    var emitter_colors:Array[Color]=[]
+    var curbs:Array[Transform3D]=[]
+    var curb_colors:Array[Color]=[]
+    var pole_color=Color(0.13,0.17,0.25)
+    for n in range(4):
+        var along=12.0+float(n)*24.0
+        for side in [-1.0,1.0]:
+            var px=size*0.5+side*7.2
+            poles.append(Transform3D(Basis.from_scale(Vector3(0.09,2.8,0.09)),Vector3(px,2.8,along)))
+            arms.append(Transform3D(Basis.from_scale(Vector3(1.25,0.08,0.08)),Vector3(px-side*0.52,5.45,along)))
+            emitters.append(Transform3D(Basis.from_scale(Vector3(0.68,0.1,0.32)),Vector3(px-side*0.95,5.35,along)))
+            emitter_colors.append(Color(0.08,0.75,1.0) if (n+int(side))%2==0 else Color(1.0,0.22,0.68))
+            poles.append(Transform3D(Basis.from_scale(Vector3(0.09,2.8,0.09)),Vector3(along,2.8,px)))
+            arms.append(Transform3D(Basis.from_scale(Vector3(0.08,0.08,1.25)),Vector3(along,5.45,px-side*0.52)))
+            emitters.append(Transform3D(Basis.from_scale(Vector3(0.32,0.1,0.68)),Vector3(along,5.35,px-side*0.95)))
+            emitter_colors.append(Color(0.08,0.75,1.0) if (n+int(side))%2==0 else Color(1.0,0.22,0.68))
+    for side in [-1.0,1.0]:
+        for n in range(5):
+            var along=18.0+float(n)*15.0
+            curbs.append(Transform3D(Basis.from_scale(Vector3(0.45,0.22,4.0)),Vector3(size*0.5+side*9.1,0.08,along)))
+            curb_colors.append(Color(0.22,0.25,0.34))
+            curbs.append(Transform3D(Basis.from_scale(Vector3(4.0,0.22,0.45)),Vector3(along,0.08,size*0.5+side*9.1)))
+            curb_colors.append(Color(0.22,0.25,0.34))
+    _instances("StreetLampPoles",poles,[],pole_color,false,CylinderMesh.new())
+    _instances("StreetLampArms",arms,[],pole_color,false)
+    _instances("StreetLampEmitters",emitters,emitter_colors,Color.WHITE,true)
+    _instances("RaisedCurbSegments",curbs,curb_colors,Color(0.16,0.18,0.24),false)
 func _build():
     var body_tx:Array[Transform3D]=[]
     var body_colors:Array[Color]=[]
