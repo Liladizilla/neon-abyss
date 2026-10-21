@@ -500,9 +500,9 @@ func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Ar
         # Leave a real opening in the front wall instead of placing a decorative door over solid collision.
         var doorway_width:float=1.55
         var doorway_height:float=minf(2.35,wall_height-0.25)
-        var side_width:float=maxf(0.5,(fw-doorway_width)*0.5)
-        wall_specs.append({"size":Vector3(side_width,wall_height,0.48),"pos":Vector3(x-(doorway_width*0.5+side_width*0.5),cy,z-hz+0.24)})
-        wall_specs.append({"size":Vector3(side_width,wall_height,0.48),"pos":Vector3(x+(doorway_width*0.5+side_width*0.5),cy,z-hz+0.24)})
+        var doorway_side_width:float=maxf(0.5,(fw-doorway_width)*0.5)
+        wall_specs.append({"size":Vector3(doorway_side_width,wall_height,0.48),"pos":Vector3(x-(doorway_width*0.5+doorway_side_width*0.5),cy,z-hz+0.24)})
+        wall_specs.append({"size":Vector3(doorway_side_width,wall_height,0.48),"pos":Vector3(x+(doorway_width*0.5+doorway_side_width*0.5),cy,z-hz+0.24)})
         var header_height:float=wall_height-doorway_height
         wall_specs.append({"size":Vector3(doorway_width,header_height,0.48),"pos":Vector3(x,y0+doorway_height+header_height*0.5,z-hz+0.24)})
         # Cyan jambs and header make the floor exit visible from the landing.
