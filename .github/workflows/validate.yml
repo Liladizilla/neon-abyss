@@ -17,6 +17,8 @@ jobs:
           include-templates: false
       - name: Import and parse project headlessly
         run: godot --headless --editor --path . --quit
+      - name: Run the game scene for 120 frames
+        run: godot --headless --path . --quit-after 120
       - name: Validate required systems
         run: |
           set -euo pipefail
@@ -33,4 +35,4 @@ jobs:
           grep -q 'ENetMultiplayerPeer' scripts/network_manager.gd
           grep -q 'MultiMeshInstance3D' scripts/city_chunk.gd
           grep -q 'volumetric_fog_enabled' scripts/game_root.gd
-          echo "Godot import and structure checks passed."
+          echo "Godot import, runtime and structure checks passed."
