@@ -90,3 +90,14 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Extend CI structural assertions for setback-aware bridges, guide strips, doorway trim and floor labels.
 - [ ] Verify traversal visually in first person across low and upper floors, including stair transitions and door clearance.
 - [ ] Connect a rented unit's interior entrance directly to its matching floor landing instead of treating the interior as a separate scene transition.
+
+
+## Apartment-to-landing traversal milestone
+- [x] Derive each apartment's vertical placement from its registered building floor height and align its floor with the elevator landing elevation.
+- [x] Place the four rentable unit interiors in distinct lateral bays rather than stacking every lease in the same coordinates.
+- [x] Orient apartment entrance openings toward the elevator-side approach.
+- [x] Add sliding entry panels with collision shapes and an opening animation.
+- [x] Build a floor-level approach corridor and unit connector with collision and protective rails when a leased apartment is entered.
+- [x] Remove temporary access geometry when the resident returns to the city and add CI structural checks for the new route.
+- [ ] Verify visually in first-person that each unit's door, corridor and elevator landing meet without gaps or collision snags.
+- [ ] Replace the prototype's local interior instancing with a server-authoritative, instanced interior model for multiple simultaneous residents.

@@ -345,23 +345,84 @@ func _enter_unit(room_id:String):
         status_label.text="Return to the tower lobby to reconnect to this building."
         return
     var building:Dictionary=buildings[building_id]
-    var floor_height=float(building.get("floor_height",3.6))
-    # Each rented suite sits at its real tower-floor elevation beside the exterior lift core.
-    var interior_origin=Vector3(building.entrance.x+12.0,building.entrance.y-1.0+float(floor_number-1)*floor_height,building.entrance.z)
+    var floor_height:float=float(building.get("floor_height",3.6))
+    var building_center:Vector3=building.center
+    var dimensions:Vector3=building.dimensions
+    var style:int=int(building.style)
+    var base_height:float=dimensions.y*(0.58 if style==2 or style==4 else 0.72)
+    var upper_width:float=dimensions.x*(0.58 if style==1 or style==4 else 0.78)
+    var floor_mid_y:float=float(floor_number-1)*floor_height+maxf(0.2,floor_height-0.12)*0.5
+    var floor_width:float=upper_width if floor_mid_y>=base_height else dimensions.x
+    var facade_x:float=building_center.x+floor_width*0.5
+    var lift_x:float=building_center.x+dimensions.x*0.5+4.6
+    var unit_number:int=int(str(room_parts[2]).substr(1))
+    var unit_offsets:Dictionary={1:-18.3,2:-6.1,3:6.1,4:18.3}
+    var unit_z:float=building_center.z+float(unit_offsets.get(unit_number,0.0))
+    # The suite front doorway faces the elevator core; four units occupy separate lateral bays.
+    var interior_origin:Vector3=Vector3(facade_x+8.5,float(building.entrance.y)-1.0+float(floor_number-1)*floor_height+0.24,unit_z)
     active_interior=INTERIOR.new()
+    active_interior.name="PrivateApartment_%s"%room_id.replace("/","_")
     active_interior.configure(room_id,interior_origin)
-    active_interior.rotation.y=-PI*0.5
+    active_interior.rotation.y=PI*0.5
     get_tree().current_scene.add_child(active_interior)
-    player.global_position=interior_origin+Vector3(0,0.12,0)
+    _build_apartment_access(facade_x,lift_x,unit_z,building_center.z,interior_origin.y,room_id)
+    player.global_position=Vector3(lift_x,interior_origin.y,building_center.z)
+    player.rotation.y=PI if unit_z>building_center.z else 0.0
     player.add_to_group("private_interior")
     player.velocity=Vector3.ZERO
     panel.hide()
     Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
     var network=get_tree().get_first_node_in_group("network_manager")
     if is_instance_valid(network):network.set_local_interior(true)
-    status_label.text="Apartment entered. Press R to return to the city."
+    status_label.text="Access corridor opened. Follow the floor lights to your unit; press R to return to the city."
+func _build_apartment_access(facade_x:float,lift_x:float,unit_z:float,center_z:float,floor_y:float,room_id:String)->void:
+    var access:=Node3D.new()
+    access.name="ApartmentAccess_%s"%room_id.replace("/","_")
+    get_tree().current_scene.add_child(access)
+    var floor_mat:=StandardMaterial3D.new()
+    floor_mat.albedo_color=Color(0.045,0.075,0.11)
+    floor_mat.metallic=0.68
+    floor_mat.roughness=0.28
+    var rail_mat:=StandardMaterial3D.new()
+    rail_mat.albedo_color=Color(0.02,0.48,0.62)
+    rail_mat.emission_enabled=true
+    rail_mat.emission=Color(0.01,0.22,0.34)
+    rail_mat.emission_energy_multiplier=1.2
+    var corridor_mid_z:float=(center_z+unit_z)*0.5
+    var corridor_length:float=maxf(1.0,absf(unit_z-center_z))
+    _add_access_segment(access,"LandingCorridor",Vector3(lift_x,floor_y-0.09,corridor_mid_z),Vector3(2.8,0.18,corridor_length+2.8),floor_mat,true)
+    var door_x:float=facade_x+4.5
+    var connector_length:float=maxf(0.8,absf(lift_x-door_x))
+    _add_access_segment(access,"UnitConnector",Vector3((lift_x+door_x)*0.5,floor_y-0.09,unit_z),Vector3(connector_length+0.6,0.18,2.8),floor_mat,true)
+    for side in [-1.0,1.0]:
+        _add_access_segment(access,"CorridorRail",Vector3(lift_x+side*1.34,floor_y+0.42,corridor_mid_z),Vector3(0.10,0.92,corridor_length+2.8),rail_mat,true)
+        _add_access_segment(access,"ConnectorRail",Vector3((lift_x+door_x)*0.5,floor_y+0.42,unit_z+side*1.34),Vector3(connector_length+0.6,0.92,0.10),rail_mat,true)
+    if is_instance_valid(active_interior):
+        active_interior.set_meta("access_corridor",access)
+func _add_access_segment(parent:Node3D,label:String,at:Vector3,dimensions:Vector3,material:Material,collide:bool)->void:
+    var mesh_node:=MeshInstance3D.new()
+    mesh_node.name=label
+    var mesh:=BoxMesh.new()
+    mesh.size=dimensions
+    mesh_node.mesh=mesh
+    mesh_node.material_override=material
+    mesh_node.position=at
+    parent.add_child(mesh_node)
+    if collide:
+        var body:=StaticBody3D.new()
+        body.name=label+"_Collision"
+        var shape:=CollisionShape3D.new()
+        var box:=BoxShape3D.new()
+        box.size=dimensions
+        shape.shape=box
+        body.position=at
+        body.add_child(shape)
+        parent.add_child(body)
 func _exit_unit():
     if not is_instance_valid(active_interior):return
+    if active_interior.has_meta("access_corridor"):
+        var access:Node3D=active_interior.get_meta("access_corridor")
+        if is_instance_valid(access):access.queue_free()
     active_interior.queue_free()
     active_interior=null
     if is_instance_valid(player):
