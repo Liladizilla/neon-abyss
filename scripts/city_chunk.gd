@@ -355,7 +355,7 @@ func _build():
             _add_job_board(entrance_local+Vector3(-1.5,0,1.6),building_index)
             var manager=get_tree().get_first_node_in_group("rental_manager")
             if is_instance_valid(manager):
-                manager.register_building(coord,building_index,floors,to_global(entrance_local+Vector3(0,1,0)),style,to_global(Vector3(x,0,z)),Vector3(w,h,d),h/float(floors))
+                manager.register_building(coord,building_index,floors,to_global(entrance_local+Vector3(0,1,0)),style,to_global(Vector3(x,0,z)),Vector3(w,h,d),h/float(floors),to_global(Vector3(lift_x,0,z)).x,upper_w,base_h)
             var employment=get_tree().get_first_node_in_group("employment_manager")
             if is_instance_valid(employment):
                 employment.register_workplace(to_global(entrance_local+Vector3(0,0,1.8)))
