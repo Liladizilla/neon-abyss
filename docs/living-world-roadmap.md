@@ -157,6 +157,7 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Explicitly configure player, apartment wall/floor/furniture, and sliding-door collision layers and masks.
 - [ ] Run graphical Godot traversal from both sides of every apartment wall and through the entry doorway.
 - [x] Correct diagonal-neighbor chunk collision activation so visible buildings in all eight adjacent directions retain collision.
+- [x] Rebuild nearby streamed chunks when their collision requirement changes, preventing previously visual-only chunks from staying non-solid after the player approaches.
 - [x] Correct stair-foot landing placement so the collision landing is positioned relative to its tower rather than the district origin.
 - [ ] Verify collision on tower shells, stair treads, elevator floors, bridge rails, sidewalks, curbs and streamed district boundaries.
 - [ ] Capture baseline frame time, draw calls, object count, physics-body count and memory use on the target integrated GPU before tuning.
