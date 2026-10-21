@@ -110,3 +110,13 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Add collision-enabled connector bridges where upper-floor setbacks leave a gap between fire-escape landings and the matching doorway.
 - [x] Keep the tower-facing landing edge open and add collision-enabled safety rails along connector bridge sides.
 - [ ] Validate façade clearance, landing overlap and traversal in a graphical first-person playtest.
+
+
+## Six-task apartment and stair traversal pass
+- [x] Raise stair treads so the top step meets the next floor plate instead of leaving a small vertical lip.
+- [x] Add collision-enabled stair-foot landings that join the alternating flights to each storey.
+- [x] Add rotated collision shapes for the sloped stair handrails.
+- [x] Keep the apartment-to-lift bridge walkable, collision-enabled, and marked with low-profile guide strips.
+- [x] Align rented-suite placement to the registered tower footprint and spawn residents just inside the actual entry doorway.
+- [x] Add proximity-triggered sliding apartment doors with matching collision and CI checks for the traversal components.
+- [ ] Graphically test the complete street → lift → floor landing → apartment → return route, including stair transitions and door clearance.
