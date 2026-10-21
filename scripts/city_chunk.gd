@@ -175,17 +175,12 @@ func _build():
             var building_index=ix*2+iz
             var neon:Color=NEON[rng.randi_range(0,NEON.size()-1)]
             var base_h=h*(0.58 if style==2 or style==4 else 0.72)
-            body_tx.append(Transform3D(Basis.from_scale(Vector3(w,base_h,d)),Vector3(x,base_h/2,z)))
-            body_colors.append(Color(0.68,0.72,0.86).lerp(Color(0.12,0.14,0.23),rng.randf_range(0.25,0.82)))
-            # Setback crowns and podiums turn each mass into a distinct skyline silhouette.
-            body_tx.append(Transform3D(Basis.from_scale(Vector3(w*1.08,2.4,d*1.08)),Vector3(x,1.2,z)))
-            body_colors.append(Color(0.12,0.16,0.25))
             var upper_h=h-base_h
             var upper_w=w*(0.58 if style==1 or style==4 else 0.78)
             var upper_d=d*(0.62 if style==0 or style==3 else 0.78)
-            body_tx.append(Transform3D(Basis.from_scale(Vector3(upper_w,upper_h,upper_d)),Vector3(x,base_h+upper_h/2,z)))
-            body_colors.append(Color(0.58,0.66,0.82).lerp(Color(0.09,0.11,0.19),rng.randf()))
-            colliders.append({"p":Vector3(x,h/2,z),"s":Vector3(w,h,d)})
+            var shell_color=Color(0.68,0.72,0.86).lerp(Color(0.12,0.14,0.23),rng.randf_range(0.25,0.82))
+            # Hollow shell replaces the old solid tower mass with walkable floor plates and stairs.
+            _append_hollow_tower(body_tx,body_colors,colliders,x,z,w,d,h,floors,base_h,upper_w,upper_d,shell_color)
             # Exterior glass elevator core with a visible landing for every generated floor.
             var lift_x=x+w*0.5+4.6
             var floor_height=h/float(floors)
@@ -302,6 +297,68 @@ func _build():
             cs.position=data.p
             physics.add_child(cs)
         add_child(physics)
+func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Array[Dictionary],x:float,z:float,w:float,d:float,h:float,floors:int,base_h:float,upper_w:float,upper_d:float,shell_color:Color)->void:
+    var floor_height:=h/float(floors)
+    var floor_color:=Color(0.045,0.065,0.095)
+    var stair_color:=Color(0.12,0.18,0.25)
+    var slab:=0.28
+    var stair_opening_x:=3.3
+    var stair_opening_z:=3.5
+    for level in range(floors):
+        var y0:=float(level)*floor_height
+        var wall_height:=maxf(0.2,floor_height-0.12)
+        var cy:=y0+wall_height*0.5
+        var upper:=cy>=base_h
+        var fw:=upper_w if upper else w
+        var fd:=upper_d if upper else d
+        var hx:=fw*0.5
+        var hz:=fd*0.5
+        var side_depth:=maxf(1.0,(fd-stair_opening_z)*0.5)
+        var wall_specs:Array[Dictionary]=[
+            {"size":Vector3(0.48,wall_height,fd),"pos":Vector3(x-hx+0.24,cy,z)},
+            {"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(x+hx-0.24,cy,z-stair_opening_z*0.5-side_depth*0.5)},
+            {"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(x+hx-0.24,cy,z+stair_opening_z*0.5+side_depth*0.5)},
+            {"size":Vector3(fw,wall_height,0.48),"pos":Vector3(x,cy,z-hz+0.24)},
+            {"size":Vector3(fw,wall_height,0.48),"pos":Vector3(x,cy,z+hz-0.24)}
+        ]
+        for wall in wall_specs:
+            var dims:Vector3=wall.size
+            var at:Vector3=wall.pos
+            tx.append(Transform3D(Basis.from_scale(dims),at))
+            colors.append(shell_color)
+            colliders.append({"p":at,"s":dims})
+        # Four plate segments leave a central stair opening instead of a solid floor slab.
+        var side_width:=maxf(1.0,(fw-stair_opening_x)*0.5)
+        var end_depth:=maxf(1.0,(fd-stair_opening_z)*0.5)
+        var plates:Array[Dictionary]=[
+            {"size":Vector3(fw-slab,slab,end_depth),"pos":Vector3(x,y0+slab*0.5,z-(stair_opening_z*0.5+end_depth*0.5))},
+            {"size":Vector3(fw-slab,slab,end_depth),"pos":Vector3(x,y0+slab*0.5,z+(stair_opening_z*0.5+end_depth*0.5))},
+            {"size":Vector3(side_width,slab,stair_opening_z),"pos":Vector3(x-(stair_opening_x*0.5+side_width*0.5),y0+slab*0.5,z)},
+            {"size":Vector3(side_width,slab,stair_opening_z),"pos":Vector3(x+(stair_opening_x*0.5+side_width*0.5),y0+slab*0.5,z)}
+        ]
+        for plate in plates:
+            var dims:Vector3=plate.size
+            var at:Vector3=plate.pos
+            tx.append(Transform3D(Basis.from_scale(dims),at))
+            colors.append(floor_color)
+            colliders.append({"p":at,"s":dims})
+        # Alternating compact stair flights connect adjacent storeys.
+        for step in range(10):
+            var direction:=1.0 if level%2==0 else -1.0
+            var sx:=x+(0.78 if level%2==0 else -0.78)
+            var sz:=z-direction*1.35+direction*float(step)*0.30
+            var sy:=y0+float(step+1)*floor_height/10.0-0.12
+            var tread_size:=Vector3(1.15,0.22,0.34)
+            var tread_at:=Vector3(sx,sy,sz)
+            tx.append(Transform3D(Basis.from_scale(tread_size),tread_at))
+            colors.append(stair_color)
+            colliders.append({"p":tread_at,"s":tread_size})
+        var landing_size:=Vector3(2.2,0.22,1.2)
+        var landing_at:=Vector3(x+fw*0.5-1.1,y0+0.11,z)
+        tx.append(Transform3D(Basis.from_scale(landing_size),landing_at))
+        colors.append(floor_color)
+        colliders.append({"p":landing_at,"s":landing_size})
+
 func _add_elevator_car(local_x:float,local_z:float,height:float,floors:int,building_index:int):
     var car=AnimatableBody3D.new()
     car.name="ElevatorCab_%d"%building_index
