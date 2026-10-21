@@ -138,7 +138,7 @@ func _transit_access_stairs()->void:
     light_mat.emission_enabled=true
     light_mat.emission=Color(0.01,0.48,0.9)
     light_mat.emission_energy_multiplier=1.7
-    var cx:=size*0.5
+    var cx:float=float(size)*0.5
     var stair_x:float=cx+10.0
     var stair_z:float=size*0.5+14.0
     var step_count:=16
