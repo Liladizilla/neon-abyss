@@ -217,7 +217,7 @@ func _begin_travel(floor_number: int) -> void:
     lift_tween = create_tween()
     if _doors_open:
         lift_tween.tween_callback(_set_doors_open.bind(false))
-        lift_tween.tween_interval(0.22)
+        lift_tween.tween_interval(0.32)
     var duration := maxf(1.5, absf(position.y - _floor_y(floor_number)) / 5.0)
     lift_tween.tween_property(self, "position:y", _floor_y(floor_number), duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
     lift_tween.tween_interval(0.12)
