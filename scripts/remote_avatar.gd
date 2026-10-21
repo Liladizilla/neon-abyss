@@ -3,6 +3,7 @@ var target_position=Vector3.ZERO
 var target_yaw=0.0
 var initialized=false
 func _ready():
+    add_to_group("city_presence")
     var mat=StandardMaterial3D.new()
     mat.albedo_color=Color(0.04,0.12,0.2)
     mat.metallic=0.55
