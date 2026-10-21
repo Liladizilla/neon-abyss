@@ -202,17 +202,41 @@ func _build():
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.7,0.18,3.7)),Vector3(lift_x,landing_y,z)))
                 lift_landing_colors.append(Color(0.07,0.12,0.19))
                 lift_colliders.append({"p":Vector3(lift_x,landing_y,z),"s":Vector3(3.7,0.18,3.7)})
-                # Short bridge joins the lift landing to the tower facade.
-                var facade_bridge=Vector3(x+w*0.5+1.35,landing_y,z)
-                lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.0,0.18,2.8)),facade_bridge))
+                # Align each bridge with the actual floor footprint; upper tower setbacks vary by style.
+                var floor_wall_height: float = maxf(0.2,floor_height-0.12)
+                var floor_mid_y: float = float(floor_level-1)*floor_height+floor_wall_height*0.5
+                var floor_width: float = upper_w if floor_mid_y >= base_h else w
+                var facade_x: float = x+floor_width*0.5
+                var landing_inner_x: float = lift_x-1.85
+                var bridge_length: float = maxf(0.8,landing_inner_x-facade_x+0.25)
+                var facade_bridge: Vector3 = Vector3((facade_x+landing_inner_x)*0.5,landing_y,z)
+                var bridge_size: Vector3 = Vector3(bridge_length,0.18,2.8)
+                lift_landing_tx.append(Transform3D(Basis.from_scale(bridge_size),facade_bridge))
                 lift_landing_colors.append(Color(0.07,0.12,0.19))
-                lift_colliders.append({"p":facade_bridge,"s":Vector3(3.0,0.18,2.8)})
+                lift_colliders.append({"p":facade_bridge,"s":bridge_size})
+                # Recessed corridor guide strips lead to the elevator opening without blocking movement.
+                for guide_side in [-1.0,1.0]:
+                    var guide_size: Vector3 = Vector3(maxf(1.0, floor_width*0.5-2.1),0.035,0.055)
+                    var guide_pos: Vector3 = Vector3(x+floor_width*0.25,landing_y+0.13,z+guide_side*1.22)
+                    lift_landing_tx.append(Transform3D(Basis.from_scale(guide_size),guide_pos))
+                    lift_landing_colors.append(Color(0.02,0.48,0.72))
+                # Lit doorway trim marks the real opening in the tower's side wall.
+                var frame_mat_color: Color = Color(0.02,0.72,0.88)
+                for frame_side in [-1.0,1.0]:
+                    var frame_size: Vector3 = Vector3(0.12,2.35,0.12)
+                    var frame_pos: Vector3 = Vector3(facade_x-0.22,landing_y+1.25,z+frame_side*1.68)
+                    lift_landing_tx.append(Transform3D(Basis.from_scale(frame_size),frame_pos))
+                    lift_landing_colors.append(frame_mat_color)
+                var header_size: Vector3 = Vector3(0.12,0.12,3.48)
+                var header_pos: Vector3 = Vector3(facade_x-0.22,landing_y+2.48,z)
+                lift_landing_tx.append(Transform3D(Basis.from_scale(header_size),header_pos))
+                lift_landing_colors.append(frame_mat_color)
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.65,0.06,0.08)),Vector3(lift_x,landing_y+0.12,z-1.82)))
                 lift_landing_colors.append(Color(0.02,0.72,1.0))
-                # Guardrails protect the exposed sides while leaving the tower-to-lift route clear.
+                # Full-length guardrails follow each bridge, including deeper upper-floor setbacks.
                 for rail_side in [-1.0,1.0]:
                     var rail_pos: Vector3 = facade_bridge+Vector3(0.0,0.48,rail_side*1.34)
-                    var rail_size:=Vector3(3.0,0.92,0.10)
+                    var rail_size: Vector3 = Vector3(bridge_length,0.92,0.10)
                     lift_landing_tx.append(Transform3D(Basis.from_scale(rail_size),rail_pos))
                     lift_landing_colors.append(Color(0.035,0.13,0.19))
                     lift_colliders.append({"p":rail_pos,"s":rail_size})
@@ -235,6 +259,16 @@ func _build():
                 lift_landing_colors.append(Color(0.02,0.88,1.0))
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.07,0.07,0.035)),display_pos+Vector3(0,-0.12,0.055)))
                 lift_landing_colors.append(Color(1.0,0.24,0.12))
+                # Explicit floor labels make the landing legible without relying on color alone.
+                var floor_label := Label3D.new()
+                floor_label.name = "LiftFloorLabel_B%d_F%02d" % [building_index,floor_level]
+                floor_label.text = "F%02d" % floor_level
+                floor_label.font_size = 32
+                floor_label.outline_size = 6
+                floor_label.modulate = Color(0.2,0.9,1.0)
+                floor_label.position = display_pos+Vector3(0.0,0.0,0.12)
+                floor_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+                add_child(floor_label)
             # Service tanks, antenna masts and roof plant add a non-box silhouette layer.
             for tank in range(2):
                 var tx=x+rng.randf_range(-w*0.28,w*0.28)
