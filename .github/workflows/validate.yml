@@ -88,4 +88,6 @@ jobs:
           grep -q 'set_local_interior' scripts/network_manager.gd
           grep -q 'CrossingCurbRamps' scripts/city_chunk.gd
           grep -q 'TactileCrossingPads' scripts/city_chunk.gd
+          grep -q '_add_fire_escape' scripts/city_chunk.gd
+          grep -q 'FireEscape_B' scripts/city_chunk.gd
           echo "Godot import, runtime and structure checks passed."

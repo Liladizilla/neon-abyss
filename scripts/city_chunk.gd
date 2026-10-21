@@ -337,6 +337,8 @@ func _build():
                 trim_colors.append(neon)
             var entrance_local=Vector3(x+w*0.5+2.4,0,z)
             _add_lobby_terminal(entrance_local,building_index)
+            if posmod(building_index,3)==0 and floors>=4:
+                _add_fire_escape(Vector3(x+w*0.5+0.18,0,z-d*0.5-0.18),w,d,h,floors,building_index)
             _add_job_board(entrance_local+Vector3(-1.5,0,1.6),building_index)
             var manager=get_tree().get_first_node_in_group("rental_manager")
             if is_instance_valid(manager):
@@ -687,3 +689,125 @@ func _district_landmark():
         stripe.position=Vector3(side*18,24,0)
         stripe.material_override=glow
         landmark.add_child(stripe)
+
+
+func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,total_height:float,floors:int,building_index:int)->void:
+    # Shared exterior fire-escape kit: landings, alternating flights, guardrails and cage posts.
+    # Geometry is intentionally modular so streamed buildings reuse the same small set of parts.
+    var escape:=Node3D.new()
+    escape.name="FireEscape_B%03d" % building_index
+    escape.position=anchor
+    add_child(escape)
+    var steel:=StandardMaterial3D.new()
+    steel.albedo_color=Color(0.075,0.095,0.12)
+    steel.metallic=0.78
+    steel.roughness=0.36
+    var safety:=StandardMaterial3D.new()
+    safety.albedo_color=Color(0.95,0.34,0.09)
+    safety.metallic=0.42
+    safety.roughness=0.44
+    var levels: int=mini(floors,12)
+    var floor_step:float=total_height/float(maxi(1,floors))
+    var landing_width:float=clampf(building_depth*0.48,2.6,4.2)
+    var landing_depth:float=1.5
+    var offset_x:float=0.0
+    for level in range(levels):
+        var y:float=float(level)*floor_step+0.18
+        var side:float=-1.0 if level%2==0 else 1.0
+        var landing:=MeshInstance3D.new()
+        var landing_mesh:=BoxMesh.new()
+        landing_mesh.size=Vector3(landing_width,0.16,landing_depth)
+        landing.mesh=landing_mesh
+        landing.material_override=steel
+        landing.position=Vector3(offset_x,y,0)
+        escape.add_child(landing)
+        var landing_body:=StaticBody3D.new()
+        landing_body.name="LandingCollision_%02d" % level
+        landing_body.position=landing.position
+        var landing_collision:=CollisionShape3D.new()
+        var landing_shape:=BoxShape3D.new()
+        landing_shape.size=Vector3(landing_width,0.16,landing_depth)
+        landing_collision.shape=landing_shape
+        landing_body.add_child(landing_collision)
+        escape.add_child(landing_body)
+        for rail_side in [-1.0,1.0]:
+            var rail:=MeshInstance3D.new()
+            var rail_mesh:=BoxMesh.new()
+            rail_mesh.size=Vector3(landing_width,0.95,0.07)
+            rail.mesh=rail_mesh
+            rail.material_override=safety if rail_side==1.0 else steel
+            rail.position=Vector3(offset_x,y+0.52,rail_side*landing_depth*0.46)
+            escape.add_child(rail)
+            _add_fire_escape_box_collision(escape,"LandingRailCollision_%02d_%s" % [level,"L" if rail_side<0.0 else "R"],rail.position,rail_mesh.size)
+            for post_x in [-0.45,0.45]:
+                var post:=MeshInstance3D.new()
+                var post_mesh:=BoxMesh.new()
+                post_mesh.size=Vector3(0.07,0.95,0.07)
+                post.mesh=post_mesh
+                post.material_override=steel
+                post.position=Vector3(offset_x+post_x*landing_width,y+0.52,rail_side*landing_depth*0.46)
+                escape.add_child(post)
+                _add_fire_escape_box_collision(escape,"LandingPostCollision_%02d_%s_%s" % [level,"L" if rail_side<0.0 else "R","A" if post_x<0.0 else "B"],post.position,post_mesh.size)
+        if level<levels-1:
+            # Build the flight from reusable individual treads instead of one ramp-like slab.
+            var tread_count:int=8
+            var flight_width:float=landing_width*0.72
+            var flight_rise:float=maxf(0.8,floor_step-0.28)
+            for tread_index in range(tread_count):
+                var tread:=MeshInstance3D.new()
+                tread.name="Tread_%02d_%02d" % [level,tread_index]
+                var tread_mesh:=BoxMesh.new()
+                tread_mesh.size=Vector3(flight_width/float(tread_count)+0.035,0.12,0.72)
+                tread.mesh=tread_mesh
+                tread.material_override=steel
+                var progress:float=(float(tread_index)+0.5)/float(tread_count)
+                tread.position=Vector3(offset_x+side*progress*flight_width,y+0.18+progress*flight_rise,0)
+                escape.add_child(tread)
+                var tread_body:=StaticBody3D.new()
+                tread_body.name="TreadCollision_%02d_%02d" % [level,tread_index]
+                tread_body.position=tread.position
+                var tread_collision:=CollisionShape3D.new()
+                var tread_shape:=BoxShape3D.new()
+                tread_shape.size=tread_mesh.size
+                tread_collision.shape=tread_shape
+                tread_body.add_child(tread_collision)
+                escape.add_child(tread_body)
+            # Paired continuous handrails follow the stair pitch; short uprights tie them back to the flight.
+            var rail_length:float=flight_width+0.18
+            var rail_pitch:float=atan2(flight_rise,flight_width)
+            for handrail_side in [-1.0,1.0]:
+                var handrail:=MeshInstance3D.new()
+                handrail.name="Handrail_%02d_%s" % [level,"L" if handrail_side<0.0 else "R"]
+                var handrail_mesh:=BoxMesh.new()
+                handrail_mesh.size=Vector3(rail_length,0.09,0.09)
+                handrail.mesh=handrail_mesh
+                handrail.material_override=safety
+                handrail.position=Vector3(offset_x+side*flight_width*0.5,y+0.18+flight_rise*0.5+0.92,handrail_side*0.48)
+                handrail.rotation.z=side*rail_pitch
+                escape.add_child(handrail)
+                _add_fire_escape_box_collision(escape,"HandrailCollision_%02d_%s" % [level,"L" if handrail_side<0.0 else "R"],handrail.position,handrail_mesh.size,handrail.rotation.z)
+                for support_index in range(3):
+                    var support_progress:float=0.18+float(support_index)*0.32
+                    var support:=MeshInstance3D.new()
+                    support.name="HandrailPost_%02d_%s_%d" % [level,"L" if handrail_side<0.0 else "R",support_index]
+                    var support_mesh:=BoxMesh.new()
+                    support_mesh.size=Vector3(0.075,0.94,0.075)
+                    support.mesh=support_mesh
+                    support.material_override=steel
+                    support.position=Vector3(offset_x+side*support_progress*flight_width,y+0.18+support_progress*flight_rise+0.43,handrail_side*0.48)
+                    escape.add_child(support)
+                    _add_fire_escape_box_collision(escape,"HandrailPostCollision_%02d_%s_%d" % [level,"L" if handrail_side<0.0 else "R",support_index],support.position,support_mesh.size)
+            offset_x+=side*landing_width*0.18
+
+
+func _add_fire_escape_box_collision(parent:Node3D,collision_name:String,local_position:Vector3,box_size:Vector3,rotation_z:float=0.0)->void:
+    var body:=StaticBody3D.new()
+    body.name=collision_name
+    body.position=local_position
+    body.rotation.z=rotation_z
+    var collision:=CollisionShape3D.new()
+    var shape:=BoxShape3D.new()
+    shape.size=box_size
+    collision.shape=shape
+    body.add_child(collision)
+    parent.add_child(body)
