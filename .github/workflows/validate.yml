@@ -42,6 +42,7 @@ jobs:
           test -f scripts/employment_manager.gd
           test -f scripts/apartment_interior.gd
           test -f scripts/elevator_car.gd
+          test -f scripts/elevator_landing_door.gd
           test -f scripts/weather_controller.gd
           test -f scripts/traffic_system.gd
           test -f shaders/wet_asphalt.gdshader
@@ -64,6 +65,11 @@ jobs:
           grep -q '_broadcast_floor' scripts/elevator_car.gd
           grep -q '_build_cab_doors' scripts/elevator_car.gd
           grep -q '_set_doors_open' scripts/elevator_car.gd
+          grep -q 'travel_started' scripts/elevator_car.gd
+          grep -q 'floor_arrived' scripts/elevator_car.gd
+          grep -q 'on_floor_arrived' scripts/elevator_landing_door.gd
+          grep -q 'LANDING_DOORS' scripts/city_chunk.gd
+          grep -q 'lift_colliders.append' scripts/city_chunk.gd
           grep -q 'facade_bridge' scripts/city_chunk.gd
           grep -q '_add_elevator_car' scripts/city_chunk.gd
           grep -q 'ElevatorAccessBridge' scripts/apartment_interior.gd
