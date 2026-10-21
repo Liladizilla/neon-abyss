@@ -59,3 +59,11 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - Housing, ownership, money and interactions must be server-authoritative before public release.
 - Build within a measured performance budget for integrated graphics, then scale detail by distance and hardware.
 - Do not claim a city service, physical simulation or worldwide persistence is finished until it is implemented and tested.
+
+
+## Building access milestone: elevator landing readability
+- [x] Add paired door panels and illuminated center seams at each generated elevator landing.
+- [x] Add a floor-call display panel beside each landing door.
+- [ ] Implement authoritative door open/close states synchronized with elevator arrival and departure.
+- [ ] Connect each landing directly to a consistently sized corridor and apartment entrance.
+- [ ] Validate first-person traversal and lift boarding in a graphical Godot session.
