@@ -177,3 +177,10 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - Visual-only streamed chunks no longer create hidden sidewalk/curb collision bodies or fire-escape collision shapes; the active 3x3 collision neighborhood remains responsible for solid world geometry.
 - Render meshes and individual collision shapes remain detailed; this reduces physics-body overhead without simplifying the visible city.
 - Verify in Godot that stair treads, landings, bridges, rails, sidewalks, curbs, and doorway access still collide as intended. Measure physics-body count and frame time before/after on the same district.
+
+## Street-level city life: reusable exterior props
+- [x] Add instanced sidewalk planters with overgrowth, waste bins, benches, and utility cabinets at deterministic positions in each streamed district.
+- [x] Reuse meshes and materials through MultiMesh batches so repeated small props do not create a separate render node each.
+- [x] Group active-district prop collision under one StaticBody3D while keeping visual-only streamed chunks non-solid.
+- [ ] Graphically verify prop placement against curb ramps, crossings, and building entrances; check that benches and cabinets do not obstruct accessible routes.
+- [ ] Add varied street-front shopfronts, service entrances, and block-specific ground-floor uses without spawning ambient human NPCs.
