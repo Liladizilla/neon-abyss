@@ -107,7 +107,7 @@ func _process(delta):
     var train_z=floor(p.z/96.0)*96.0+48.0
     var station_start=floor((p.x-48.0)/288.0)*288.0+48.0
     var route_phase=fposmod(train_clock*18.0,324.0)
-    var train_x=station_start+maxf(0.0,route_phase-36.0)
+    var train_x=station_start+15.6+maxf(0.0,route_phase-36.0)
     for car in 4:
         var car_pos=Vector3(train_x-float(car)*10.4,14.0,train_z)
         train_cars.multimesh.set_instance_transform(car,Transform3D(Basis.IDENTITY,car_pos))
