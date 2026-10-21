@@ -1,4 +1,4 @@
-name: Project structure validation
+name: Godot validation
 on:
   push:
     branches: [main]
@@ -9,7 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate required project files
+      - name: Install Godot
+        uses: chickensoft-games/setup-godot@v1
+        with:
+          version: 4.4.1
+          use-dotnet: false
+          include-templates: false
+      - name: Import and parse project headlessly
+        run: godot --headless --editor --path . --quit
+      - name: Validate required systems
         run: |
           set -euo pipefail
           test -f project.godot
@@ -25,4 +33,4 @@ jobs:
           grep -q 'ENetMultiplayerPeer' scripts/network_manager.gd
           grep -q 'MultiMeshInstance3D' scripts/city_chunk.gd
           grep -q 'volumetric_fog_enabled' scripts/game_root.gd
-          echo "Structure checks passed."
+          echo "Godot import and structure checks passed."
