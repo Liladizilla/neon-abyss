@@ -138,5 +138,5 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Resume an in-progress trip from the replicated cab position instead of leaving a late joiner with a stale idle lift.
 - [x] Clamp received cab height to the configured shaft range before applying the snapshot.
 - [x] Reject invalid replicated destinations before mutating local lift state.
-- [x] Add CI structural assertions for elevator snapshot replication and destination tracking.
+- [x] Disable floor-selection buttons during travel, block same-floor trips, and add CI assertions for the elevator state guards.
 - [ ] Test two clients joining at different points during a lift trip in a graphical multiplayer session.
