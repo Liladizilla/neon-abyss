@@ -70,11 +70,11 @@ func _unhandled_input(event):
         panel.hide()
         Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
         get_viewport().set_input_as_handled()
-func register_building(chunk:Vector2i,index:int,floors:int,entrance:Vector3,style:int,center:Vector3,dimensions:Vector3,floor_height:float):
+func register_building(chunk:Vector2i,index:int,floors:int,entrance:Vector3,style:int,center:Vector3,dimensions:Vector3,floor_height:float,lift_x:float,upper_width:float,base_height:float):
     var building_id="%d:%d:%d"%[chunk.x,chunk.y,index]
     if buildings.has(building_id):
         return
-    buildings[building_id]={"id":building_id,"chunk":chunk,"index":index,"floors":floors,"entrance":entrance,"style":style,"center":center,"dimensions":dimensions,"floor_height":floor_height}
+    buildings[building_id]={"id":building_id,"chunk":chunk,"index":index,"floors":floors,"entrance":entrance,"style":style,"center":center,"dimensions":dimensions,"floor_height":floor_height,"lift_x":lift_x,"upper_width":upper_width,"base_height":base_height}
 func unregister_chunk(chunk:Vector2i):
     for building_id in buildings.keys():
         var entry:Dictionary=buildings[building_id]
