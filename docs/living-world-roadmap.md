@@ -8,7 +8,7 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - Rain, wet asphalt, fog, neon emission, pooled traffic and an animated elevated train.
 - ENet host/join and remote player presence. Multi-client production reliability remains unverified.
 
-## Milestone B — housing and tenancy (current)
+## Milestone B — housing and tenancy (implemented prototype)
 - Every generated tower has four logical units per generated floor.
 - Lobby rental kiosks, a housing exchange, credits, occupancy checks and one active lease per identity.
 - Host-side rental validation and JSON ledger persistence, with contract synchronization to connected clients.
@@ -16,12 +16,18 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - Reusable furnished apartment interiors with collision; the resident's street avatar is hidden while inside.
 - Current limitation: peer IDs are temporary and the ledger lives on the host machine. This is not yet global account-based persistence.
 
-## Milestone C — building interiors and access
+## Milestone C — employment and the shared city economy (first slice)
+- Civic job board at tower lobbies with maintenance, courier and network technician roles.
+- Host-validated clock-in and clock-out, one active role per resident, and wages credited to the same wallet used for rent.
+- Wages accrue in 60-second online intervals; partial intervals are not paid and shift progress is session-bound.
+- Current limitation: this is a minimal employment loop, not full job simulation, player businesses, offline wages or a durable labor contract.
+
+## Milestone D — building interiors and access
 - Replace private off-map interior instances with floor-accurate apartment layouts inside buildings.
 - Working elevators, stairs, access control, doors, apartment customization, storage and furniture placement.
 - Multiple unit sizes, accessible routes, fire exits, service rooms and building maintenance.
 
-## Milestone D — complete city services
+## Milestone E — complete city services
 - Shops, markets, restaurants, cafes, bars, hotels and delivery services.
 - Clinics, hospitals, pharmacies, fire stations, police/security services and emergency response.
 - Schools, libraries, universities, public administration and community spaces.
@@ -31,14 +37,14 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - Roads, intersections, traffic signals, parking, sidewalks, pedestrian crossings, rail stations, trains, buses, taxis and freight logistics.
 - Public signage, maps, wayfinding, local news, events, communication, accessibility options and multilingual UI.
 
-## Milestone E — believable physical simulation
+## Milestone F — believable physical simulation
 - Collision and rigid-body interaction for relevant props, vehicles, doors and furniture.
 - Vehicle handling, braking, tire grip, suspension, damage and repair.
 - Pedestrian navigation and crowd simulation only after the game has an explicit population design; no ambient people are spawned by default.
 - Material-aware footsteps, rain impacts, water accumulation, drainage and constrained destruction where it is safe and performant.
 - Deterministic server-authoritative movement, interaction, economy and anti-cheat validation.
 
-## Milestone F — persistent worldwide world
+## Milestone G — persistent worldwide world
 - Stable authenticated accounts, durable resident identities, account recovery and moderation tools.
 - Dedicated always-on authoritative servers, a production database, backups, migration strategy and observability.
 - Region/shard strategy, instance handoff, replication interest management, rate limits and abuse prevention.
