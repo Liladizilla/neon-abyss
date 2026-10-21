@@ -86,6 +86,9 @@ func _run() -> void:
             failures.append("One or more apartment door panels lack collision shapes.")
         player.global_position = interior.to_global(Vector3(0, 1.0, 3.9))
         interior.update_entry_doors(1.0)
+        # AnimatableBody3D applies its synchronized transform on the next physics frame.
+        await physics_frame
+        await process_frame
         var opened := false
         for i in range(interior.entry_door_panels.size()):
             var door: AnimatableBody3D = interior.entry_door_panels[i].body
