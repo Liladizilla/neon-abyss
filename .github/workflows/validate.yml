@@ -94,6 +94,14 @@ jobs:
           grep -q 'set_local_interior' scripts/network_manager.gd
           grep -q 'CrossingCurbRamps' scripts/city_chunk.gd
           grep -q 'TactileCrossingPads' scripts/city_chunk.gd
+          grep -q '_street_detail_kit()' scripts/city_chunk.gd
+          grep -q 'ContinuousSidewalks' scripts/city_chunk.gd
+          grep -q 'RaisedSidewalkCurbs' scripts/city_chunk.gd
+          grep -q 'RoadDrainGrates' scripts/city_chunk.gd
+          grep -q 'ZebraCrossingStripes' scripts/city_chunk.gd
+          grep -q 'CrossingProtectionBollards' scripts/city_chunk.gd
+          grep -q 'SidewalkUtilityRuns' scripts/city_chunk.gd
+          grep -q 'SidewalkAndCurbCollision' scripts/city_chunk.gd
           grep -q '_add_fire_escape' scripts/city_chunk.gd
           grep -q 'FireEscape_B' scripts/city_chunk.gd
           grep -q 'stair_landing_size' scripts/city_chunk.gd
