@@ -340,7 +340,7 @@ func _build():
             var entrance_local=Vector3(x+w*0.5+2.4,0,z)
             _add_lobby_terminal(entrance_local,building_index)
             if has_fire_escape:
-                _add_fire_escape(Vector3(x,0,z-d*0.5-0.18),w,d,h,floors,building_index)
+                _add_fire_escape(Vector3(x,0,z-d*0.5-0.18),w,d,h,floors,upper_d,base_h,building_index)
             _add_job_board(entrance_local+Vector3(-1.5,0,1.6),building_index)
             var manager=get_tree().get_first_node_in_group("rental_manager")
             if is_instance_valid(manager):
@@ -712,7 +712,7 @@ func _district_landmark():
         landmark.add_child(stripe)
 
 
-func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,total_height:float,floors:int,building_index:int)->void:
+func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,total_height:float,floors:int,upper_depth:float,base_height:float,building_index:int)->void:
     # Shared exterior fire-escape kit: landings, alternating flights, guardrails and cage posts.
     # Geometry is intentionally modular so streamed buildings reuse the same small set of parts.
     var escape:=Node3D.new()
@@ -751,6 +751,24 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
         landing_collision.shape=landing_shape
         landing_body.add_child(landing_collision)
         escape.add_child(landing_body)
+        # Upper tower floors may step back from the podium. Bridge the real setback to the matching door.
+        var floor_mid_y:float=float(level)*floor_step+(floor_step-0.12)*0.5
+        var floor_depth:float=upper_depth if floor_mid_y>=base_height else building_depth
+        var door_distance:float=(building_depth-floor_depth)*0.5+0.18
+        if door_distance>landing_depth*0.5+0.05:
+            var bridge_start:float=landing_depth*0.5-0.20
+            var bridge_length:float=door_distance-bridge_start
+            var bridge_size:=Vector3(1.55,0.14,bridge_length)
+            var bridge_pos:=Vector3(offset_x*0.5,y,(door_distance+bridge_start)*0.5)
+            var bridge:=MeshInstance3D.new()
+            bridge.name="FloorDoorBridge_%02d" % level
+            var bridge_mesh:=BoxMesh.new()
+            bridge_mesh.size=bridge_size
+            bridge.mesh=bridge_mesh
+            bridge.material_override=steel
+            bridge.position=bridge_pos
+            escape.add_child(bridge)
+            _add_fire_escape_box_collision(escape,"FloorDoorBridgeCollision_%02d" % level,bridge_pos,bridge_size)
         for rail_side in [-1.0,1.0]:
             var rail:=MeshInstance3D.new()
             var rail_mesh:=BoxMesh.new()
