@@ -165,9 +165,9 @@ func _open_building(building_id:String):
             label.size_flags_horizontal=Control.SIZE_EXPAND_FILL
             var contract:Dictionary=contracts.get(room_id,{})
             if contract.is_empty():
-                label.text="F%02d / UNIT %d    •    %d credits / 30 days"%(floor_number,unit_number,rent)
+                label.text="F%02d / UNIT %d    •    %d credits / 30 days"%[floor_number,unit_number,rent]
             elif str(contract.get("owner",""))==_identity():
-                label.text="F%02d / UNIT %d    •    YOUR CONTRACT"%(floor_number,unit_number)
+                label.text="F%02d / UNIT %d    •    YOUR CONTRACT"%[floor_number,unit_number]
             else:
                 label.text="F%02d / UNIT %d    •    OCCUPIED"%(floor_number,unit_number)
             line.add_child(label)
