@@ -267,7 +267,6 @@ func _decorate_street_level()->void:
     var curb_colors:Array[Color]=[]
     var lane_tx:Array[Transform3D]=[]
     var lane_colors:Array[Color]=[]
-    var tactile_tx:Array[Transform3D]=[]
     var grate_tx:Array[Transform3D]=[]
     var planter_tx:Array[Transform3D]=[]
     var planter_colors:Array[Color]=[]
