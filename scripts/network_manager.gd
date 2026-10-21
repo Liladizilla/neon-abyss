@@ -11,6 +11,7 @@ func _ready():
     multiplayer.peer_disconnected.connect(_peer_left)
     multiplayer.connected_to_server.connect(func(): connection_status.emit("Connected"))
     multiplayer.connection_failed.connect(func(): connection_status.emit("Connection failed"))
+    multiplayer.server_disconnected.connect(func(): connection_status.emit("Server disconnected"))
 func host_game(port=27015,max_players=12)->Error:
     peer=ENetMultiplayerPeer.new()
     var err=peer.create_server(port,clampi(max_players,2,32))
@@ -37,6 +38,7 @@ func _process(delta):
     else:_submit.rpc_id(1,pos,yaw)
 func _peer_joined(id):
     if not multiplayer.is_server():return
+    _spawn_avatar.rpc_id(id,1)
     for old in multiplayer.get_peers():
         if old!=id:_spawn_avatar.rpc_id(id,old)
     _spawn(id)
