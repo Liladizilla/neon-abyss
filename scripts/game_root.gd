@@ -6,19 +6,25 @@ const HUD=preload("res://scripts/hud.gd")
 const MENU=preload("res://scripts/main_menu.gd")
 const WEATHER=preload("res://scripts/weather_controller.gd")
 const TRAFFIC=preload("res://scripts/traffic_system.gd")
+const RENTAL=preload("res://scripts/rental_manager.gd")
 var player
 var network
 var hud
 var menu
+var rental_manager
 func _ready():
     _inputs()
     _lighting()
+    rental_manager=RENTAL.new()
+    rental_manager.name="RentalManager"
+    add_child(rental_manager)
     var city=CITY.new()
     city.name="CityStreamer"
     add_child(city)
     player=PLAYER.instantiate()
     player.name="LocalPlayer"
     add_child(player)
+    rental_manager.set_player(player)
     network=NET.new()
     network.name="NetworkManager"
     add_child(network)
@@ -42,7 +48,7 @@ func _ready():
     player.visible=false
     player.set_physics_process(false)
 func _inputs():
-    var mapping={"move_forward":[KEY_W,KEY_UP],"move_back":[KEY_S,KEY_DOWN],"move_left":[KEY_A,KEY_LEFT],"move_right":[KEY_D,KEY_RIGHT],"sprint":[KEY_SHIFT],"jump":[KEY_SPACE],"toggle_flight":[KEY_F],"throw_prop":[KEY_E],"ui_cancel":[KEY_ESCAPE]}
+    var mapping={"move_forward":[KEY_W,KEY_UP],"move_back":[KEY_S,KEY_DOWN],"move_left":[KEY_A,KEY_LEFT],"move_right":[KEY_D,KEY_RIGHT],"sprint":[KEY_SHIFT],"jump":[KEY_SPACE],"toggle_flight":[KEY_F],"throw_prop":[KEY_E],"interact":[KEY_R],"ui_cancel":[KEY_ESCAPE]}
     for action in mapping:
         if not InputMap.has_action(action): InputMap.add_action(action)
         for key in mapping[action]:
@@ -88,6 +94,7 @@ func _start():
     menu.hide_menu()
     player.visible=true
     player.set_physics_process(true)
+    player.set_avatar_visible(network.peer!=null)
     Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
     hud.show_hud()
 func _host(port,players):
