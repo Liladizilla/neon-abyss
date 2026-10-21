@@ -90,4 +90,12 @@ jobs:
           grep -q 'TactileCrossingPads' scripts/city_chunk.gd
           grep -q '_add_fire_escape' scripts/city_chunk.gd
           grep -q 'FireEscape_B' scripts/city_chunk.gd
+          grep -q 'stair_landing_size' scripts/city_chunk.gd
+          grep -q 'colliders.append({"p":Vector3(rail_x,rail_y,z),"s":rail_size,"r":Vector3(-rail_angle,0,0)})' scripts/city_chunk.gd
+          grep -q 'cs.rotation=data.get("r",Vector3.ZERO)' scripts/city_chunk.gd
+          grep -q 'SlidingEntryDoorLeft' scripts/apartment_interior.gd
+          grep -q 'should_open' scripts/apartment_interior.gd
+          grep -q 'BridgeGuideLeft' scripts/apartment_interior.gd
+          grep -q 'lift_center_x' scripts/rental_manager.gd
+          grep -q 'active_interior.to_global(Vector3(0,0.12,2.7))' scripts/rental_manager.gd
           echo "Godot import, runtime and structure checks passed."
