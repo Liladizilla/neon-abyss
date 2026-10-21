@@ -169,7 +169,7 @@ func _open_building(building_id:String):
             elif str(contract.get("owner",""))==_identity():
                 label.text="F%02d / UNIT %d    •    YOUR CONTRACT"%[floor_number,unit_number]
             else:
-                label.text="F%02d / UNIT %d    •    OCCUPIED"%(floor_number,unit_number)
+                label.text="F%02d / UNIT %d    •    OCCUPIED"%[floor_number,unit_number]
             line.add_child(label)
             var button=Button.new()
             button.custom_minimum_size.x=104
