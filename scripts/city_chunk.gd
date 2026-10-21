@@ -769,7 +769,21 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
             bridge.position=bridge_pos
             escape.add_child(bridge)
             _add_fire_escape_box_collision(escape,"FloorDoorBridgeCollision_%02d" % level,bridge_pos,bridge_size)
+            # Keep the connector open at both ends and protect its exposed sides.
+            for bridge_side in [-1.0,1.0]:
+                var bridge_rail:=MeshInstance3D.new()
+                bridge_rail.name="FloorDoorBridgeRail_%02d_%s" % [level,"L" if bridge_side<0.0 else "R"]
+                var bridge_rail_mesh:=BoxMesh.new()
+                bridge_rail_mesh.size=Vector3(0.07,0.95,bridge_length)
+                bridge_rail.mesh=bridge_rail_mesh
+                bridge_rail.material_override=safety if bridge_side>0.0 else steel
+                bridge_rail.position=Vector3(bridge_pos.x+bridge_side*0.78,y+0.52,bridge_pos.z)
+                escape.add_child(bridge_rail)
+                _add_fire_escape_box_collision(escape,"FloorDoorBridgeRailCollision_%02d_%s" % [level,"L" if bridge_side<0.0 else "R"],bridge_rail.position,bridge_rail_mesh.size)
         for rail_side in [-1.0,1.0]:
+            # The front edge faces the tower doorway; a guardrail here would block access.
+            if rail_side>0.0:
+                continue
             var rail:=MeshInstance3D.new()
             var rail_mesh:=BoxMesh.new()
             rail_mesh.size=Vector3(landing_width,0.95,0.07)
