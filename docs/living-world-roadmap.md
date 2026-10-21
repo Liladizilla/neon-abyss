@@ -150,3 +150,13 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Add corner bollards as visible protection between pedestrian approaches and vehicle lanes.
 - [x] Add exposed utility conduits and CI assertions for the complete street-detail kit.
 - [ ] Graphically verify sidewalk height, ramp transitions, bollard clearance and crossings at chunk boundaries in first person.
+
+## First-person traversal and quality-preserving performance pass
+- [x] Correct first-person forward/backward input-vector direction.
+- [x] Process mouse motion before UI can consume the event.
+- [x] Explicitly configure player, apartment wall/floor/furniture, and sliding-door collision layers and masks.
+- [ ] Run graphical Godot traversal from both sides of every apartment wall and through the entry doorway.
+- [ ] Verify collision on tower shells, stair treads, elevator floors, bridge rails, sidewalks, curbs and streamed district boundaries.
+- [ ] Capture baseline frame time, draw calls, object count, physics-body count and memory use on the target integrated GPU before tuning.
+- [ ] Optimize measured hotspots with shared resources, instancing, bounded shadow casting and distance-aware detail; do not reduce close-range asset quality.
+- [ ] Confirm streaming never leaves the player's active district without collision, and profile collision cost before expanding the physics radius.
