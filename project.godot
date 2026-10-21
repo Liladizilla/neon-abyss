@@ -1,0 +1,14 @@
+config_version=5
+[application]
+config/name="NEON ABYSS"
+config/description="Endless procedural cyberpunk city exploration."
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.4")
+[display]
+window/size/viewport_width=1600
+window/size/viewport_height=900
+[rendering]
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="mobile"
+environment/defaults/default_clear_color=Color(0.012,0.008,0.028,1)
+anti_aliasing/quality/msaa_3d=2
