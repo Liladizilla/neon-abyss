@@ -10,8 +10,10 @@ var _pitch=0.0
 var _bob=0.0
 @onready var pivot=$Pivot
 @onready var camera=$Pivot/Camera3D
+@onready var body_mesh=$Body
 func _ready():
     add_to_group("local_player")
+    body_mesh.visible=false
     floor_snap_length=0.35
 func _unhandled_input(event):
     if event is InputEventMouseMotion and Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
@@ -65,3 +67,6 @@ func _throw_prop():
     prop.global_position=camera.global_position-camera.global_basis.z*1.4
     prop.apply_central_impulse(-camera.global_basis.z*14+Vector3.UP*4+velocity*0.4)
     get_tree().create_timer(18.0).timeout.connect(prop.queue_free)
+
+func set_avatar_visible(show_avatar:bool):
+    if is_instance_valid(body_mesh):body_mesh.visible=show_avatar
