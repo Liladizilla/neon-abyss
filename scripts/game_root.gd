@@ -55,7 +55,7 @@ func _ready():
     player.visible=false
     player.set_physics_process(false)
 func _inputs():
-    var mapping={"move_forward":[KEY_W,KEY_UP],"move_back":[KEY_S,KEY_DOWN],"move_left":[KEY_A,KEY_LEFT],"move_right":[KEY_D,KEY_RIGHT],"sprint":[KEY_SHIFT],"jump":[KEY_SPACE],"toggle_flight":[KEY_F],"throw_prop":[KEY_E],"interact":[KEY_R],"work_board":[KEY_T],"ui_cancel":[KEY_ESCAPE]}
+    var mapping={"move_forward":[KEY_W,KEY_UP],"move_back":[KEY_S,KEY_DOWN],"move_left":[KEY_A,KEY_LEFT],"move_right":[KEY_D,KEY_RIGHT],"sprint":[KEY_SHIFT],"jump":[KEY_SPACE],"toggle_flight":[KEY_F],"throw_prop":[KEY_E],"interact":[KEY_R],"work_board":[KEY_T],"elevator_use":[KEY_G],"ui_cancel":[KEY_ESCAPE]}
     for action in mapping:
         if not InputMap.has_action(action): InputMap.add_action(action)
         for key in mapping[action]:
