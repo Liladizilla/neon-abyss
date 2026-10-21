@@ -203,7 +203,8 @@ func _build():
                 lift_landing_colors.append(Color(0.07,0.12,0.19))
                 lift_colliders.append({"p":Vector3(lift_x,landing_y,z),"s":Vector3(3.7,0.18,3.7)})
                 # Align each bridge with the actual floor footprint; upper tower setbacks vary by style.
-                var floor_mid_y: float = float(floor_level-1)*floor_height+floor_height*0.5
+                var floor_wall_height: float = maxf(0.2,floor_height-0.12)
+                var floor_mid_y: float = float(floor_level-1)*floor_height+floor_wall_height*0.5
                 var floor_width: float = upper_w if floor_mid_y >= base_h else w
                 var facade_x: float = x+floor_width*0.5
                 var landing_inner_x: float = lift_x-1.85
