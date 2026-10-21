@@ -19,6 +19,8 @@ jobs:
           test -f scripts/city_chunk.gd
           test -f scripts/player_controller.gd
           test -f scripts/network_manager.gd
+          test -f scripts/weather_controller.gd
+          test -f scripts/traffic_system.gd
           test -f shaders/wet_asphalt.gdshader
           grep -q 'ENetMultiplayerPeer' scripts/network_manager.gd
           grep -q 'MultiMeshInstance3D' scripts/city_chunk.gd
