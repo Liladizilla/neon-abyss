@@ -346,13 +346,17 @@ func _enter_unit(room_id:String):
         return
     var building:Dictionary=buildings[building_id]
     var floor_height=float(building.get("floor_height",3.6))
-    # Each rented suite sits at its real tower-floor elevation beside the exterior lift core.
-    var interior_origin=Vector3(building.entrance.x+12.0,building.entrance.y-1.0+float(floor_number-1)*floor_height,building.entrance.z)
+    # Derive the suite position from the registered tower footprint and lift-core offset.
+    # The bridge reaches back toward the landing, overlapping the landing platform rather than ending short.
+    var lift_center_x:float=float(building.center.x)+float(building.dimensions.x)*0.5+4.6
+    var interior_origin:=Vector3(lift_center_x+9.8,building.entrance.y-1.0+float(floor_number-1)*floor_height,building.center.z)
     active_interior=INTERIOR.new()
     active_interior.configure(room_id,interior_origin)
     active_interior.rotation.y=-PI*0.5
     get_tree().current_scene.add_child(active_interior)
-    player.global_position=interior_origin+Vector3(0,0.12,0)
+    # Spawn just inside the real doorway, not in the middle of the room or inside furniture.
+    player.global_position=active_interior.to_global(Vector3(0,0.12,2.7))
+    player.rotation.y=active_interior.global_rotation.y+PI
     player.add_to_group("private_interior")
     player.velocity=Vector3.ZERO
     panel.hide()
