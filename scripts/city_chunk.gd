@@ -1,4 +1,5 @@
 extends Node3D
+const ELEVATOR=preload("res://scripts/elevator_car.gd")
 const NEON=[Color(0,0.92,1),Color(1,0.08,0.72),Color(1,0.56,0.04),Color(0.34,0.2,1),Color(0.12,1,0.48)]
 var coord=Vector2i.ZERO
 var size=96.0
@@ -302,40 +303,77 @@ func _build():
             physics.add_child(cs)
         add_child(physics)
 func _add_elevator_car(local_x:float,local_z:float,height:float,floors:int,building_index:int):
-    var car=Node3D.new()
+    var car=AnimatableBody3D.new()
     car.name="ElevatorCab_%d"%building_index
-    car.position=Vector3(local_x,1.42,local_z)
+    car.set_script(ELEVATOR)
+    car.position=Vector3(local_x,1.315,local_z)
     add_child(car)
-    var shell=MeshInstance3D.new()
-    var shell_mesh=BoxMesh.new()
-    shell_mesh.size=Vector3(2.35,2.35,2.35)
-    shell.mesh=shell_mesh
+    car.configure(floors,height,"%d:%d:%d"%[coord.x,coord.y,building_index],collision_enabled)
     var frame=StandardMaterial3D.new()
     frame.albedo_color=Color(0.035,0.07,0.12)
-    frame.metallic=0.72
-    frame.roughness=0.25
-    shell.material_override=frame
-    car.add_child(shell)
-    var glass=MeshInstance3D.new()
-    var glass_mesh=BoxMesh.new()
-    glass_mesh.size=Vector3(2.15,1.75,2.15)
-    glass.mesh=glass_mesh
+    frame.metallic=0.78
+    frame.roughness=0.22
+    var floor_mesh=BoxMesh.new()
+    floor_mesh.size=Vector3(2.12,0.14,2.12)
+    var floor=MeshInstance3D.new()
+    floor.name="CabFloor"
+    floor.mesh=floor_mesh
+    floor.position=Vector3(0,-1.08,0)
+    floor.material_override=frame
+    car.add_child(floor)
+    var roof_mesh=BoxMesh.new()
+    roof_mesh.size=Vector3(2.12,0.12,2.12)
+    var roof=MeshInstance3D.new()
+    roof.name="CabRoof"
+    roof.mesh=roof_mesh
+    roof.position=Vector3(0,1.08,0)
+    roof.material_override=frame
+    car.add_child(roof)
+    var post_mesh=BoxMesh.new()
+    post_mesh.size=Vector3(0.12,2.18,0.12)
+    for px in [-1.0,1.0]:
+        for pz in [-1.0,1.0]:
+            var post=MeshInstance3D.new()
+            post.mesh=post_mesh
+            post.position=Vector3(px,0,pz)
+            post.material_override=frame
+            car.add_child(post)
     var glass_mat=StandardMaterial3D.new()
-    glass_mat.albedo_color=Color(0.015,0.5,0.68,0.34)
+    glass_mat.albedo_color=Color(0.015,0.38,0.56,0.28)
     glass_mat.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
-    glass_mat.metallic=0.6
-    glass_mat.roughness=0.18
+    glass_mat.metallic=0.52
+    glass_mat.roughness=0.16
     glass_mat.emission_enabled=true
-    glass_mat.emission=Color(0.01,0.24,0.42)
-    glass_mat.emission_energy_multiplier=1.2
-    glass.material_override=glass_mat
-    car.add_child(glass)
-    var duration=maxf(5.0,float(floors)*0.45)
-    var tween=create_tween().set_loops()
-    var top_floor_y=height-height/float(floors)
-    var top_y=top_floor_y+1.42
-    tween.tween_property(car,"position:y",top_y,duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-    tween.tween_property(car,"position:y",1.42,duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+    glass_mat.emission=Color(0.01,0.19,0.34)
+    glass_mat.emission_energy_multiplier=0.8
+    for side in [-1.0,1.0]:
+        var glass=MeshInstance3D.new()
+        var pane=BoxMesh.new()
+        pane.size=Vector3(0.035,1.85,1.85)
+        glass.mesh=pane
+        glass.position=Vector3(side*1.01,0,0)
+        glass.material_override=glass_mat
+        car.add_child(glass)
+    var rear_glass=MeshInstance3D.new()
+    var rear_pane=BoxMesh.new()
+    rear_pane.size=Vector3(1.85,1.85,0.035)
+    rear_glass.mesh=rear_pane
+    rear_glass.position=Vector3(0,0,-1.01)
+    rear_glass.material_override=glass_mat
+    car.add_child(rear_glass)
+    var door_line=MeshInstance3D.new()
+    var door_mesh=BoxMesh.new()
+    door_mesh.size=Vector3(1.75,0.06,0.045)
+    door_line.mesh=door_mesh
+    door_line.position=Vector3(0,0.1,1.0)
+    var neon=StandardMaterial3D.new()
+    neon.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+    neon.albedo_color=Color(0.02,0.78,1.0)
+    neon.emission_enabled=true
+    neon.emission=Color(0.01,0.55,1.0)
+    neon.emission_energy_multiplier=2.2
+    door_line.material_override=neon
+    car.add_child(door_line)
 func _add_lobby_terminal(local_position:Vector3,building_index:int):
     var kiosk=Node3D.new()
     kiosk.name="RentalTerminal_%d"%building_index
