@@ -145,14 +145,16 @@ func _instances(label,tx:Array[Transform3D],colors:Array[Color],tint:Color,emiss
     var inst=MultiMeshInstance3D.new()
     inst.name=label
     inst.multimesh=mm
-    var mat=StandardMaterial3D.new()
-    mat.albedo_color=tint
-    mat.vertex_color_use_as_albedo=true
-    mat.metallic=0.68
-    mat.roughness=0.28
     if emissive:
-        mat.emission_enabled=true
-        mat.emission=Color.WHITE
-        mat.emission_energy_multiplier=1.8
-    inst.material_override=mat
+        var mat=ShaderMaterial.new()
+        mat.shader=load("res://shaders/neon_instances.gdshader")
+        mat.set_shader_parameter("emission_energy",2.0 if label=="WindowGrid" else 1.5)
+        inst.material_override=mat
+    else:
+        var mat=StandardMaterial3D.new()
+        mat.albedo_color=tint
+        mat.vertex_color_use_as_albedo=true
+        mat.metallic=0.68
+        mat.roughness=0.28
+        inst.material_override=mat
     add_child(inst)
