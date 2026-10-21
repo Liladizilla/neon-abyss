@@ -8,6 +8,7 @@ var queue:Array[Vector2i]=[]
 var center=Vector2i(999999,999999)
 func _ready():
     var floor=StaticBody3D.new()
+    floor.name="InfiniteGround"
     var cs=CollisionShape3D.new()
     var boundary=WorldBoundaryShape3D.new()
     boundary.normal=Vector3.UP
@@ -28,10 +29,11 @@ func _process(_delta):
             if max(abs(k.x-c.x),abs(k.y-c.y))>radius+1:
                 chunks[k].queue_free()
                 chunks.erase(k)
+        queue=queue.filter(func(k): return max(abs(k.x-c.x),abs(k.y-c.y))<=radius+1)
     var made=0
     while not queue.is_empty() and made<chunks_per_frame:
         var k:Vector2i=queue.pop_front()
-        if not chunks.has(k):
+        if not chunks.has(k) and max(abs(k.x-c.x),abs(k.y-c.y))<=radius+1:
             var ch=CHUNK.new()
             ch.configure(k,chunk_size,20261021,k.distance_to(c)<=1)
             ch.name="District_%d_%d"%[k.x,k.y]
