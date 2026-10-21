@@ -127,3 +127,23 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [ ] Playtest intersections, storefront clearance, vegetation clipping and pedestrian routes in Godot; some decorative props are visual-only and still need selected physical collision.
 - [ ] Expand beyond the current four-tower district pattern into a varied block plan with low-rise housing, markets, clinics, workshops, service alleys, plazas and connected parks.
 - [ ] Replace prototype exterior forms with authored modular building kits, varied facade materials, decals, signage textures, grime, water runoff and building-specific silhouettes.
+
+
+## Modular facade and stacked-city milestone
+- [x] Expand tower glazing to per-floor windows with reusable dark recesses, metal surrounds and projecting sills.
+- [x] Add repeatable facade service conduits and maintenance junction details while retaining instanced geometry for performance.
+- [ ] Continue the modular facade kit with detailed door assemblies, fire stairs, balcony and landing handrails, rain gutters, drain outlets and service access panels; tune visibility by distance.
+- [ ] Build a layered urban circulation graph linking ground roads, elevated streets, skybridges, transit platforms, stair and elevator cores, and underground concourses so stacked routes remain traversable rather than decorative.
+- [ ] Add district archetypes and controlled asset variation so low-rise housing, markets, clinics, workshops, service alleys and plazas appear between landmark towers.
+
+## Elevated transit pedestrian access
+- [x] Add a switchback station stair with repeated tread nosings, metal handrails and a raised connector aligned with the elevated platform.
+- [x] Build nearby-chunk stair tread and connector collision so the access can be approached physically in active gameplay areas.
+- [ ] Run a first-person Godot playtest to validate step dimensions, handrail clearance, landing alignment and safe station entry; visual/headless checks alone cannot confirm traversal feel.
+- [ ] Replace prototype stair geometry with a shared modular stair kit and connect the station lift core into the same vertical circulation graph.
+
+## Road and pedestrian separation pass
+- [x] Add repeated raised curb modules to distinguish sidewalk promenades from the road surface.
+- [x] Add broken lane markings along both arterial directions using instanced geometry and deterministic district placement.
+- [ ] Add curb ramps, tactile crossing pads, accessible route continuity, and physical curb collision at the player scale.
+- [ ] Validate that sidewalk modules align with every generated intersection and elevated street transition in a graphical playtest.
