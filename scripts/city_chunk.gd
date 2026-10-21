@@ -304,7 +304,7 @@ func _build():
 func _add_elevator_car(local_x:float,local_z:float,height:float,floors:int,building_index:int):
     var car=Node3D.new()
     car.name="ElevatorCab_%d"%building_index
-    car.position=Vector3(local_x,0.7,local_z)
+    car.position=Vector3(local_x,1.42,local_z)
     add_child(car)
     var shell=MeshInstance3D.new()
     var shell_mesh=BoxMesh.new()
@@ -332,8 +332,10 @@ func _add_elevator_car(local_x:float,local_z:float,height:float,floors:int,build
     car.add_child(glass)
     var duration=maxf(5.0,float(floors)*0.45)
     var tween=create_tween().set_loops()
-    tween.tween_property(car,"position:y",maxf(1.0,height-1.4),duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-    tween.tween_property(car,"position:y",0.7,duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+    var top_floor_y=height-height/float(floors)
+    var top_y=top_floor_y+1.42
+    tween.tween_property(car,"position:y",top_y,duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+    tween.tween_property(car,"position:y",1.42,duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 func _add_lobby_terminal(local_position:Vector3,building_index:int):
     var kiosk=Node3D.new()
     kiosk.name="RentalTerminal_%d"%building_index
