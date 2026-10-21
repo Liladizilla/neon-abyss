@@ -75,15 +75,15 @@ func _street_detail_kit() -> void:
     var crossing_colors:Array[Color]=[]
     var utility_tx:Array[Transform3D]=[]
     var utility_colors:Array[Color]=[]
-    var sidewalk_y:=0.19
+    var sidewalk_y:=0.02
     for side in [-1.0,1.0]:
         var offset:=side*9.25
-        sidewalk_tx.append(Transform3D(Basis.from_scale(Vector3(2.45,0.32,size)),Vector3(size*0.5+offset,sidewalk_y,size*0.5)))
-        sidewalk_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.32,2.45)),Vector3(size*0.5,sidewalk_y,size*0.5+offset)))
+        sidewalk_tx.append(Transform3D(Basis.from_scale(Vector3(2.45,0.24,size)),Vector3(size*0.5+offset,sidewalk_y,size*0.5)))
+        sidewalk_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.24,2.45)),Vector3(size*0.5,sidewalk_y,size*0.5+offset)))
         sidewalk_colors.append(Color(0.18,0.2,0.25))
         sidewalk_colors.append(Color(0.18,0.2,0.25))
-        curb_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,0.38,size)),Vector3(size*0.5+offset+side*1.34,0.18,size*0.5)))
-        curb_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.38,0.22)),Vector3(size*0.5,0.18,size*0.5+offset+side*1.34)))
+        curb_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,0.22,size)),Vector3(size*0.5+offset+side*1.34,0.08,size*0.5)))
+        curb_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.22,0.22)),Vector3(size*0.5,0.08,size*0.5+offset+side*1.34)))
         curb_colors.append(Color(0.3,0.32,0.38))
         curb_colors.append(Color(0.3,0.32,0.38))
         for along in range(10,int(size)-10,8):
