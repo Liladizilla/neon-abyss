@@ -73,7 +73,9 @@ func _peer_joined(id):
     _spawn_avatar.rpc(id)
 func _peer_left(id):
     _despawn(id)
-    if multiplayer.is_server():_despawn_avatar.rpc(id)
+    if multiplayer.is_server():
+        interior_peers.erase(id)
+        _despawn_avatar.rpc(id)
 func _spawn(id):
     if id==multiplayer.get_unique_id() or avatars.has(id):return
     var a=AVATAR.instantiate()
