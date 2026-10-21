@@ -68,3 +68,14 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [ ] Animate landing doors with authoritative states synchronized to elevator arrival and departure.
 - [ ] Connect each landing directly to a consistently sized corridor and apartment entrance.
 - [ ] Validate first-person traversal and lift boarding in a graphical Godot session.
+
+
+## Building access milestone: animated landings and protected bridges
+- [x] Publish elevator departure and arrival signals, and reject new floor requests while the cab is moving.
+- [x] Replace static landing door panels with individual sliding door pairs on every generated floor.
+- [x] Synchronize landing-door closure on departure and opening only at the destination floor.
+- [x] Add collision-enabled guardrails along both exposed sides of each elevator access bridge.
+- [x] Preserve the per-floor call display and indicator details beside the animated doors.
+- [x] Extend core-script parsing and CI structural checks for the landing controller, signals and bridge colliders.
+- [ ] Connect each landing to a clearly traversable tower corridor and the apartment entrance.
+- [ ] Validate first-person boarding, door clearance, stairs and return routes in a graphical Godot session.
