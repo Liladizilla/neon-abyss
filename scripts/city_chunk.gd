@@ -576,7 +576,8 @@ func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Ar
         var landing_direction:float=1.0 if level%2==0 else -1.0
         var landing_x:float=x+(0.78 if level%2==0 else -0.78)
         var stair_landing_size:=Vector3(2.0,slab,1.2)
-        var stair_landing_at:=Vector3(landing_x,y0+slab*0.5,-landing_direction*1.75)
+        # Keep the stair landing centered on this tower, not near the district origin.
+        var stair_landing_at:=Vector3(landing_x,y0+slab*0.5,z-landing_direction*1.75)
         tx.append(Transform3D(Basis.from_scale(stair_landing_size),stair_landing_at))
         colors.append(floor_color)
         colliders.append({"p":stair_landing_at,"s":stair_landing_size})

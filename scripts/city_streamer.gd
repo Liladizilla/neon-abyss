@@ -39,30 +39,40 @@ func _process(_delta):
         for c in active_centers:
             _queue_ring(c)
         for key in chunks.keys():
-            if not _is_near_any(key,active_centers):
+            var chunk_node=chunks[key]
+            var keep_chunk:bool=_is_near_any(key,active_centers)
+            var needs_collision:bool=_needs_collision(key,active_centers)
+            if not keep_chunk or chunk_node.collision_enabled!=needs_collision:
+                # A chunk may have been generated as visual-only before the player approached.
+                # Rebuild it when its collision requirement changes, otherwise it stays non-solid forever.
                 var manager=get_tree().get_first_node_in_group("rental_manager")
                 if is_instance_valid(manager):manager.unregister_chunk(key)
                 var employment=get_tree().get_first_node_in_group("employment_manager")
                 if is_instance_valid(employment):employment.unregister_chunk(key)
-                chunks[key].queue_free()
+                chunk_node.queue_free()
                 chunks.erase(key)
+                if keep_chunk and not queue.has(key):
+                    queue.append(key)
         queue=queue.filter(func(k): return _is_near_any(k,active_centers))
     var made=0
     while not queue.is_empty() and made<chunks_per_frame:
         var k:Vector2i=queue.pop_front()
         if chunks.has(k) or not _is_near_any(k,active_centers):
             continue
-        var collision_enabled=false
-        for c in active_centers:
-            if k.distance_to(c)<=1.0:
-                collision_enabled=true
-                break
+        var collision_enabled:bool=_needs_collision(k,active_centers)
         var ch=CHUNK.new()
         ch.configure(k,chunk_size,20261021,collision_enabled)
         ch.name="District_%d_%d"%[k.x,k.y]
         add_child(ch)
         chunks[k]=ch
         made+=1
+func _needs_collision(k:Vector2i,centers:Array[Vector2i])->bool:
+    for center in centers:
+        # Collision follows the full 3x3 neighborhood around each active player.
+        if max(abs(k.x-center.x),abs(k.y-center.y))<=1:
+            return true
+    return false
+
 func _is_near_any(k:Vector2i,centers:Array[Vector2i])->bool:
     for c in centers:
         if max(abs(k.x-c.x),abs(k.y-c.y))<=radius+1:

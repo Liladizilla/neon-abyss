@@ -89,8 +89,10 @@ func _build_entry_doors(mat:Material):
     for side in [-1.0,1.0]:
         var door:=AnimatableBody3D.new()
         door.name="SlidingEntryDoorLeft" if side<0.0 else "SlidingEntryDoorRight"
-        door.sync_to_physics=true
-        door.position=Vector3(side*0.46,1.12,3.88)
+        door.sync_to_physics = true
+        door.collision_layer = 1
+        door.collision_mask = 1
+        door.position = Vector3(side * 0.46, 1.12, 3.88)
         var mesh_node:=MeshInstance3D.new()
         mesh_node.name="DoorPanel"
         var panel_mesh:=BoxMesh.new()
@@ -125,9 +127,11 @@ func _box(label:String,dimensions:Vector3,at:Vector3,mat:Material,collide:bool):
     mesh_node.position=at
     add_child(mesh_node)
     if collide:
-        var body=StaticBody3D.new()
-        body.name=label+"_Collision"
-        var shape=CollisionShape3D.new()
+        var body := StaticBody3D.new()
+        body.name = label + "_Collision"
+        body.collision_layer = 1
+        body.collision_mask = 1
+        var shape := CollisionShape3D.new()
         var box=BoxShape3D.new()
         box.size=dimensions
         shape.shape=box
