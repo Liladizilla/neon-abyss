@@ -337,9 +337,20 @@ func _enter_unit(room_id:String):
     if not is_instance_valid(player):return
     return_position=player.global_position
     return_yaw=player.rotation.y
-    var interior_origin=Vector3(return_position.x-6.0,10000.0,return_position.z-4.0)
+    var room_parts=room_id.split("/")
+    var floor_number=int(str(room_parts[1]).substr(1,2))
+    var contract:Dictionary=contracts[room_id]
+    var building_id=str(contract.get("building",""))
+    if not buildings.has(building_id):
+        status_label.text="Return to the tower lobby to reconnect to this building."
+        return
+    var building:Dictionary=buildings[building_id]
+    var floor_height=float(building.get("floor_height",3.6))
+    # Each rented suite sits at its real tower-floor elevation beside the exterior lift core.
+    var interior_origin=Vector3(building.entrance.x+12.0,building.entrance.y-1.0+float(floor_number-1)*floor_height,building.entrance.z-4.0)
     active_interior=INTERIOR.new()
     active_interior.configure(room_id,interior_origin)
+    active_interior.rotation.y=-PI*0.5
     get_tree().current_scene.add_child(active_interior)
     player.global_position=interior_origin+Vector3(0,0.12,0)
     player.add_to_group("private_interior")
