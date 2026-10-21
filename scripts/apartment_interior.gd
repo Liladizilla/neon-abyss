@@ -2,9 +2,11 @@ extends Node3D
 ## Reusable private apartment shell with collision and a small furnishing kit.
 var room_id=""
 var entry_door_panels:Array[Dictionary]=[]
-func configure(unit_id:String,world_origin:Vector3):
+var access_bridge_length:float=5.4
+func configure(unit_id:String,world_origin:Vector3,bridge_length:float=5.4):
     room_id=unit_id
     position=world_origin
+    access_bridge_length=maxf(2.8,bridge_length)
 func _ready():
     _build_room()
 func _process(delta:float):
@@ -37,12 +39,15 @@ func _build_room():
     _box("EntryFrameRight",Vector3(0.12,2.45,0.16),Vector3(0.96,1.18,3.88),trim_mat,false)
     _box("EntryFrameTop",Vector3(2.0,0.12,0.16),Vector3(0,2.42,3.88),trim_mat,false)
     _build_entry_doors(trim_mat)
-    # Collision-enabled bridge extends from the apartment threshold toward the matching lift landing.
-    _box("ElevatorAccessBridge",Vector3(2.8,0.16,5.4),Vector3(0,-0.08,6.7),floor_mat,true)
-    _box("BridgeRailLeft",Vector3(0.12,0.95,5.4),Vector3(-1.34,0.43,6.7),trim_mat,true)
-    _box("BridgeRailRight",Vector3(0.12,0.95,5.4),Vector3(1.34,0.43,6.7),trim_mat,true)
-    _box("BridgeGuideLeft",Vector3(0.055,0.025,4.8),Vector3(-1.02,0.015,6.8),trim_mat,false)
-    _box("BridgeGuideRight",Vector3(0.055,0.025,4.8),Vector3(1.02,0.015,6.8),trim_mat,false)
+    # Size the collision-enabled bridge to reach the actual floor landing, including tower setbacks.
+    var bridge_center_z:float=4.0+access_bridge_length*0.5
+    _box("ElevatorAccessBridge",Vector3(2.8,0.16,access_bridge_length),Vector3(0,-0.08,bridge_center_z),floor_mat,true)
+    _box("BridgeRailLeft",Vector3(0.12,0.95,access_bridge_length),Vector3(-1.34,0.43,bridge_center_z),trim_mat,true)
+    _box("BridgeRailRight",Vector3(0.12,0.95,access_bridge_length),Vector3(1.34,0.43,bridge_center_z),trim_mat,true)
+    var guide_length:float=maxf(1.0,access_bridge_length-0.6)
+    var guide_center_z:float=4.0+access_bridge_length*0.5
+    _box("BridgeGuideLeft",Vector3(0.055,0.025,guide_length),Vector3(-1.02,0.015,guide_center_z),trim_mat,false)
+    _box("BridgeGuideRight",Vector3(0.055,0.025,guide_length),Vector3(1.02,0.015,guide_center_z),trim_mat,false)
     _box("WindowFrameTop",Vector3(4.2,0.12,0.16),Vector3(0,2.9,-3.84),trim_mat,false)
     _box("WindowFrameBottom",Vector3(4.2,0.12,0.16),Vector3(0,1.0,-3.84),trim_mat,false)
     _box("WindowFrameLeft",Vector3(0.12,1.9,0.16),Vector3(-2.05,1.95,-3.84),trim_mat,false)
