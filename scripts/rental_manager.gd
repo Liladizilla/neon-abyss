@@ -390,10 +390,10 @@ func _build_apartment_access(facade_x:float,lift_x:float,unit_z:float,center_z:f
     rail_mat.emission_energy_multiplier=1.2
     var corridor_mid_z:float=(center_z+unit_z)*0.5
     var corridor_length:float=maxf(1.0,absf(unit_z-center_z))
-    _add_access_segment(access,"LandingCorridor",Vector3(lift_x,floor_y-0.12,corridor_mid_z),Vector3(2.8,0.18,corridor_length+2.8),floor_mat,true)
+    _add_access_segment(access,"LandingCorridor",Vector3(lift_x,floor_y-0.09,corridor_mid_z),Vector3(2.8,0.18,corridor_length+2.8),floor_mat,true)
     var door_x:float=facade_x+4.5
     var connector_length:float=maxf(0.8,absf(lift_x-door_x))
-    _add_access_segment(access,"UnitConnector",Vector3((lift_x+door_x)*0.5,floor_y-0.12,unit_z),Vector3(connector_length+0.6,0.18,2.8),floor_mat,true)
+    _add_access_segment(access,"UnitConnector",Vector3((lift_x+door_x)*0.5,floor_y-0.09,unit_z),Vector3(connector_length+0.6,0.18,2.8),floor_mat,true)
     for side in [-1.0,1.0]:
         _add_access_segment(access,"CorridorRail",Vector3(lift_x+side*1.34,floor_y+0.42,corridor_mid_z),Vector3(0.10,0.92,corridor_length+2.8),rail_mat,true)
         _add_access_segment(access,"ConnectorRail",Vector3((lift_x+door_x)*0.5,floor_y+0.42,unit_z+side*1.34),Vector3(connector_length+0.6,0.92,0.10),rail_mat,true)
