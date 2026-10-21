@@ -68,6 +68,8 @@ jobs:
           grep -q 'travel_started' scripts/elevator_car.gd
           grep -q 'floor_arrived' scripts/elevator_car.gd
           grep -q 'on_floor_arrived' scripts/elevator_landing_door.gd
+          grep -q 'AnimatableBody3D' scripts/elevator_landing_door.gd
+          grep -q '_make_panel' scripts/elevator_landing_door.gd
           grep -q 'LANDING_DOORS' scripts/city_chunk.gd
           grep -q 'lift_colliders.append' scripts/city_chunk.gd
           grep -q 'facade_bridge' scripts/city_chunk.gd
