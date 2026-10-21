@@ -390,7 +390,7 @@ func _build():
                         win_tx.append(Transform3D(Basis.from_scale(sz),pos))
                         win_colors.append(neon if lit_window else Color(0.015,0.02,0.035))
                         # A dark recessed surround, metal jambs and a projecting sill give each pane depth.
-                        var frame_pos:Vector3=pos+Vector3(sign*0.075,0.0,0.0) if fx else pos+Vector3(0.0,0.0,sign*0.075)
+                        var frame_pos:Vector3=pos-Vector3(sign*0.10,0.0,0.0) if fx else pos-Vector3(0.0,0.0,sign*0.10)
                         var frame_size:Vector3=Vector3(0.12,1.16,0.98) if fx else Vector3(0.98,1.16,0.12)
                         window_frame_tx.append(Transform3D(Basis.from_scale(frame_size),frame_pos))
                         window_frame_colors.append(Color(0.035,0.055,0.085))
