@@ -96,7 +96,7 @@ jobs:
           grep -q 'SlidingEntryDoorLeft' scripts/apartment_interior.gd
           grep -q 'should_open' scripts/apartment_interior.gd
           grep -q 'BridgeGuideLeft' scripts/apartment_interior.gd
-          grep -q 'lift_center_x' scripts/rental_manager.gd
+          grep -q '"lift_x":lift_x' scripts/rental_manager.gd
           grep -q 'active_interior.to_global(Vector3(0,0.12,2.7))' scripts/rental_manager.gd
           grep -q 'upper_width:float,base_height:float' scripts/rental_manager.gd
           grep -q '"lift_x":lift_x' scripts/rental_manager.gd
