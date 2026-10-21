@@ -747,24 +747,29 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
                 post.position=Vector3(offset_x+post_x*landing_width,y+0.52,rail_side*landing_depth*0.46)
                 escape.add_child(post)
         if level<levels-1:
-            var flight:=MeshInstance3D.new()
-            var flight_mesh:=BoxMesh.new()
-            flight_mesh.size=Vector3(landing_width*0.72,maxf(0.18,floor_step*0.72),0.72)
-            flight.mesh=flight_mesh
-            flight.material_override=steel
-            flight.position=Vector3(offset_x+side*landing_width*0.42,y+floor_step*0.5,0)
-            flight.rotation.z=-side*atan2(floor_step*0.72,landing_width*0.72)
-            escape.add_child(flight)
-            var flight_body:=StaticBody3D.new()
-            flight_body.name="FlightCollision_%02d" % level
-            flight_body.position=flight.position
-            flight_body.rotation=flight.rotation
-            var flight_collision:=CollisionShape3D.new()
-            var flight_shape:=BoxShape3D.new()
-            flight_shape.size=flight_mesh.size
-            flight_collision.shape=flight_shape
-            flight_body.add_child(flight_collision)
-            escape.add_child(flight_body)
+            # Build the flight from reusable individual treads instead of one ramp-like slab.
+            var tread_count:int=8
+            var flight_width:float=landing_width*0.72
+            var flight_rise:float=maxf(0.8,floor_step-0.28)
+            for tread_index in range(tread_count):
+                var tread:=MeshInstance3D.new()
+                tread.name="Tread_%02d_%02d" % [level,tread_index]
+                var tread_mesh:=BoxMesh.new()
+                tread_mesh.size=Vector3(flight_width/float(tread_count)+0.035,0.12,0.72)
+                tread.mesh=tread_mesh
+                tread.material_override=steel
+                var progress:float=(float(tread_index)+0.5)/float(tread_count)
+                tread.position=Vector3(offset_x+side*progress*flight_width,y+0.18+progress*flight_rise,0)
+                escape.add_child(tread)
+                var tread_body:=StaticBody3D.new()
+                tread_body.name="TreadCollision_%02d_%02d" % [level,tread_index]
+                tread_body.position=tread.position
+                var tread_collision:=CollisionShape3D.new()
+                var tread_shape:=BoxShape3D.new()
+                tread_shape.size=tread_mesh.size
+                tread_collision.shape=tread_shape
+                tread_body.add_child(tread_collision)
+                escape.add_child(tread_body)
             var stringer:=MeshInstance3D.new()
             var stringer_mesh:=BoxMesh.new()
             stringer_mesh.size=Vector3(landing_width*0.78,0.12,0.12)
