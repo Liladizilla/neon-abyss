@@ -226,8 +226,9 @@ func _build():
                 if floor_level==1:
                     landing_door.call("open_doors",false)
                 # A vertical floor-call display sits beside the doorway.
+                var door_y:float=landing_y+1.08
                 var door_z:float=z+1.78
-                var display_pos:=Vector3(lift_x+1.28,landing_y+1.42,door_z)
+                var display_pos:=Vector3(lift_x+1.28,door_y+0.34,door_z)
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.24,0.62,0.08)),display_pos))
                 lift_landing_colors.append(Color(0.01,0.035,0.055))
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.12,0.025,0.035)),display_pos+Vector3(0,0.13,0.055)))
