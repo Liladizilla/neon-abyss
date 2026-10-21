@@ -45,7 +45,13 @@ func _roads():
     mm.mesh=dash
     var tx:Array[Transform3D]=[]
     for z in [size*0.5-5.0,size*0.5+5.0]:
-        for x in range(5,int(size-5),9): tx.append(Transform3D(Basis.IDENTITY,Vector3(float(x),0.015,z)))
+        for x in range(5,int(size-5),9):
+            tx.append(Transform3D(Basis.IDENTITY,Vector3(float(x),0.015,z)))
+    # Perpendicular arterial markings use the same shared dash mesh and continue at the same
+    # local cadence in every chunk, so neighbouring chunk edges do not introduce a phase jump.
+    for x in [size*0.5-5.0,size*0.5+5.0]:
+        for z in range(5,int(size-5),9):
+            tx.append(Transform3D(Basis(Vector3(0,0,-1),Vector3.UP,Vector3(1,0,0)),Vector3(x,0.015,float(z))))
     mm.instance_count=tx.size()
     for i in tx.size(): mm.set_instance_transform(i,tx[i])
     var marks=MultiMeshInstance3D.new()
@@ -366,6 +372,16 @@ func _street_furniture():
 func _build():
     var body_tx:Array[Transform3D]=[]
     var body_colors:Array[Color]=[]
+    var frontage_glass_tx:Array[Transform3D]=[]
+    var frontage_glass_colors:Array[Color]=[]
+    var frontage_frame_tx:Array[Transform3D]=[]
+    var frontage_frame_colors:Array[Color]=[]
+    var service_door_tx:Array[Transform3D]=[]
+    var service_door_colors:Array[Color]=[]
+    var base_growth_tx:Array[Transform3D]=[]
+    var base_growth_colors:Array[Color]=[]
+    var district_profile:int=posmod(abs(coord.x*17+coord.y*31+seed_value),4)
+    var district_accent:Array[Color = [Color(0.0,0.72,0.92),Color(1.0,0.25,0.08),Color(0.38,0.95,0.42),Color(0.72,0.32,1.0)]
     var trim_tx:Array[Transform3D]=[]
     var trim_colors:Array[Color]=[]
     var win_tx:Array[Transform3D]=[]
@@ -394,6 +410,10 @@ func _build():
             var upper_w=w*(0.58 if style==1 or style==4 else 0.78)
             var upper_d=d*(0.62 if style==0 or style==3 else 0.78)
             var shell_color=Color(0.68,0.72,0.86).lerp(Color(0.12,0.14,0.23),rng.randf_range(0.25,0.82))
+            # District palettes change the identity, not the architectural detail density.
+            shell_color=shell_color.lerp(district_accent[district_profile],0.12)
+            var frontage_glass_color:Color=[Color(0.025,0.34,0.42),Color(0.34,0.12,0.035),Color(0.06,0.28,0.13),Color(0.22,0.09,0.34)][district_profile]
+            var frontage_neon:Color=district_accent[district_profile]
             # Fire-escape towers receive matching open doorway cut-outs at every served floor.
             var has_fire_escape:bool=posmod(building_index,3)==0 and floors>=4
             # Hollow shell replaces the old solid tower mass with walkable floor plates and stairs.
@@ -524,6 +544,34 @@ func _build():
                 pos.z+=(d/2+0.22)*(-1.0 if side==2 else 1.0) if side>=2 else 0.0
                 trim_tx.append(Transform3D(Basis.from_scale(sz),pos))
                 trim_colors.append(neon)
+            # Ground-floor frontage kit: shop glazing, lit sign bands, service doors and
+            # restrained reclaimed growth. All parts are deterministic and remain visual-only.
+            var frontage_z:float=z-d*0.5-0.12
+            var pane_count:int=maxi(3,int(w/3.2))
+            for pane_index in range(pane_count):
+                var pane_x:float=x-w*0.5+(float(pane_index)+0.5)*w/float(pane_count)
+                if abs(pane_x-x)<1.25:
+                    continue
+                var pane_size:=Vector3(maxf(0.8,w/float(pane_count)-0.18),1.55,0.075)
+                frontage_glass_tx.append(Transform3D(Basis.from_scale(pane_size),Vector3(pane_x,1.55,frontage_z)))
+                frontage_glass_colors.append(frontage_glass_color)
+                frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.09,1.72,0.12)),Vector3(pane_x-w/float(pane_count)*0.5+0.04,1.55,frontage_z-0.04)))
+                frontage_frame_colors.append(Color(0.045,0.065,0.085))
+            var sign_width:=minf(w*0.72,12.0)
+            frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(sign_width,0.34,0.16)),Vector3(x,3.0,frontage_z-0.08)))
+            frontage_frame_colors.append(frontage_neon)
+            # A narrow service door and jambs sit to one side of the glazing, not across the lobby axis.
+            var service_x:float=x+w*0.5-1.05
+            service_door_tx.append(Transform3D(Basis.from_scale(Vector3(1.05,2.15,0.10)),Vector3(service_x,1.08,frontage_z-0.07)))
+            service_door_colors.append(Color(0.035,0.045,0.06))
+            for jamb_side in [-1.0,1.0]:
+                frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.08,2.22,0.12)),Vector3(service_x+jamb_side*0.56,1.08,frontage_z-0.12)))
+                frontage_frame_colors.append(frontage_neon)
+            # Small pockets of reclaimed growth cling to the podium corners, away from doorways.
+            for growth_side in [-1.0,1.0]:
+                var growth_x:float=x+growth_side*(w*0.5-1.1)
+                base_growth_tx.append(Transform3D(Basis.from_scale(Vector3(0.62,0.85,0.55)),Vector3(growth_x,0.48,frontage_z-0.36)))
+                base_growth_colors.append(Color(0.055,0.2,0.11) if district_profile!=2 else Color(0.1,0.29,0.13))
             var entrance_local=Vector3(x+w*0.5+2.4,0,z)
             _add_lobby_terminal(entrance_local,building_index)
             if has_fire_escape:
@@ -558,6 +606,10 @@ func _build():
                 trim_tx.append(Transform3D(Basis.from_scale(Vector3(4.0,0.16,bridge_len)),bridge_pos+Vector3(0,0.68,0)))
                 trim_colors.append(NEON[(i+j)%NEON.size()])
     _instances("BuildingMasses",body_tx,body_colors,Color(0.2,0.23,0.34),false)
+    _instances("GroundFloorShopfrontGlazing",frontage_glass_tx,frontage_glass_colors,Color(0.025,0.34,0.42),false)
+    _instances("GroundFloorSignageAndFrames",frontage_frame_tx,frontage_frame_colors,Color(0.08,0.12,0.16),true)
+    _instances("GroundFloorServiceDoors",service_door_tx,service_door_colors,Color(0.035,0.045,0.06),false)
+    _instances("PodiumReclaimedGrowth",base_growth_tx,base_growth_colors,Color(0.055,0.2,0.11),false,SphereMesh.new())
     _instances("NeonBandsAndSigns",trim_tx,trim_colors,Color(0.2,0.5,0.6),true)
     _instances("WindowGrid",win_tx,win_colors,Color(0,0.65,0.9),true)
     _instances("RooftopMachinery",roof_tx,[],Color(0.09,0.14,0.21),false)
@@ -861,14 +913,76 @@ func _instances(label,tx:Array[Transform3D],colors:Array[Color],tint:Color,emiss
     add_child(inst)
 
 func _district_landmark():
-    # A sparse elevated transit halo gives long sightlines a recognizable skyline anchor.
-    # The deterministic grid keeps landmarks consistent between clients and visits.
+    # Landmark families are deterministic, sparse, and distributed on a five-chunk grid.
+    # This gives distant districts different silhouettes without making every block a landmark.
     if posmod(coord.x,5)!=0 or posmod(coord.y,5)!=0:
         return
     var landmark=Node3D.new()
-    landmark.name="AbyssTransitHalo"
+    var family:int=posmod(abs(coord.x*7+coord.y*13+seed_value),3)
+    landmark.name=["AbyssTransitHalo","FloodlightSpire","CollapsedSkybridgeMonument"][family]
     landmark.position=Vector3(size*0.5,0,size*0.5)
     add_child(landmark)
+    if family==1:
+        var spire_mat:=StandardMaterial3D.new()
+        spire_mat.albedo_color=Color(0.045,0.065,0.095)
+        spire_mat.metallic=0.78
+        var beam_mat:=StandardMaterial3D.new()
+        beam_mat.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+        beam_mat.albedo_color=Color(1.0,0.24,0.08)
+        beam_mat.emission_enabled=true
+        beam_mat.emission=Color(1.0,0.12,0.025)
+        beam_mat.emission_energy_multiplier=2.6
+        for i in range(3):
+            var mast:=MeshInstance3D.new()
+            var mast_mesh:=BoxMesh.new()
+            mast_mesh.size=Vector3(1.1,42.0-float(i)*5.0,1.1)
+            mast.mesh=mast_mesh
+            mast.position=Vector3(float(i-1)*5.0,21.0-float(i)*2.5,0)
+            mast.material_override=spire_mat
+            landmark.add_child(mast)
+        var crossbar:=MeshInstance3D.new()
+        var crossbar_mesh:=BoxMesh.new()
+        crossbar_mesh.size=Vector3(17.0,0.38,0.42)
+        crossbar.mesh=crossbar_mesh
+        crossbar.position=Vector3(0,35,0)
+        crossbar.material_override=beam_mat
+        landmark.add_child(crossbar)
+        return
+    if family==2:
+        var ruin_mat:=StandardMaterial3D.new()
+        ruin_mat.albedo_color=Color(0.09,0.105,0.13)
+        ruin_mat.metallic=0.58
+        for side in [-1.0,1.0]:
+            var pier:=MeshInstance3D.new()
+            var pier_mesh:=BoxMesh.new()
+            pier_mesh.size=Vector3(2.8,23.0,3.4)
+            pier.mesh=pier_mesh
+            pier.position=Vector3(side*10.0,11.5,0)
+            pier.rotation_degrees.z=side*4.0
+            pier.material_override=ruin_mat
+            landmark.add_child(pier)
+        var deck:=MeshInstance3D.new()
+        var deck_mesh:=BoxMesh.new()
+        deck_mesh.size=Vector3(24.0,1.4,5.0)
+        deck.mesh=deck_mesh
+        deck.position=Vector3(0,22.0,0)
+        deck.rotation_degrees.z=-3.0
+        deck.material_override=ruin_mat
+        landmark.add_child(deck)
+        var warning:=MeshInstance3D.new()
+        var warning_mesh:=BoxMesh.new()
+        warning_mesh.size=Vector3(18.0,0.22,5.1)
+        warning.mesh=warning_mesh
+        warning.position=Vector3(0,22.9,0)
+        var warning_mat:=StandardMaterial3D.new()
+        warning_mat.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+        warning_mat.albedo_color=Color(1.0,0.16,0.04)
+        warning_mat.emission_enabled=true
+        warning_mat.emission=Color(0.8,0.05,0.01)
+        warning_mat.emission_energy_multiplier=2.0
+        warning.material_override=warning_mat
+        landmark.add_child(warning)
+        return
     var steel=StandardMaterial3D.new()
     steel.albedo_color=Color(0.035,0.055,0.095)
     steel.metallic=0.82
