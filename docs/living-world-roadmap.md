@@ -97,3 +97,10 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Add tactile paving pads to make crossing decision points visually legible.
 - [ ] Add physical ramp collision and test ramp slope/landing alignment against the player controller.
 - [ ] Replace prototype panels with a shared crossing kit that aligns with all procedural road widths and stacked street elevations.
+
+
+## Exterior fire-escape kit
+- [x] Add reusable exterior landing, guardrail, post and stair-flight geometry to a deterministic subset of taller buildings.
+- [x] Vary the landing direction by floor to suggest switchback circulation and break up repetitive tower silhouettes.
+- [ ] Replace prototype flight slabs with individual walkable treads and continuous sloped handrails; add collision and connect landings to actual floor doors.
+- [ ] Validate façade clearance, landing overlap and traversal in a graphical first-person playtest.
