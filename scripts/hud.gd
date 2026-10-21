@@ -57,6 +57,10 @@ func _process(delta):
     if is_instance_valid(player):
         var p=player.global_position
         var speed=Vector2(player.velocity.x,player.velocity.z).length()*3.6
-        top.text="NEON ABYSS // GRID %d : %d"%[floori(p.x/96),floori(p.z/96)]
-        sub.text="ALT %04d M    VEL %03d KM/H"%[roundi(p.y),roundi(speed)]
+        if player.is_in_group("private_interior"):
+            top.text="NEON ABYSS // PRIVATE RESIDENCE"
+            sub.text="LEASED UNIT    •    PRESS R TO RETURN TO CITY"
+        else:
+            top.text="NEON ABYSS // GRID %d : %d"%[floori(p.x/96),floori(p.z/96)]
+            sub.text="ALT %04d M    VEL %03d KM/H"%[roundi(p.y),roundi(speed)]
         right.text="%d FPS\n%s"%[roundi(fps),"FLIGHT MODE" if player.flight_mode else "ON FOOT"]
