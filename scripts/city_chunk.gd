@@ -221,6 +221,7 @@ func _build():
             var building_index=ix*2+iz
             var entrance_local=Vector3(x+w*0.5+2.4,0,z)
             _add_lobby_terminal(entrance_local,building_index)
+            _add_job_board(entrance_local+Vector3(-1.5,0,1.6),building_index)
             var manager=get_tree().get_first_node_in_group("rental_manager")
             if is_instance_valid(manager):
                 manager.register_building(coord,building_index,floors,to_global(entrance_local+Vector3(0,1,0)),style)
@@ -302,6 +303,42 @@ func _add_lobby_terminal(local_position:Vector3,building_index:int):
     indicator.material_override=display
     indicator.position=Vector3(0,1.39,0)
     kiosk.add_child(indicator)
+func _add_job_board(local_position:Vector3,building_index:int):
+    var board=Node3D.new()
+    board.name="EmploymentBoard_%d"%building_index
+    board.position=local_position
+    add_child(board)
+    var body=MeshInstance3D.new()
+    var housing=BoxMesh.new()
+    housing.size=Vector3(0.72,1.55,0.22)
+    body.mesh=housing
+    var shell=StandardMaterial3D.new()
+    shell.albedo_color=Color(0.045,0.035,0.045)
+    shell.metallic=0.62
+    shell.roughness=0.3
+    body.material_override=shell
+    body.position.y=0.78
+    board.add_child(body)
+    var display_mesh=BoxMesh.new()
+    display_mesh.size=Vector3(0.58,0.92,0.035)
+    var display=MeshInstance3D.new()
+    display.mesh=display_mesh
+    display.position=Vector3(0,0.93,-0.13)
+    var screen=StandardMaterial3D.new()
+    screen.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+    screen.albedo_color=Color(1.0,0.36,0.08)
+    screen.emission_enabled=true
+    screen.emission=Color(1.0,0.22,0.035)
+    screen.emission_energy_multiplier=2.2
+    display.material_override=screen
+    board.add_child(display)
+    var base=MeshInstance3D.new()
+    var base_mesh=BoxMesh.new()
+    base_mesh.size=Vector3(0.9,0.12,0.42)
+    base.mesh=base_mesh
+    base.position.y=0.08
+    base.material_override=shell
+    board.add_child(base)
 func _instances(label,tx:Array[Transform3D],colors:Array[Color],tint:Color,emissive:bool,mesh:Mesh=null):
     var mm=MultiMesh.new()
     mm.transform_format=MultiMesh.TRANSFORM_3D
