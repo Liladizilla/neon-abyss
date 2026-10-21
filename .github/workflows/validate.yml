@@ -36,10 +36,16 @@ jobs:
           test -f scripts/city_chunk.gd
           test -f scripts/player_controller.gd
           test -f scripts/network_manager.gd
+          test -f scripts/rental_manager.gd
+          test -f scripts/apartment_interior.gd
           test -f scripts/weather_controller.gd
           test -f scripts/traffic_system.gd
           test -f shaders/wet_asphalt.gdshader
           grep -q 'ENetMultiplayerPeer' scripts/network_manager.gd
           grep -q 'MultiMeshInstance3D' scripts/city_chunk.gd
           grep -q 'fog_enabled' scripts/game_root.gd
+          grep -q 'rental_manager.gd' scripts/game_root.gd
+          grep -q 'register_building' scripts/city_chunk.gd
+          grep -q '_request_rent' scripts/rental_manager.gd
+          grep -q 'set_local_interior' scripts/network_manager.gd
           echo "Godot import, runtime and structure checks passed."
