@@ -1,10 +1,11 @@
 extends Node3D
 ## Camera-following rain volume; GPU particles keep cost bounded near the player.
 var target: Node3D
+var rain:GPUParticles3D
 func set_target(node: Node3D) -> void:
     target=node
 func _ready() -> void:
-    var rain=GPUParticles3D.new()
+    rain=GPUParticles3D.new()
     rain.name="RainField"
     rain.amount=1800
     rain.lifetime=1.1
@@ -33,3 +34,4 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
     if is_instance_valid(target):
         global_position=target.global_position+Vector3(0,12,0)
+        rain.emitting=not target.is_in_group("private_interior")
