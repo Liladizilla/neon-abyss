@@ -249,7 +249,7 @@ func _district_landmark():
         torus.inner_radius=0.72
         torus.outer_radius=1.0
         torus.ring_segments=48
-        torus.ring_sides=8
+        torus.rings=8
         ring.mesh=torus
         ring.material_override=glow if ring_index==0 else steel
         ring.position=Vector3(0,29,0)
