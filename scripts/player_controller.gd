@@ -13,6 +13,7 @@ var _bob=0.0
 @onready var body_mesh=$Body
 func _ready():
     add_to_group("local_player")
+    add_to_group("city_presence")
     body_mesh.visible=false
     floor_snap_length=0.35
 func _unhandled_input(event):
