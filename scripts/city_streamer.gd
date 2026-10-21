@@ -40,6 +40,8 @@ func _process(_delta):
             _queue_ring(c)
         for key in chunks.keys():
             if not _is_near_any(key,active_centers):
+                var manager=get_tree().get_first_node_in_group("rental_manager")
+                if is_instance_valid(manager):manager.unregister_chunk(key)
                 chunks[key].queue_free()
                 chunks.erase(key)
         queue=queue.filter(func(k): return _is_near_any(k,active_centers))
