@@ -254,6 +254,10 @@ func _build():
     var lift_landing_tx:Array[Transform3D]=[]
     var lift_landing_colors:Array[Color]=[]
     var lift_colliders:Array[Dictionary]=[]
+    var frontage_tx:Array[Transform3D]=[]
+    var frontage_colors:Array[Color]=[]
+    var frontage_glow_tx:Array[Transform3D]=[]
+    var frontage_glow_colors:Array[Color]=[]
     for ix in range(2):
         for iz in range(2):
             var x=24.0+ix*48.0+rng.randf_range(-3,3)
@@ -399,6 +403,7 @@ func _build():
                 trim_tx.append(Transform3D(Basis.from_scale(sz),pos))
                 trim_colors.append(neon)
             var entrance_local=Vector3(x+w*0.5+2.4,0,z)
+            _append_building_frontage(frontage_tx,frontage_colors,frontage_glow_tx,frontage_glow_colors,x,z,w,d,building_index,style,neon)
             _add_lobby_terminal(entrance_local,building_index)
             _add_job_board(entrance_local+Vector3(-1.5,0,1.6),building_index)
             var manager=get_tree().get_first_node_in_group("rental_manager")
@@ -436,6 +441,8 @@ func _build():
     _instances("CylindricalServiceTanksAndMasts",cylinder_tx,[],Color(0.18,0.23,0.31),false,CylinderMesh.new())
     _instances("ExteriorElevatorFrames",lift_tx,lift_colors,Color(0.1,0.18,0.26),false)
     _instances("ElevatorFloorLandings",lift_landing_tx,lift_landing_colors,Color(0.1,0.18,0.26),false)
+    _instances("BuildingEntryCanopiesAndPlinths",frontage_tx,frontage_colors,Color(0.1,0.14,0.2),false)
+    _instances("BuildingEntryNeonAndSignage",frontage_glow_tx,frontage_glow_colors,Color(0.02,0.62,0.84),true)
     _district_landmark()
     if collision_enabled:
         var physics=StaticBody3D.new()
@@ -448,6 +455,40 @@ func _build():
             cs.position=data.p
             physics.add_child(cs)
         add_child(physics)
+func _append_building_frontage(tx:Array[Transform3D],colors:Array[Color],glow_tx:Array[Transform3D],glow_colors:Array[Color],x:float,z:float,w:float,d:float,building_index:int,style:int,accent:Color)->void:
+    var facade_x=x+w*0.5
+    # Every tower gets a legible, sheltered street entrance and a different ground-floor use.
+    tx.append(Transform3D(Basis.from_scale(Vector3(4.2,0.24,4.8)),Vector3(facade_x+2.35,3.0,z)))
+    colors.append(Color(0.035,0.06,0.095))
+    tx.append(Transform3D(Basis.from_scale(Vector3(4.8,0.22,5.4)),Vector3(facade_x+2.35,0.12,z)))
+    colors.append(Color(0.13,0.15,0.2))
+    for side in [-1.0,1.0]:
+        tx.append(Transform3D(Basis.from_scale(Vector3(0.18,2.8,0.18)),Vector3(facade_x+4.05,1.45,z+side*2.0)))
+        colors.append(Color(0.12,0.17,0.23))
+        glow_tx.append(Transform3D(Basis.from_scale(Vector3(0.055,2.4,0.055)),Vector3(facade_x+4.16,1.6,z+side*2.0)))
+        glow_colors.append(accent)
+    # A shallow illuminated sign panel is attached to the street-facing side of the canopy.
+    tx.append(Transform3D(Basis.from_scale(Vector3(0.18,0.95,3.4)),Vector3(facade_x+0.35,3.55,z)))
+    colors.append(Color(0.012,0.025,0.045))
+    glow_tx.append(Transform3D(Basis.from_scale(Vector3(0.07,0.09,3.0)),Vector3(facade_x+0.46,4.08,z)))
+    glow_colors.append(accent)
+    glow_tx.append(Transform3D(Basis.from_scale(Vector3(0.07,0.09,3.0)),Vector3(facade_x+0.46,3.03,z)))
+    glow_colors.append(accent)
+    for side in [-1.0,1.0]:
+        tx.append(Transform3D(Basis.from_scale(Vector3(0.24,0.22,4.9)),Vector3(facade_x+2.35,2.84,z+side*2.45)))
+        colors.append(Color(0.08,0.12,0.18))
+    var service_names=["HABITAT","NIGHT MARKET","REPAIR EXCHANGE","CLINIC","PARCEL DEPOT"]
+    var label:=Label3D.new()
+    label.name="BuildingFrontage_%d"%building_index
+    label.text="%s  /  %02d"%[service_names[posmod(style,service_names.size())],building_index+1]
+    label.font_size=32
+    label.outline_size=7
+    label.modulate=accent
+    label.position=Vector3(facade_x+0.49,3.55,z)
+    label.rotation.y=PI*0.5
+    label.pixel_size=0.006
+    add_child(label)
+
 func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Array[Dictionary],x:float,z:float,w:float,d:float,h:float,floors:int,base_h:float,upper_w:float,upper_d:float,shell_color:Color)->void:
     var floor_height:=h/float(floors)
     var floor_color:=Color(0.045,0.065,0.095)
