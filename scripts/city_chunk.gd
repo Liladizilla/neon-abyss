@@ -218,6 +218,12 @@ func _build():
                 pos.z+=(d/2+0.22)*(-1.0 if side==2 else 1.0) if side>=2 else 0.0
                 trim_tx.append(Transform3D(Basis.from_scale(sz),pos))
                 trim_colors.append(neon)
+            var building_index=ix*2+iz
+            var entrance_local=Vector3(x+w*0.5+2.4,0,z)
+            _add_lobby_terminal(entrance_local,building_index)
+            var manager=get_tree().get_first_node_in_group("rental_manager")
+            if is_instance_valid(manager):
+                manager.register_building(coord,building_index,floors,to_global(entrance_local+Vector3(0,1,0)),style)
     # Skybridges join adjacent towers only when both have tall enough structural cores.
     for i in colliders.size():
         for j in range(i+1,colliders.size()):
@@ -257,6 +263,42 @@ func _build():
             cs.position=data.p
             physics.add_child(cs)
         add_child(physics)
+func _add_lobby_terminal(local_position:Vector3,building_index:int):
+    var kiosk=Node3D.new()
+    kiosk.name="RentalTerminal_%d"%building_index
+    kiosk.position=local_position
+    add_child(kiosk)
+    var body=MeshInstance3D.new()
+    var body_mesh=BoxMesh.new()
+    body_mesh.size=Vector3(0.9,1.35,0.55)
+    body.mesh=body_mesh
+    var shell=StandardMaterial3D.new()
+    shell.albedo_color=Color(0.025,0.045,0.075)
+    shell.metallic=0.72
+    shell.roughness=0.24
+    body.material_override=shell
+    body.position.y=0.68
+    kiosk.add_child(body)
+    var screen=MeshInstance3D.new()
+    var screen_mesh=BoxMesh.new()
+    screen_mesh.size=Vector3(0.07,0.72,0.38)
+    screen.mesh=screen_mesh
+    var display=StandardMaterial3D.new()
+    display.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+    display.albedo_color=Color(0.0,0.8,1.0)
+    display.emission_enabled=true
+    display.emission=Color(0.0,0.62,1.0)
+    display.emission_energy_multiplier=2.4
+    screen.material_override=display
+    screen.position=Vector3(0.47,0.88,0)
+    kiosk.add_child(screen)
+    var indicator=MeshInstance3D.new()
+    var indicator_mesh=BoxMesh.new()
+    indicator_mesh.size=Vector3(0.12,0.08,0.62)
+    indicator.mesh=indicator_mesh
+    indicator.material_override=display
+    indicator.position=Vector3(0,1.39,0)
+    kiosk.add_child(indicator)
 func _instances(label,tx:Array[Transform3D],colors:Array[Color],tint:Color,emissive:bool,mesh:Mesh=null):
     var mm=MultiMesh.new()
     mm.transform_format=MultiMesh.TRANSFORM_3D
