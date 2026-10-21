@@ -125,9 +125,11 @@ func _box(label:String,dimensions:Vector3,at:Vector3,mat:Material,collide:bool):
     mesh_node.position=at
     add_child(mesh_node)
     if collide:
-        var body=StaticBody3D.new()
-        body.name=label+"_Collision"
-        var shape=CollisionShape3D.new()
+        var body := StaticBody3D.new()
+        body.name = label + "_Collision"
+        body.collision_layer = 1
+        body.collision_mask = 1
+        var shape := CollisionShape3D.new()
         var box=BoxShape3D.new()
         box.size=dimensions
         shape.shape=box
