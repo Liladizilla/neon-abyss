@@ -22,7 +22,7 @@ func _ready():
     _load_ledger()
     _build_ui()
     multiplayer.peer_connected.connect(_on_peer_connected)
-    multiplayer.connected_to_server.connect(_request_ledger)
+    multiplayer.connected_to_server.connect(func(): _request_ledger.rpc_id(1))
 func set_player(p):
     player=p
 func _process(delta):
@@ -178,10 +178,6 @@ func _open_building(building_id:String):
                 button.disabled=true
             line.add_child(button)
             shown+=1
-            if shown>=24:
-                break
-        if shown>=24:
-            break
     panel.show()
 func _can_request_here(building_id:String)->bool:
     if not buildings.has(building_id) or not is_instance_valid(player):
@@ -198,17 +194,28 @@ func _rent_for(building:Dictionary,floor_number:int,unit_number:int)->int:
     return 100+floor_number*12+unit_number*5+int(building.style)*8
 func _rent(room_id:String,building_id:String,price:int):
     if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
-        _request_rent.rpc_id(1,room_id,building_id,price)
+        var pieces=room_id.split("/")
+        var floor_number=int(str(pieces[1]).substr(1,2))
+        var unit_number=int(str(pieces[2]).substr(1))
+        _request_rent.rpc_id(1,room_id,building_id,floor_number,unit_number)
         status_label.text="Rental request sent to the city host..."
         return
-    _server_rent(room_id,building_id,price,1)
-func _server_rent(room_id:String,building_id:String,price:int,peer_id:int):
+    var pieces=room_id.split("/")
+    var floor_number=int(str(pieces[1]).substr(1,2))
+    var unit_number=int(str(pieces[2]).substr(1))
+    _server_rent(room_id,building_id,floor_number,unit_number,1)
+func _server_rent(room_id:String,building_id:String,floor_number:int,unit_number:int,peer_id:int):
     if not buildings.has(building_id) or contracts.has(room_id):
         _send_status(peer_id,"That unit is no longer available.")
         return
-    if not buildings[building_id].floors*UNITS_PER_FLOOR>0 or not _can_peer_reach(peer_id,building_id):
+    var building:Dictionary=buildings[building_id]
+    if floor_number<1 or floor_number>int(building.floors) or unit_number<1 or unit_number>UNITS_PER_FLOOR or room_id!=_room_id(building_id,floor_number,unit_number):
+        _send_status(peer_id,"Invalid room selection.")
+        return
+    if not _can_peer_reach(peer_id,building_id):
         _send_status(peer_id,"Move closer to this building's rental terminal.")
         return
+    var price=_rent_for(building,floor_number,unit_number)
     var identity="creator" if not multiplayer.has_multiplayer_peer() else "peer_%d"%peer_id
     if _has_contract_for(identity):
         _send_status(peer_id,"You already have a unit. Release it before renting another.")
@@ -220,9 +227,9 @@ func _server_rent(room_id:String,building_id:String,price:int,peer_id:int):
     wallets[identity]=current-price
     contracts[room_id]={"owner":identity,"rent":price,"next_due":int(Time.get_unix_time_from_system())+CONTRACT_SECONDS,"building":building_id}
     _save_ledger()
-    _sync_ledger.rpc(contracts,wallets)
+    if multiplayer.has_multiplayer_peer():_sync_ledger.rpc(contracts,wallets)
     _send_status(peer_id,"Lease secured. Your unit is reserved for 30 days.")
-    _open_building(building_id) if peer_id==1 else null
+    if peer_id==1:_open_building(building_id)
 func _can_peer_reach(peer_id:int,building_id:String)->bool:
     if not buildings.has(building_id):return false
     if not multiplayer.has_multiplayer_peer() or peer_id==1:
@@ -239,15 +246,15 @@ func _identity()->String:
 func _wallet()->int:
     return int(wallets.get(_identity(),2500))
 func _send_status(peer_id:int,message:String):
-    if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+    if multiplayer.has_multiplayer_peer() and multiplayer.is_server() and peer_id!=1:
         _status_to_peer.rpc_id(peer_id,message)
     else:
         status_label.text=message
 @rpc("any_peer","call_remote","reliable")
-func _request_rent(room_id:String,building_id:String,price:int):
+func _request_rent(room_id:String,building_id:String,floor_number:int,unit_number:int):
     if not multiplayer.is_server():return
     var peer_id=multiplayer.get_remote_sender_id()
-    _server_rent(room_id,building_id,price,peer_id)
+    _server_rent(room_id,building_id,floor_number,unit_number,peer_id)
 @rpc("authority","call_remote","reliable")
 func _sync_ledger(new_contracts:Dictionary,new_wallets:Dictionary):
     contracts=new_contracts.duplicate(true)
@@ -281,7 +288,7 @@ func _process_due_rent():
         changed=true
     if changed:
         _save_ledger()
-        _sync_ledger.rpc(contracts,wallets)
+        if multiplayer.has_multiplayer_peer():_sync_ledger.rpc(contracts,wallets)
 func _enter_unit(room_id:String):
     if not contracts.has(room_id) or str(contracts[room_id].get("owner",""))!=_identity():
         status_label.text="You do not hold this lease."
