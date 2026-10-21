@@ -12,7 +12,7 @@ func _initialize():
     ]
     for path in paths:
         var script=load(path)
-        if script==null:
+        if script==null or not script.can_instantiate():
             push_error("Unable to load script: "+path)
             quit(1)
             return
