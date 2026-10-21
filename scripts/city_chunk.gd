@@ -544,30 +544,55 @@ func _build():
                 pos.z+=(d/2+0.22)*(-1.0 if side==2 else 1.0) if side>=2 else 0.0
                 trim_tx.append(Transform3D(Basis.from_scale(sz),pos))
                 trim_colors.append(neon)
-            # Ground-floor frontage kit: shop glazing, lit sign bands, service doors and
-            # restrained reclaimed growth. All parts are deterministic and remain visual-only.
+            # Ground-floor use profile is deterministic per building and district.
+            # The kit is visual-only; solid tower walls and real doorway collision remain authoritative.
+            var frontage_kind:int=posmod(building_index+district_profile,4)
             var frontage_z:float=z-d*0.5-0.30
             var pane_count:int=maxi(3,int(w/3.2))
-            for pane_index in range(pane_count):
-                var pane_x:float=x-w*0.5+(float(pane_index)+0.5)*w/float(pane_count)
-                if abs(pane_x-x)<1.25:
-                    continue
-                var pane_size:=Vector3(maxf(0.8,w/float(pane_count)-0.18),1.55,0.075)
-                frontage_glass_tx.append(Transform3D(Basis.from_scale(pane_size),Vector3(pane_x,1.55,frontage_z)))
-                frontage_glass_colors.append(frontage_glass_color)
-                frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.09,1.72,0.12)),Vector3(pane_x-w/float(pane_count)*0.5+0.04,1.55,frontage_z-0.04)))
-                frontage_frame_colors.append(Color(0.045,0.065,0.085))
-            var sign_width:=minf(w*0.72,12.0)
-            frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(sign_width,0.34,0.16)),Vector3(x,3.0,frontage_z-0.08)))
-            frontage_frame_colors.append(frontage_neon)
-            # A narrow service door and jambs sit to one side of the glazing, not across the lobby axis.
             var service_x:float=x+w*0.5-1.05
-            service_door_tx.append(Transform3D(Basis.from_scale(Vector3(1.05,2.15,0.10)),Vector3(service_x,1.08,frontage_z-0.07)))
-            service_door_colors.append(Color(0.035,0.045,0.06))
-            for jamb_side in [-1.0,1.0]:
-                frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.08,2.22,0.12)),Vector3(service_x+jamb_side*0.56,1.08,frontage_z-0.12)))
+            if frontage_kind==0:
+                # Retail frontage: broad panes with a sign band, leaving the central lobby axis clear.
+                for pane_index in range(pane_count):
+                    var pane_x:float=x-w*0.5+(float(pane_index)+0.5)*w/float(pane_count)
+                    if abs(pane_x-x)<1.25 or abs(pane_x-service_x)<1.0:
+                        continue
+                    var pane_size:=Vector3(maxf(0.8,w/float(pane_count)-0.18),1.55,0.075)
+                    frontage_glass_tx.append(Transform3D(Basis.from_scale(pane_size),Vector3(pane_x,1.55,frontage_z)))
+                    frontage_glass_colors.append(frontage_glass_color)
+                    frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.09,1.72,0.12)),Vector3(pane_x-w/float(pane_count)*0.5+0.04,1.55,frontage_z-0.04)))
+                    frontage_frame_colors.append(Color(0.045,0.065,0.085))
+                frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(minf(w*0.72,12.0),0.34,0.16)),Vector3(x,3.0,frontage_z-0.08)))
                 frontage_frame_colors.append(frontage_neon)
-            # Small pockets of reclaimed growth cling to the podium corners, away from doorways.
+            elif frontage_kind==1:
+                # Residential lobby: a taller glazed entry surround and restrained wayfinding header.
+                frontage_glass_tx.append(Transform3D(Basis.from_scale(Vector3(2.2,2.15,0.075)),Vector3(x,1.35,frontage_z)))
+                frontage_glass_colors.append(Color(0.025,0.12,0.16))
+                frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(2.55,0.16,0.14)),Vector3(x,2.55,frontage_z-0.08)))
+                frontage_frame_colors.append(frontage_neon)
+                frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.10,2.35,0.14)),Vector3(x-1.28,1.22,frontage_z-0.08)))
+                frontage_frame_colors.append(frontage_neon)
+                frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.10,2.35,0.14)),Vector3(x+1.28,1.22,frontage_z-0.08)))
+                frontage_frame_colors.append(frontage_neon)
+            elif frontage_kind==2:
+                # Maintenance frontage: one narrow, clearly framed utility door and a small warning light.
+                service_door_tx.append(Transform3D(Basis.from_scale(Vector3(1.05,2.15,0.10)),Vector3(service_x,1.08,frontage_z-0.07)))
+                service_door_colors.append(Color(0.035,0.045,0.06))
+                for jamb_side in [-1.0,1.0]:
+                    frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.08,2.22,0.12)),Vector3(service_x+jamb_side*0.56,1.08,frontage_z-0.12)))
+                    frontage_frame_colors.append(frontage_neon)
+                frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,0.22,0.12)),Vector3(service_x,2.38,frontage_z-0.14)))
+                frontage_frame_colors.append(Color(1.0,0.18,0.06))
+            else:
+                # Loading frontage: segmented shutter slats and side guards, not a fake open doorway.
+                var shutter_width:float=minf(w*0.38,5.4)
+                var shutter_x:float=x-w*0.18
+                for slat in range(7):
+                    frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(shutter_width,0.07,0.12)),Vector3(shutter_x,0.42+float(slat)*0.25,frontage_z-0.10)))
+                    frontage_frame_colors.append(Color(0.22,0.27,0.32))
+                for guard_side in [-1.0,1.0]:
+                    frontage_frame_tx.append(Transform3D(Basis.from_scale(Vector3(0.12,2.05,0.14)),Vector3(shutter_x+guard_side*(shutter_width*0.5+0.12),1.0,frontage_z-0.10)))
+                    frontage_frame_colors.append(frontage_neon)
+            # Keep a little vegetation at podium corners, but clear the service/lobby approach.
             for growth_side in [-1.0,1.0]:
                 var growth_x:float=x+growth_side*(w*0.5-1.1)
                 base_growth_tx.append(Transform3D(Basis.from_scale(Vector3(0.62,0.85,0.55)),Vector3(growth_x,0.48,frontage_z-0.36)))
