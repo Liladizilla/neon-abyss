@@ -37,11 +37,12 @@ func _physics_process(delta):
         if Input.is_action_just_pressed("jump") and is_on_floor(): velocity.y=jump_velocity
     move_and_slide()
     if is_on_floor() and Vector2(velocity.x,velocity.z).length()>0.5 and not flight_mode:
-        _bob+=delta*10
+        _bob+=delta*10.0
         pivot.position.y=1.58+sin(_bob)*0.035
     else: pivot.position.y=move_toward(pivot.position.y,1.58,delta*3)
 func _throw_prop():
     var prop=RigidBody3D.new()
+    prop.name="ThrownNeonCrate"
     prop.mass=2.0
     var mesh=MeshInstance3D.new()
     var box=BoxMesh.new()
@@ -63,4 +64,4 @@ func _throw_prop():
     get_tree().current_scene.add_child(prop)
     prop.global_position=camera.global_position-camera.global_basis.z*1.4
     prop.apply_central_impulse(-camera.global_basis.z*14+Vector3.UP*4+velocity*0.4)
-    get_tree().create_timer(18).timeout.connect(func(): if is_instance_valid(prop): prop.queue_free())
+    get_tree().create_timer(18.0).timeout.connect(prop.queue_free)
