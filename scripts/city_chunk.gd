@@ -56,6 +56,65 @@ func _roads():
     marks.material_override=lm
     add_child(marks)
     _street_furniture()
+    _transit_infrastructure()
+func _transit_infrastructure():
+    # Elevated guideway follows the district's east-west arterial.
+    var rails:Array[Transform3D]=[]
+    var supports:Array[Transform3D]=[]
+    for side in [-1.0,1.0]:
+        rails.append(Transform3D(Basis.from_scale(Vector3(size,0.28,0.32)),Vector3(size*0.5,12.5,size*0.5+side*1.8)))
+    for along in [12.0,36.0,60.0,84.0]:
+        supports.append(Transform3D(Basis.from_scale(Vector3(0.8,6.0,0.8)),Vector3(along,6.0,size*0.5)))
+    _instances("ElevatedTransitRails",rails,[],Color(0.16,0.2,0.29),false)
+    _instances("TransitGuidewayPylons",supports,[],Color(0.12,0.16,0.23),false)
+    if posmod(coord.x,3)==0 and posmod(coord.y,3)==0:
+        var station=Node3D.new()
+        station.name="ElevatedTransitStation"
+        station.position=Vector3.ZERO
+        add_child(station)
+        var platform=MeshInstance3D.new()
+        var platform_mesh=BoxMesh.new()
+        platform_mesh.size=Vector3(34.0,0.7,4.6)
+        platform.mesh=platform_mesh
+        platform.position=Vector3(size*0.5,10.4,size*0.5+5.2)
+        var platform_mat=StandardMaterial3D.new()
+        platform_mat.albedo_color=Color(0.08,0.11,0.18)
+        platform_mat.metallic=0.48
+        platform_mat.roughness=0.34
+        platform.material_override=platform_mat
+        station.add_child(platform)
+        var canopy=MeshInstance3D.new()
+        var canopy_mesh=BoxMesh.new()
+        canopy_mesh.size=Vector3(34.0,0.28,5.6)
+        canopy.mesh=canopy_mesh
+        canopy.position=Vector3(size*0.5,15.1,size*0.5+5.2)
+        var canopy_mat=StandardMaterial3D.new()
+        canopy_mat.albedo_color=Color(0.035,0.06,0.1)
+        canopy_mat.metallic=0.7
+        canopy_mat.roughness=0.25
+        canopy.material_override=canopy_mat
+        station.add_child(canopy)
+        for along in [size*0.5-15.0,size*0.5+15.0]:
+            var pillar=MeshInstance3D.new()
+            var pillar_mesh=BoxMesh.new()
+            pillar_mesh.size=Vector3(0.45,4.4,0.45)
+            pillar.mesh=pillar_mesh
+            pillar.position=Vector3(along,13.0,size*0.5+5.2)
+            pillar.material_override=platform_mat
+            station.add_child(pillar)
+        var edge=MeshInstance3D.new()
+        var edge_mesh=BoxMesh.new()
+        edge_mesh.size=Vector3(33.0,0.12,0.16)
+        edge.mesh=edge_mesh
+        edge.position=Vector3(size*0.5,10.8,size*0.5+3.0)
+        var edge_mat=StandardMaterial3D.new()
+        edge_mat.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+        edge_mat.albedo_color=Color(0.02,0.78,1.0)
+        edge_mat.emission_enabled=true
+        edge_mat.emission=Color(0.01,0.55,1.0)
+        edge_mat.emission_energy_multiplier=2.0
+        edge.material_override=edge_mat
+        station.add_child(edge)
 func _street_furniture():
     # Street furniture is instanced per district to keep draw calls bounded.
     var poles:Array[Transform3D]=[]
