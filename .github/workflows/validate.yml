@@ -108,4 +108,7 @@ jobs:
           grep -q '_identity_for_peer' scripts/rental_manager.gd
           grep -q 'interior_peers.erase' scripts/network_manager.gd
           grep -q 'set_local_interior' scripts/network_manager.gd
+          grep -q '_transit_access_stairs' scripts/city_chunk.gd
+          grep -q 'TransitPedestrianAccess' scripts/city_chunk.gd
+          grep -q 'TransitStairCollision' scripts/city_chunk.gd
           echo "Godot import, runtime and structure checks passed."

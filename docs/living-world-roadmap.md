@@ -135,3 +135,9 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [ ] Continue the modular facade kit with detailed door assemblies, fire stairs, balcony and landing handrails, rain gutters, drain outlets and service access panels; tune visibility by distance.
 - [ ] Build a layered urban circulation graph linking ground roads, elevated streets, skybridges, transit platforms, stair and elevator cores, and underground concourses so stacked routes remain traversable rather than decorative.
 - [ ] Add district archetypes and controlled asset variation so low-rise housing, markets, clinics, workshops, service alleys and plazas appear between landmark towers.
+
+## Elevated transit pedestrian access
+- [x] Add a switchback station stair with repeated tread nosings, metal handrails and a raised connector aligned with the elevated platform.
+- [x] Build nearby-chunk stair tread and connector collision so the access can be approached physically in active gameplay areas.
+- [ ] Run a first-person Godot playtest to validate step dimensions, handrail clearance, landing alignment and safe station entry; visual/headless checks alone cannot confirm traversal feel.
+- [ ] Replace prototype stair geometry with a shared modular stair kit and connect the station lift core into the same vertical circulation graph.
