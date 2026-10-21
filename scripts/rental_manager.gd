@@ -18,6 +18,8 @@ var info_label:Label
 var status_label:Label
 var wallet_label:Label
 var active_interior:Node3D
+var active_room_id=""
+var interior_rooms_by_peer:Dictionary={}
 var return_position=Vector3.ZERO
 var return_yaw=0.0
 var _bill_clock=0.0
@@ -26,6 +28,7 @@ func _ready():
     _load_ledger()
     _build_ui()
     multiplayer.peer_connected.connect(_on_peer_connected)
+    multiplayer.peer_disconnected.connect(_on_peer_disconnected)
     multiplayer.connected_to_server.connect(func(): _request_ledger.rpc_id(1))
 func set_player(p):
     player=p
@@ -280,6 +283,9 @@ func _release_lease(room_id:String):
         return
     _server_release(room_id,1)
 func _server_release(room_id:String,peer_id:int):
+    if interior_rooms_by_peer.values().has(room_id):
+        _send_status(peer_id,"Exit the apartment before releasing its lease.")
+        return
     if not contracts.has(room_id):
         _send_status(peer_id,"That lease is no longer active.")
         return
@@ -311,6 +317,9 @@ func _request_ledger():
 func _on_peer_connected(id:int):
     if multiplayer.is_server():
         _sync_ledger.rpc_id(id,contracts,wallets)
+func _on_peer_disconnected(id:int):
+    if multiplayer.is_server():
+        interior_rooms_by_peer.erase(id)
 func _process_due_rent():
     var now=int(Time.get_unix_time_from_system())
     var changed=false
@@ -335,13 +344,70 @@ func _enter_unit(room_id:String):
         status_label.text="You do not hold this lease."
         return
     if not is_instance_valid(player):return
+    if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+        status_label.text="Validating your lease with the city host..."
+        _request_enter_unit.rpc_id(1,room_id)
+        return
+    if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+        _server_enter_unit(room_id,1)
+        return
+    _open_unit_local(room_id)
+@rpc("any_peer","call_remote","reliable")
+func _request_enter_unit(room_id:String):
+    if not multiplayer.is_server():return
+    _server_enter_unit(room_id,multiplayer.get_remote_sender_id())
+func _server_enter_unit(room_id:String,peer_id:int):
+    if not contracts.has(room_id):
+        _send_status(peer_id,"That lease is no longer active.")
+        return
+    var identity=_identity_for_peer(peer_id)
+    if str(contracts[room_id].get("owner",""))!=identity:
+        _send_status(peer_id,"The city host rejected entry: this lease does not belong to you.")
+        return
+    if interior_rooms_by_peer.has(peer_id):
+        _send_status(peer_id,"Exit your current apartment before entering another.")
+        return
+    var building_id=str(contracts[room_id].get("building",""))
+    if not buildings.has(building_id):
+        _send_status(peer_id,"This tower is not currently streamed. Return to its lobby and try again.")
+        return
+    interior_rooms_by_peer[peer_id]=room_id
+    if peer_id==1:
+        _open_unit_local(room_id)
+    else:
+        _grant_unit_entry.rpc_id(peer_id,room_id)
+@rpc("authority","call_remote","reliable")
+func _grant_unit_entry(room_id:String):
+    if not contracts.has(room_id) or str(contracts[room_id].get("owner",""))!=_identity():
+        status_label.text="Entry cancelled: the lease is no longer valid."
+        return
+    if not is_instance_valid(player) or is_instance_valid(active_interior):
+        status_label.text="Cannot open the apartment while another interior is active."
+        return
+    _open_unit_local(room_id)
+@rpc("any_peer","call_remote","reliable")
+func _request_exit_unit(room_id:String):
+    if not multiplayer.is_server():return
+    var peer_id=multiplayer.get_remote_sender_id()
+    if str(interior_rooms_by_peer.get(peer_id,""))==room_id:
+        interior_rooms_by_peer.erase(peer_id)
+func _identity_for_peer(peer_id:int)->String:
+    if not multiplayer.has_multiplayer_peer() or peer_id==1:return "creator"
+    return "peer_%d"%peer_id
+func _open_unit_local(room_id:String):
+    if not contracts.has(room_id) or str(contracts[room_id].get("owner",""))!=_identity():
+        status_label.text="You do not hold this lease."
+        return
+    if not is_instance_valid(player) or is_instance_valid(active_interior):return
     return_position=player.global_position
     return_yaw=player.rotation.y
+    active_room_id=room_id
     var room_parts=room_id.split("/")
     var floor_number=int(str(room_parts[1]).substr(1,2))
     var contract:Dictionary=contracts[room_id]
     var building_id=str(contract.get("building",""))
     if not buildings.has(building_id):
+        active_room_id=""
         status_label.text="Return to the tower lobby to reconnect to this building."
         return
     var building:Dictionary=buildings[building_id]
@@ -358,7 +424,6 @@ func _enter_unit(room_id:String):
     var unit_number:int=int(str(room_parts[2]).substr(1))
     var unit_offsets:Dictionary={1:-18.3,2:-6.1,3:6.1,4:18.3}
     var unit_z:float=building_center.z+float(unit_offsets.get(unit_number,0.0))
-    # The suite front doorway faces the elevator core; four units occupy separate lateral bays.
     var interior_origin:Vector3=Vector3(facade_x+8.5,float(building.entrance.y)-1.0+float(floor_number-1)*floor_height+0.24,unit_z)
     active_interior=INTERIOR.new()
     active_interior.name="PrivateApartment_%s"%room_id.replace("/","_")
@@ -420,6 +485,13 @@ func _add_access_segment(parent:Node3D,label:String,at:Vector3,dimensions:Vector
         parent.add_child(body)
 func _exit_unit():
     if not is_instance_valid(active_interior):return
+    var leaving_room=active_room_id
+    if multiplayer.has_multiplayer_peer():
+        if multiplayer.is_server():
+            if str(interior_rooms_by_peer.get(1,""))==leaving_room:interior_rooms_by_peer.erase(1)
+        else:
+            _request_exit_unit.rpc_id(1,leaving_room)
+    active_room_id=""
     if active_interior.has_meta("access_corridor"):
         var access:Node3D=active_interior.get_meta("access_corridor")
         if is_instance_valid(access):access.queue_free()
