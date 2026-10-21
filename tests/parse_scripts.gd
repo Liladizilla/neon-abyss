@@ -2,6 +2,7 @@ extends SceneTree
 func _initialize():
     var paths=[
         "res://scripts/rental_manager.gd",
+        "res://scripts/employment_manager.gd",
         "res://scripts/apartment_interior.gd",
         "res://scripts/game_root.gd",
         "res://scripts/city_chunk.gd",
