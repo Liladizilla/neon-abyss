@@ -169,6 +169,8 @@ func _open_panel() -> void:
         var button := Button.new()
         button.text = "FLOOR %02d%s" % [floor_number, "  •  CURRENT" if absf(position.y - _floor_y(floor_number)) < 0.7 else ""]
         button.custom_minimum_size.y = 36
+        var is_current_floor := absf(position.y - _floor_y(floor_number)) < 0.25
+        button.disabled = _busy or is_current_floor
         button.pressed.connect(_request_floor.bind(floor_number))
         floor_list.add_child(button)
     status_label.text = "Lift moving..." if _busy else "Ready  •  Tower %s" % building_id
@@ -203,6 +205,9 @@ func _server_request_floor(floor_number: int, peer_id: int) -> void:
         return
     if _busy:
         _send_status(peer_id, "Lift is already moving. Wait for it to arrive.")
+        return
+    if absf(position.y - _floor_y(floor_number)) < 0.25:
+        _send_status(peer_id, "The lift is already at that floor.")
         return
     if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
         _begin_travel(floor_number)
