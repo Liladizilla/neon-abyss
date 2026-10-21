@@ -217,14 +217,14 @@ func _build():
                     lift_landing_colors.append(Color(0.035,0.13,0.19))
                     lift_colliders.append({"p":rail_pos,"s":rail_size})
                 # Landing doors are individual meshes so the correct floor can open on arrival.
-                var landing_door: Node3D = LANDING_DOORS.new()
+                var landing_door = LANDING_DOORS.new()
                 landing_door.position=Vector3(lift_x,0.0,z)
-                landing_door.configure(floor_level,landing_y)
+                landing_door.call("configure",floor_level,landing_y)
                 add_child(landing_door)
                 lift_car.connect("travel_started",Callable(landing_door,"on_travel_started"))
                 lift_car.connect("floor_arrived",Callable(landing_door,"on_floor_arrived"))
                 if floor_level==1:
-                    landing_door.open_doors(false)
+                    landing_door.call("open_doors",false)
                 # A vertical floor-call display sits beside the doorway.
                 var door_z:float=z+1.78
                 var display_pos:=Vector3(lift_x+1.28,landing_y+1.42,door_z)
