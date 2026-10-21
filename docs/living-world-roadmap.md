@@ -23,10 +23,11 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - Current limitation: this is a minimal employment loop, not full job simulation, player businesses, offline wages or a durable labor contract.
 
 ## Milestone D — building interiors and access (first vertical-access slice)
-- Exterior elevator cores on generated towers, animated glass elevator cars, and collision-enabled floor landings.
+- Exterior elevator cores on generated towers, animated glass elevator cars, physical cab floors, and collision-enabled floor landings.
+- G opens a floor selector near a lift shaft. Requests are checked by the host, then lift travel is broadcast to connected clients.
 - Rented apartments are positioned at the selected tower-floor elevation beside the lift core, with a collision-enabled access bridge and a return route to the street.
 - Tower geometry and floor height are stored in the building registry so room entry is tied to a generated building and floor rather than an off-map void.
-- Still outstanding: fully hollow interior floors inside the tower shell, walkable stairwells, elevator ride controls and doors, accessible routes, fire exits, service rooms, apartment customization and storage.
+- Still outstanding: fully hollow interior floors inside the tower shell, walkable stairwells, elevator door animation, accessible routes, fire exits, service rooms, apartment customization and storage.
 
 ## Milestone E — complete city services
 - Shops, markets, restaurants, cafes, bars, hotels and delivery services.
