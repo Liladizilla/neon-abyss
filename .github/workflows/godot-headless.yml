@@ -22,6 +22,8 @@ jobs:
           use-dotnet: false
       - name: Import project and parse scripts
         run: godot --headless --editor --path . --quit
+      - name: Verify generated building registration
+        run: godot --headless --path . --script tests/headless_city_smoke.gd
       - name: Run project startup smoke test
         shell: bash
         run: |
