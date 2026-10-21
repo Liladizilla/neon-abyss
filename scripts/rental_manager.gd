@@ -350,10 +350,12 @@ func _enter_unit(room_id:String):
     var floor_mid_y:float=float(floor_number-1)*floor_height+(floor_height-0.12)*0.5
     var floor_width:float=float(building.upper_width) if floor_mid_y>=float(building.base_height) else float(building.dimensions.x)
     var facade_x:float=float(building.center.x)+floor_width*0.5
+    var landing_inner_x:float=float(building.lift_x)-1.85
+    var access_bridge_length:float=maxf(2.8,landing_inner_x-facade_x+0.25)
     var landing_top_y:float=float(building.center.y)+float(floor_number-1)*floor_height+0.24
     var interior_origin:=Vector3(facade_x-3.88,landing_top_y,building.center.z)
     active_interior=INTERIOR.new()
-    active_interior.configure(room_id,interior_origin)
+    active_interior.configure(room_id,interior_origin,access_bridge_length)
     # Local +Z faces outward: the apartment bridge now runs from its threshold toward the lift.
     active_interior.rotation.y=PI*0.5
     get_tree().current_scene.add_child(active_interior)
