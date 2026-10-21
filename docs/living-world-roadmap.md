@@ -64,6 +64,7 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 ## Building access milestone: elevator landing readability
 - [x] Add paired door panels and illuminated center seams at each generated elevator landing.
 - [x] Add a floor-call display panel beside each landing door.
-- [ ] Implement authoritative door open/close states synchronized with elevator arrival and departure.
+- [x] Animate cab door panels closed before lift travel and open after arrival.
+- [ ] Animate landing doors with authoritative states synchronized to elevator arrival and departure.
 - [ ] Connect each landing directly to a consistently sized corridor and apartment entrance.
 - [ ] Validate first-person traversal and lift boarding in a graphical Godot session.
