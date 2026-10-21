@@ -1,6 +1,8 @@
 extends Node3D
 ## Reusable private apartment shell with collision and a small furnishing kit.
 var room_id=""
+var _entry_door_left:AnimatableBody3D
+var _entry_door_right:AnimatableBody3D
 func configure(unit_id:String,world_origin:Vector3):
     room_id=unit_id
     position=world_origin
@@ -20,6 +22,9 @@ func _build_room():
     _box("FrontWallLeft",Vector3(4.3,3.4,0.22),Vector3(-3.85,1.6,4),wall_mat,true)
     _box("FrontWallRight",Vector3(4.3,3.4,0.22),Vector3(3.85,1.6,4),wall_mat,true)
     _box("DoorHeader",Vector3(3.4,0.45,0.22),Vector3(0,3.0,4),wall_mat,true)
+    var door_mat:=_material(Color(0.025,0.12,0.18),0.24,0.78,true)
+    _entry_door_left=_make_entry_door("EntryDoorLeft",-0.79,door_mat)
+    _entry_door_right=_make_entry_door("EntryDoorRight",0.79,door_mat)
     # Exterior access bridge aligns with the tower's elevator landing at this floor.
     _box("ElevatorAccessBridge",Vector3(2.8,0.16,5.4),Vector3(0,-0.08,6.7),floor_mat,true)
     _box("BridgeRailLeft",Vector3(0.12,0.95,5.4),Vector3(-1.34,0.43,6.7),trim_mat,true)
@@ -61,6 +66,31 @@ func _build_room():
     sign_label.pixel_size=0.006
     sign_label.modulate=Color(0.1,0.88,1.0)
     add_child(sign_label)
+    call_deferred("_animate_entry_doors")
+func _make_entry_door(label:String,x:float,mat:StandardMaterial3D)->AnimatableBody3D:
+    var body:=AnimatableBody3D.new()
+    body.name=label
+    body.position=Vector3(x,1.35,4.0)
+    var mesh_node:=MeshInstance3D.new()
+    var mesh:=BoxMesh.new()
+    mesh.size=Vector3(1.55,2.6,0.12)
+    mesh_node.mesh=mesh
+    mesh_node.material_override=mat
+    body.add_child(mesh_node)
+    var collision:=CollisionShape3D.new()
+    var shape:=BoxShape3D.new()
+    shape.size=mesh.size
+    collision.shape=shape
+    body.add_child(collision)
+    add_child(body)
+    return body
+func _animate_entry_doors()->void:
+    if not is_instance_valid(_entry_door_left) or not is_instance_valid(_entry_door_right):
+        return
+    var tween:=create_tween()
+    tween.set_parallel(true)
+    tween.tween_property(_entry_door_left,"position:x",-2.5,0.35).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+    tween.tween_property(_entry_door_right,"position:x",2.5,0.35).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 func _material(color:Color,roughness:float,metallic:float,emissive:bool=false)->StandardMaterial3D:
     var mat=StandardMaterial3D.new()
     mat.albedo_color=color
