@@ -186,6 +186,7 @@ func _build():
     _instances("WindowGrid",win_tx,win_colors,Color(0,0.65,0.9),true)
     _instances("RooftopMachinery",roof_tx,[],Color(0.09,0.14,0.21),false)
     _instances("CylindricalServiceTanksAndMasts",cylinder_tx,[],Color(0.18,0.23,0.31),false,CylinderMesh.new())
+    _district_landmark()
     if collision_enabled:
         var physics=StaticBody3D.new()
         physics.name="BuildingCollision"
@@ -222,3 +223,51 @@ func _instances(label,tx:Array[Transform3D],colors:Array[Color],tint:Color,emiss
         mat.roughness=0.28
         inst.material_override=mat
     add_child(inst)
+
+func _district_landmark():
+    # A sparse elevated transit halo gives long sightlines a recognizable skyline anchor.
+    # The deterministic grid keeps landmarks consistent between clients and visits.
+    if posmod(coord.x,5)!=0 or posmod(coord.y,5)!=0:
+        return
+    var landmark=Node3D.new()
+    landmark.name="AbyssTransitHalo"
+    landmark.position=Vector3(size*0.5,0,size*0.5)
+    add_child(landmark)
+    var steel=StandardMaterial3D.new()
+    steel.albedo_color=Color(0.035,0.055,0.095)
+    steel.metallic=0.82
+    steel.roughness=0.24
+    var glow=StandardMaterial3D.new()
+    glow.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+    glow.albedo_color=Color(0.04,0.72,1.0)
+    glow.emission_enabled=true
+    glow.emission=Color(0.02,0.58,1.0)
+    glow.emission_energy_multiplier=3.2
+    for ring_index in range(2):
+        var ring=MeshInstance3D.new()
+        var torus=TorusMesh.new()
+        torus.inner_radius=0.72
+        torus.outer_radius=1.0
+        torus.ring_segments=48
+        torus.ring_sides=8
+        ring.mesh=torus
+        ring.material_override=glow if ring_index==0 else steel
+        ring.position=Vector3(0,29,0)
+        ring.rotation_degrees=Vector3(90,0,0) if ring_index==0 else Vector3(90,0,90)
+        ring.scale=Vector3(19,25,1.0) if ring_index==0 else Vector3(16,22,1.0)
+        landmark.add_child(ring)
+    for side in [-1.0,1.0]:
+        var pylon=MeshInstance3D.new()
+        var mesh=BoxMesh.new()
+        mesh.size=Vector3(2.4,29,2.4)
+        pylon.mesh=mesh
+        pylon.position=Vector3(side*18,14.5,0)
+        pylon.material_override=steel
+        landmark.add_child(pylon)
+        var stripe=MeshInstance3D.new()
+        var stripe_mesh=BoxMesh.new()
+        stripe_mesh.size=Vector3(2.5,0.22,2.5)
+        stripe.mesh=stripe_mesh
+        stripe.position=Vector3(side*18,24,0)
+        stripe.material_override=glow
+        landmark.add_child(stripe)
