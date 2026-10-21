@@ -721,6 +721,15 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
         landing.material_override=steel
         landing.position=Vector3(offset_x,y,0)
         escape.add_child(landing)
+        var landing_body:=StaticBody3D.new()
+        landing_body.name="LandingCollision_%02d" % level
+        landing_body.position=landing.position
+        var landing_collision:=CollisionShape3D.new()
+        var landing_shape:=BoxShape3D.new()
+        landing_shape.size=Vector3(landing_width,0.16,landing_depth)
+        landing_collision.shape=landing_shape
+        landing_body.add_child(landing_collision)
+        escape.add_child(landing_body)
         for rail_side in [-1.0,1.0]:
             var rail:=MeshInstance3D.new()
             var rail_mesh:=BoxMesh.new()
@@ -746,6 +755,16 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
             flight.position=Vector3(offset_x+side*landing_width*0.42,y+floor_step*0.5,0)
             flight.rotation.z=-side*atan2(floor_step*0.72,landing_width*0.72)
             escape.add_child(flight)
+            var flight_body:=StaticBody3D.new()
+            flight_body.name="FlightCollision_%02d" % level
+            flight_body.position=flight.position
+            flight_body.rotation=flight.rotation
+            var flight_collision:=CollisionShape3D.new()
+            var flight_shape:=BoxShape3D.new()
+            flight_shape.size=flight_mesh.size
+            flight_collision.shape=flight_shape
+            flight_body.add_child(flight_collision)
+            escape.add_child(flight_body)
             var stringer:=MeshInstance3D.new()
             var stringer_mesh:=BoxMesh.new()
             stringer_mesh.size=Vector3(landing_width*0.78,0.12,0.12)
