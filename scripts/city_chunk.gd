@@ -841,15 +841,7 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
         landing.material_override=steel
         landing.position=Vector3(offset_x,y,0)
         escape.add_child(landing)
-        var landing_body:=StaticBody3D.new()
-        landing_body.name="LandingCollision_%02d" % level
-        landing_body.position=landing.position
-        var landing_collision:=CollisionShape3D.new()
-        var landing_shape:=BoxShape3D.new()
-        landing_shape.size=Vector3(landing_width,0.16,landing_depth)
-        landing_collision.shape=landing_shape
-        landing_body.add_child(landing_collision)
-        escape.add_child(landing_body)
+        _add_fire_escape_box_collision(collision_root,"LandingCollision_%02d" % level,landing.position,Vector3(landing_width,0.16,landing_depth))
         # Upper tower floors may step back from the podium. Bridge the real setback to the matching door.
         var floor_mid_y:float=float(level)*floor_step+(floor_step-0.12)*0.5
         var floor_depth:float=upper_depth if floor_mid_y>=base_height else building_depth
