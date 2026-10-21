@@ -111,4 +111,6 @@ jobs:
           grep -q '_transit_access_stairs' scripts/city_chunk.gd
           grep -q 'TransitPedestrianAccess' scripts/city_chunk.gd
           grep -q 'TransitStairCollision' scripts/city_chunk.gd
+          grep -q 'RaisedSidewalkCurbs' scripts/city_chunk.gd
+          grep -q 'BrokenRoadLaneMarkings' scripts/city_chunk.gd
           echo "Godot import, runtime and structure checks passed."
