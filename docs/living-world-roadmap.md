@@ -140,3 +140,13 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Reject invalid replicated destinations before mutating local lift state.
 - [x] Disable floor-selection buttons during travel, block same-floor trips, and add CI assertions for the elevator state guards.
 - [ ] Test two clients joining at different points during a lift trip in a graphical multiplayer session.
+
+
+## Six-task exterior city street pass
+- [x] Add continuous raised sidewalk strips along both sides of the two crossing arterial streets in every streamed district chunk.
+- [x] Give sidewalk slabs and curb runs physical collision instead of leaving the pedestrian edge as decoration.
+- [x] Add repeated zebra-crossing stripes at the four approaches to the central junction.
+- [x] Add reusable drain grates along the curb line to support the wet, rain-soaked street look.
+- [x] Add corner bollards as visible protection between pedestrian approaches and vehicle lanes.
+- [x] Add exposed utility conduits and CI assertions for the complete street-detail kit.
+- [ ] Graphically verify sidewalk height, ramp transitions, bollard clearance and crossings at chunk boundaries in first person.
