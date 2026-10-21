@@ -22,10 +22,11 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - Wages accrue in 60-second online intervals; partial intervals are not paid and shift progress is session-bound.
 - Current limitation: this is a minimal employment loop, not full job simulation, player businesses, offline wages or a durable labor contract.
 
-## Milestone D — building interiors and access
-- Replace private off-map interior instances with floor-accurate apartment layouts inside buildings.
-- Working elevators, stairs, access control, doors, apartment customization, storage and furniture placement.
-- Multiple unit sizes, accessible routes, fire exits, service rooms and building maintenance.
+## Milestone D — building interiors and access (first vertical-access slice)
+- Exterior elevator cores on generated towers, animated glass elevator cars, and collision-enabled floor landings.
+- Rented apartments are positioned at the selected tower-floor elevation beside the lift core, with a collision-enabled access bridge and a return route to the street.
+- Tower geometry and floor height are stored in the building registry so room entry is tied to a generated building and floor rather than an off-map void.
+- Still outstanding: fully hollow interior floors inside the tower shell, walkable stairwells, elevator ride controls and doors, accessible routes, fire exits, service rooms, apartment customization and storage.
 
 ## Milestone E — complete city services
 - Shops, markets, restaurants, cafes, bars, hotels and delivery services.
