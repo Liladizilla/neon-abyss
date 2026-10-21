@@ -497,26 +497,25 @@ func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Ar
             {"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(x+hx-0.24,cy,z+stair_opening_z*0.5+side_depth*0.5)},
             {"size":Vector3(fw,wall_height,0.48),"pos":Vector3(x,cy,z+hz-0.24)}
         ]
-        if fire_escape_enabled:
-            # Leave a real opening in the front wall instead of placing a decorative door over solid collision.
-            var doorway_width:float=1.55
-            var doorway_height:float=minf(2.35,wall_height-0.25)
-            var side_width:float=maxf(0.5,(fw-doorway_width)*0.5)
-            wall_specs.append({"size":Vector3(side_width,wall_height,0.48),"pos":Vector3(x-(doorway_width*0.5+side_width*0.5),cy,z-hz+0.24)})
-            wall_specs.append({"size":Vector3(side_width,wall_height,0.48),"pos":Vector3(x+(doorway_width*0.5+side_width*0.5),cy,z-hz+0.24)})
-            var header_height:float=wall_height-doorway_height
-            wall_specs.append({"size":Vector3(doorway_width,header_height,0.48),"pos":Vector3(x,y0+doorway_height+header_height*0.5,z-hz+0.24)})
-            # Cyan jambs and header make the floor exit visible from the landing.
-            var exit_trim:Color=Color(0.02,0.72,0.88)
-            for jamb_side in [-1.0,1.0]:
-                var jamb_size:=Vector3(0.10,doorway_height,0.10)
-                var jamb_pos:=Vector3(x+jamb_side*(doorway_width*0.5+0.04),y0+doorway_height*0.5,z-hz-0.035)
-                tx.append(Transform3D(Basis.from_scale(jamb_size),jamb_pos))
-                colors.append(exit_trim)
-            var exit_header_size:=Vector3(doorway_width+0.18,0.10,0.10)
-            var exit_header_pos:=Vector3(x,y0+doorway_height+0.04,z-hz-0.035)
-            tx.append(Transform3D(Basis.from_scale(exit_header_size),exit_header_pos))
+        # Leave a real opening in the front wall instead of placing a decorative door over solid collision.
+        var doorway_width:float=1.55
+        var doorway_height:float=minf(2.35,wall_height-0.25)
+        var doorway_side_width:float=maxf(0.5,(fw-doorway_width)*0.5)
+        wall_specs.append({"size":Vector3(doorway_side_width,wall_height,0.48),"pos":Vector3(x-(doorway_width*0.5+doorway_side_width*0.5),cy,z-hz+0.24)})
+        wall_specs.append({"size":Vector3(doorway_side_width,wall_height,0.48),"pos":Vector3(x+(doorway_width*0.5+doorway_side_width*0.5),cy,z-hz+0.24)})
+        var header_height:float=wall_height-doorway_height
+        wall_specs.append({"size":Vector3(doorway_width,header_height,0.48),"pos":Vector3(x,y0+doorway_height+header_height*0.5,z-hz+0.24)})
+        # Cyan jambs and header make the floor exit visible from the landing.
+        var exit_trim:Color=Color(0.02,0.72,0.88)
+        for jamb_side in [-1.0,1.0]:
+            var jamb_size:=Vector3(0.10,doorway_height,0.10)
+            var jamb_pos:=Vector3(x+jamb_side*(doorway_width*0.5+0.04),y0+doorway_height*0.5,z-hz-0.035)
+            tx.append(Transform3D(Basis.from_scale(jamb_size),jamb_pos))
             colors.append(exit_trim)
+        var exit_header_size:=Vector3(doorway_width+0.18,0.10,0.10)
+        var exit_header_pos:=Vector3(x,y0+doorway_height+0.04,z-hz-0.035)
+        tx.append(Transform3D(Basis.from_scale(exit_header_size),exit_header_pos))
+        colors.append(exit_trim)
         for wall in wall_specs:
             var dims:Vector3=wall.size
             var at:Vector3=wall.pos
@@ -814,6 +813,11 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
     escape.name="FireEscape_B%03d" % building_index
     escape.position=anchor
     add_child(escape)
+    var collision_root:=StaticBody3D.new()
+    collision_root.name="FireEscapeCollision"
+    collision_root.collision_layer=1
+    collision_root.collision_mask=1
+    escape.add_child(collision_root)
     var steel:=StandardMaterial3D.new()
     steel.albedo_color=Color(0.075,0.095,0.12)
     steel.metallic=0.78
@@ -837,15 +841,7 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
         landing.material_override=steel
         landing.position=Vector3(offset_x,y,0)
         escape.add_child(landing)
-        var landing_body:=StaticBody3D.new()
-        landing_body.name="LandingCollision_%02d" % level
-        landing_body.position=landing.position
-        var landing_collision:=CollisionShape3D.new()
-        var landing_shape:=BoxShape3D.new()
-        landing_shape.size=Vector3(landing_width,0.16,landing_depth)
-        landing_collision.shape=landing_shape
-        landing_body.add_child(landing_collision)
-        escape.add_child(landing_body)
+        _add_fire_escape_box_collision(collision_root,"LandingCollision_%02d" % level,landing.position,Vector3(landing_width,0.16,landing_depth))
         # Upper tower floors may step back from the podium. Bridge the real setback to the matching door.
         var floor_mid_y:float=float(level)*floor_step+(floor_step-0.12)*0.5
         var floor_depth:float=upper_depth if floor_mid_y>=base_height else building_depth
@@ -863,7 +859,7 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
             bridge.material_override=steel
             bridge.position=bridge_pos
             escape.add_child(bridge)
-            _add_fire_escape_box_collision(escape,"FloorDoorBridgeCollision_%02d" % level,bridge_pos,bridge_size)
+            _add_fire_escape_box_collision(collision_root,"FloorDoorBridgeCollision_%02d" % level,bridge_pos,bridge_size)
             # Keep the connector open at both ends and protect its exposed sides.
             for bridge_side in [-1.0,1.0]:
                 var bridge_rail:=MeshInstance3D.new()
@@ -874,7 +870,7 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
                 bridge_rail.material_override=safety if bridge_side>0.0 else steel
                 bridge_rail.position=Vector3(bridge_pos.x+bridge_side*0.78,y+0.52,bridge_pos.z)
                 escape.add_child(bridge_rail)
-                _add_fire_escape_box_collision(escape,"FloorDoorBridgeRailCollision_%02d_%s" % [level,"L" if bridge_side<0.0 else "R"],bridge_rail.position,bridge_rail_mesh.size)
+                _add_fire_escape_box_collision(collision_root,"FloorDoorBridgeRailCollision_%02d_%s" % [level,"L" if bridge_side<0.0 else "R"],bridge_rail.position,bridge_rail_mesh.size)
         for rail_side in [-1.0,1.0]:
             # The front edge faces the tower doorway; a guardrail here would block access.
             if rail_side>0.0:
@@ -886,7 +882,7 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
             rail.material_override=safety if rail_side==1.0 else steel
             rail.position=Vector3(offset_x,y+0.52,rail_side*landing_depth*0.46)
             escape.add_child(rail)
-            _add_fire_escape_box_collision(escape,"LandingRailCollision_%02d_%s" % [level,"L" if rail_side<0.0 else "R"],rail.position,rail_mesh.size)
+            _add_fire_escape_box_collision(collision_root,"LandingRailCollision_%02d_%s" % [level,"L" if rail_side<0.0 else "R"],rail.position,rail_mesh.size)
             for post_x in [-0.45,0.45]:
                 var post:=MeshInstance3D.new()
                 var post_mesh:=BoxMesh.new()
@@ -895,7 +891,7 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
                 post.material_override=steel
                 post.position=Vector3(offset_x+post_x*landing_width,y+0.52,rail_side*landing_depth*0.46)
                 escape.add_child(post)
-                _add_fire_escape_box_collision(escape,"LandingPostCollision_%02d_%s_%s" % [level,"L" if rail_side<0.0 else "R","A" if post_x<0.0 else "B"],post.position,post_mesh.size)
+                _add_fire_escape_box_collision(collision_root,"LandingPostCollision_%02d_%s_%s" % [level,"L" if rail_side<0.0 else "R","A" if post_x<0.0 else "B"],post.position,post_mesh.size)
         if level<levels-1:
             # Build the flight from reusable individual treads instead of one ramp-like slab.
             var tread_count:int=8
@@ -911,15 +907,7 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
                 var progress:float=(float(tread_index)+0.5)/float(tread_count)
                 tread.position=Vector3(offset_x+side*progress*flight_width,y+0.18+progress*flight_rise,0)
                 escape.add_child(tread)
-                var tread_body:=StaticBody3D.new()
-                tread_body.name="TreadCollision_%02d_%02d" % [level,tread_index]
-                tread_body.position=tread.position
-                var tread_collision:=CollisionShape3D.new()
-                var tread_shape:=BoxShape3D.new()
-                tread_shape.size=tread_mesh.size
-                tread_collision.shape=tread_shape
-                tread_body.add_child(tread_collision)
-                escape.add_child(tread_body)
+                _add_fire_escape_box_collision(collision_root,"TreadCollision_%02d_%02d" % [level,tread_index],tread.position,tread_mesh.size)
             # Paired continuous handrails follow the stair pitch; short uprights tie them back to the flight.
             var rail_length:float=flight_width+0.18
             var rail_pitch:float=atan2(flight_rise,flight_width)
@@ -933,7 +921,7 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
                 handrail.position=Vector3(offset_x+side*flight_width*0.5,y+0.18+flight_rise*0.5+0.92,handrail_side*0.48)
                 handrail.rotation.z=side*rail_pitch
                 escape.add_child(handrail)
-                _add_fire_escape_box_collision(escape,"HandrailCollision_%02d_%s" % [level,"L" if handrail_side<0.0 else "R"],handrail.position,handrail_mesh.size,handrail.rotation.z)
+                _add_fire_escape_box_collision(collision_root,"HandrailCollision_%02d_%s" % [level,"L" if handrail_side<0.0 else "R"],handrail.position,handrail_mesh.size,handrail.rotation.z)
                 for support_index in range(3):
                     var support_progress:float=0.18+float(support_index)*0.32
                     var support:=MeshInstance3D.new()
@@ -944,18 +932,18 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
                     support.material_override=steel
                     support.position=Vector3(offset_x+side*support_progress*flight_width,y+0.18+support_progress*flight_rise+0.43,handrail_side*0.48)
                     escape.add_child(support)
-                    _add_fire_escape_box_collision(escape,"HandrailPostCollision_%02d_%s_%d" % [level,"L" if handrail_side<0.0 else "R",support_index],support.position,support_mesh.size)
+                    _add_fire_escape_box_collision(collision_root,"HandrailPostCollision_%02d_%s_%d" % [level,"L" if handrail_side<0.0 else "R",support_index],support.position,support_mesh.size)
             offset_x+=side*landing_width*0.18
 
 
 func _add_fire_escape_box_collision(parent:Node3D,collision_name:String,local_position:Vector3,box_size:Vector3,rotation_z:float=0.0)->void:
-    var body:=StaticBody3D.new()
-    body.name=collision_name
-    body.position=local_position
-    body.rotation.z=rotation_z
+    # Consolidate the many fire-escape primitives under one static body per escape.
+    # Every detailed tread, rail and support retains its own precise box shape.
     var collision:=CollisionShape3D.new()
+    collision.name=collision_name
+    collision.position=local_position
+    collision.rotation.z=rotation_z
     var shape:=BoxShape3D.new()
     shape.size=box_size
     collision.shape=shape
-    body.add_child(collision)
-    parent.add_child(body)
+    parent.add_child(collision)
