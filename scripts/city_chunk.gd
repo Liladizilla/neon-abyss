@@ -190,7 +190,7 @@ func _street_life_layer() -> void:
                         var seat_size:=Vector3(1.55,0.13,0.44)
                         var seat_pos:=p+Vector3(0,0.52,0)
                         var back_size:=Vector3(1.55,0.62,0.12)
-                        var back_pos:=p+Vector3(0,0.86,-0.19)
+                        var back_pos:=p+basis*Vector3(0,0.86,-0.19)
                         var basis:=Basis.from_euler(Vector3(0,yaw,0))
                         bench_tx.append(Transform3D(basis.scaled(seat_size),seat_pos))
                         bench_colors.append(bench_mat)
