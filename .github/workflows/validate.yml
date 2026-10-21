@@ -51,6 +51,15 @@ jobs:
           grep -q 'fog_enabled' scripts/game_root.gd
           grep -q 'rental_manager.gd' scripts/game_root.gd
           grep -q 'register_building' scripts/city_chunk.gd
+          grep -q '_append_building_frontage' scripts/city_chunk.gd
+          grep -q 'RENTABLE UNITS' scripts/city_chunk.gd
+          grep -q '_decorate_street_level' scripts/city_chunk.gd
+          grep -q 'PedestrianPromenadeTiles' scripts/city_chunk.gd
+          grep -q 'ArterialCrosswalkMarkings' scripts/city_chunk.gd
+          grep -q 'StormDrainGrates' scripts/city_chunk.gd
+          grep -q 'JungleCanopies' scripts/city_chunk.gd
+          grep -q 'StreetWasteBins' scripts/city_chunk.gd
+          grep -q 'PublicBenchParts' scripts/city_chunk.gd
           grep -q '_append_hollow_tower' scripts/city_chunk.gd
           grep -q 'stair_opening_x' scripts/city_chunk.gd
           grep -q 'stair_color' scripts/city_chunk.gd

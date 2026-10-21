@@ -17,6 +17,7 @@ func _ready():
     rng.seed=hash(Vector3i(coord.x,seed_value,coord.y))
     _roads()
     _build()
+    _decorate_street_level()
 func _roads():
     var road=MeshInstance3D.new()
     var plane=PlaneMesh.new()
@@ -149,6 +150,95 @@ func _street_furniture():
     _instances("StreetLampArms",arms,[],pole_color,false)
     _instances("StreetLampEmitters",emitters,emitter_colors,Color.WHITE,true)
     _instances("RaisedCurbSegments",curbs,curb_colors,Color(0.16,0.18,0.24),false)
+func _decorate_street_level()->void:
+    # A repeatable streetscape kit dresses every streamed district without spawning people.
+    var sidewalk_tx:Array[Transform3D]=[]
+    var sidewalk_colors:Array[Color]=[]
+    var grate_tx:Array[Transform3D]=[]
+    var planter_tx:Array[Transform3D]=[]
+    var planter_colors:Array[Color]=[]
+    var bollard_tx:Array[Transform3D]=[]
+    var bollard_colors:Array[Color]=[]
+    var bench_tx:Array[Transform3D]=[]
+    var bench_colors:Array[Color]=[]
+    var bin_tx:Array[Transform3D]=[]
+    var bin_colors:Array[Color]=[]
+    var cabinet_tx:Array[Transform3D]=[]
+    var cabinet_colors:Array[Color]=[]
+    var trunk_tx:Array[Transform3D]=[]
+    var leaf_tx:Array[Transform3D]=[]
+    var leaf_colors:Array[Color]=[]
+    var signpost_tx:Array[Transform3D]=[]
+    var signpost_colors:Array[Color]=[]
+    var sidewalk_mat_colors=[Color(0.12,0.14,0.19),Color(0.16,0.17,0.22),Color(0.09,0.12,0.17)]
+    # Raised pedestrian promenades run beside the two arterial roads.
+    for along in range(8,88,8):
+        for side in [-1.0,1.0]:
+            var offset=size*0.5+side*12.0
+            sidewalk_tx.append(Transform3D(Basis.from_scale(Vector3(5.2,0.16,7.8)),Vector3(offset,0.04,float(along))))
+            sidewalk_colors.append(sidewalk_mat_colors[rng.randi_range(0,sidewalk_mat_colors.size()-1)])
+            sidewalk_tx.append(Transform3D(Basis.from_scale(Vector3(7.8,0.16,5.2)),Vector3(float(along),0.04,offset)))
+            sidewalk_colors.append(sidewalk_mat_colors[rng.randi_range(0,sidewalk_mat_colors.size()-1)])
+        # Drainage channels and metal grates sit at the foot of each curb.
+        for side in [-1.0,1.0]:
+            grate_tx.append(Transform3D(Basis.from_scale(Vector3(1.2,0.035,0.7)),Vector3(size*0.5+side*9.7,0.145,float(along))))
+            grate_tx.append(Transform3D(Basis.from_scale(Vector3(0.7,0.035,1.2)),Vector3(float(along),0.145,size*0.5+side*9.7)))
+    # Furniture is placed in predictable sidewalk bays and uses instancing to keep draw calls bounded.
+    for along in [15.0,39.0,63.0,87.0]:
+        for side in [-1.0,1.0]:
+            var px=size*0.5+side*12.2
+            var pz=along
+            planter_tx.append(Transform3D(Basis.from_scale(Vector3(2.0,0.72,2.0)),Vector3(px,0.38,pz)))
+            planter_colors.append(Color(0.075,0.095,0.12))
+            trunk_tx.append(Transform3D(Basis.from_scale(Vector3(0.24,2.0,0.24)),Vector3(px,1.55,pz)))
+            for leaf_i in range(4):
+                var angle=float(leaf_i)*TAU/4.0
+                var leaf_pos=Vector3(px+cos(angle)*0.62,2.5+float(leaf_i%2)*0.28,pz+sin(angle)*0.62)
+                leaf_tx.append(Transform3D(Basis.from_scale(Vector3(1.25,1.1,1.25)),leaf_pos))
+                leaf_colors.append(Color(0.06,0.22,0.16).lerp(Color(0.12,0.42,0.25),rng.randf()))
+            bollard_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,0.95,0.22)),Vector3(px+side*1.4,0.48,pz)))
+            bollard_colors.append(Color(0.18,0.22,0.29))
+            bin_tx.append(Transform3D(Basis.from_scale(Vector3(0.68,0.95,0.62)),Vector3(px-side*1.5,0.48,pz+2.2)))
+            bin_colors.append(Color(0.035,0.22,0.2) if int(along)%2==1 else Color(0.24,0.075,0.13))
+            bench_tx.append(Transform3D(Basis.from_scale(Vector3(1.8,0.16,0.58)),Vector3(px,0.62,pz+3.5)))
+            bench_colors.append(Color(0.16,0.12,0.1))
+            bench_tx.append(Transform3D(Basis.from_scale(Vector3(1.8,0.58,0.12)),Vector3(px,0.92,pz+3.78)))
+            bench_colors.append(Color(0.08,0.11,0.16))
+    # Utility cabinets and wayfinding poles make the street edge feel serviced, not empty.
+    for along in [23.0,71.0]:
+        for side in [-1.0,1.0]:
+            var cabinet_pos=Vector3(size*0.5+side*15.2,0.9,along)
+            cabinet_tx.append(Transform3D(Basis.from_scale(Vector3(0.9,1.8,0.72)),cabinet_pos))
+            cabinet_colors.append(Color(0.055,0.08,0.12))
+            signpost_tx.append(Transform3D(Basis.from_scale(Vector3(0.12,3.0,0.12)),Vector3(cabinet_pos.x+side*0.9,1.5,cabinet_pos.z)))
+            signpost_colors.append(Color(0.18,0.22,0.29))
+            signpost_tx.append(Transform3D(Basis.from_scale(Vector3(0.95,0.52,0.12)),Vector3(cabinet_pos.x+side*0.9,2.65,cabinet_pos.z)))
+            signpost_colors.append(Color(0.02,0.46,0.58))
+    _instances("PedestrianPromenadeTiles",sidewalk_tx,sidewalk_colors,Color(0.13,0.15,0.19),false)
+    _instances("StormDrainGrates",grate_tx,[],Color(0.045,0.055,0.075),false)
+    _instances("StreetPlanters",planter_tx,planter_colors,Color(0.08,0.1,0.14),false)
+    _instances("JungleTreeTrunks",trunk_tx,[],Color(0.12,0.16,0.13),false,CylinderMesh.new())
+    _instances("JungleCanopies",leaf_tx,leaf_colors,Color(0.08,0.28,0.17),false,SphereMesh.new())
+    _instances("PedestrianBollards",bollard_tx,bollard_colors,Color(0.15,0.18,0.23),false,CylinderMesh.new())
+    _instances("StreetWasteBins",bin_tx,bin_colors,Color(0.08,0.12,0.15),false)
+    _instances("PublicBenchParts",bench_tx,bench_colors,Color(0.12,0.12,0.14),false)
+    _instances("UtilityServiceCabinets",cabinet_tx,cabinet_colors,Color(0.06,0.08,0.12),false)
+    _instances("DistrictWayfindingPosts",signpost_tx,signpost_colors,Color(0.03,0.18,0.24),false)
+    # Broken, interrupted crosswalk bars make the central junction readable at night.
+    var crosswalk_tx:Array[Transform3D]=[]
+    var crosswalk_colors:Array[Color]=[]
+    for stripe in range(8):
+        var along=float(stripe)*1.35-4.7
+        crosswalk_tx.append(Transform3D(Basis.from_scale(Vector3(0.72,0.035,5.4)),Vector3(size*0.5+along,0.025,size*0.5-10.0)))
+        crosswalk_colors.append(Color(0.54,0.58,0.64))
+        crosswalk_tx.append(Transform3D(Basis.from_scale(Vector3(0.72,0.035,5.4)),Vector3(size*0.5+along,0.025,size*0.5+10.0)))
+        crosswalk_colors.append(Color(0.54,0.58,0.64))
+        crosswalk_tx.append(Transform3D(Basis.from_scale(Vector3(5.4,0.035,0.72)),Vector3(size*0.5-10.0,0.025,size*0.5+along)))
+        crosswalk_colors.append(Color(0.54,0.58,0.64))
+        crosswalk_tx.append(Transform3D(Basis.from_scale(Vector3(5.4,0.035,0.72)),Vector3(size*0.5+10.0,0.025,size*0.5+along)))
+        crosswalk_colors.append(Color(0.54,0.58,0.64))
+    _instances("ArterialCrosswalkMarkings",crosswalk_tx,crosswalk_colors,Color(0.5,0.55,0.62),false)
+
 func _build():
     var body_tx:Array[Transform3D]=[]
     var body_colors:Array[Color]=[]
@@ -164,6 +254,10 @@ func _build():
     var lift_landing_tx:Array[Transform3D]=[]
     var lift_landing_colors:Array[Color]=[]
     var lift_colliders:Array[Dictionary]=[]
+    var frontage_tx:Array[Transform3D]=[]
+    var frontage_colors:Array[Color]=[]
+    var frontage_glow_tx:Array[Transform3D]=[]
+    var frontage_glow_colors:Array[Color]=[]
     for ix in range(2):
         for iz in range(2):
             var x=24.0+ix*48.0+rng.randf_range(-3,3)
@@ -309,6 +403,7 @@ func _build():
                 trim_tx.append(Transform3D(Basis.from_scale(sz),pos))
                 trim_colors.append(neon)
             var entrance_local=Vector3(x+w*0.5+2.4,0,z)
+            _append_building_frontage(frontage_tx,frontage_colors,frontage_glow_tx,frontage_glow_colors,x,z,w,d,floors,building_index,style,neon)
             _add_lobby_terminal(entrance_local,building_index)
             _add_job_board(entrance_local+Vector3(-1.5,0,1.6),building_index)
             var manager=get_tree().get_first_node_in_group("rental_manager")
@@ -346,6 +441,8 @@ func _build():
     _instances("CylindricalServiceTanksAndMasts",cylinder_tx,[],Color(0.18,0.23,0.31),false,CylinderMesh.new())
     _instances("ExteriorElevatorFrames",lift_tx,lift_colors,Color(0.1,0.18,0.26),false)
     _instances("ElevatorFloorLandings",lift_landing_tx,lift_landing_colors,Color(0.1,0.18,0.26),false)
+    _instances("BuildingEntryCanopiesAndPlinths",frontage_tx,frontage_colors,Color(0.1,0.14,0.2),false)
+    _instances("BuildingEntryNeonAndSignage",frontage_glow_tx,frontage_glow_colors,Color(0.02,0.62,0.84),true)
     _district_landmark()
     if collision_enabled:
         var physics=StaticBody3D.new()
@@ -358,6 +455,40 @@ func _build():
             cs.position=data.p
             physics.add_child(cs)
         add_child(physics)
+func _append_building_frontage(tx:Array[Transform3D],colors:Array[Color],glow_tx:Array[Transform3D],glow_colors:Array[Color],x:float,z:float,w:float,d:float,floors:int,building_index:int,style:int,accent:Color)->void:
+    var facade_x=x+w*0.5
+    # Every tower gets a legible, sheltered street entrance and a different ground-floor use.
+    tx.append(Transform3D(Basis.from_scale(Vector3(4.2,0.24,4.8)),Vector3(facade_x+2.35,3.0,z)))
+    colors.append(Color(0.035,0.06,0.095))
+    tx.append(Transform3D(Basis.from_scale(Vector3(4.8,0.22,5.4)),Vector3(facade_x+2.35,0.12,z)))
+    colors.append(Color(0.13,0.15,0.2))
+    for side in [-1.0,1.0]:
+        tx.append(Transform3D(Basis.from_scale(Vector3(0.18,2.8,0.18)),Vector3(facade_x+4.05,1.45,z+side*2.0)))
+        colors.append(Color(0.12,0.17,0.23))
+        glow_tx.append(Transform3D(Basis.from_scale(Vector3(0.055,2.4,0.055)),Vector3(facade_x+4.16,1.6,z+side*2.0)))
+        glow_colors.append(accent)
+    # A shallow illuminated sign panel is attached to the street-facing side of the canopy.
+    tx.append(Transform3D(Basis.from_scale(Vector3(0.18,0.95,3.4)),Vector3(facade_x+0.35,3.55,z)))
+    colors.append(Color(0.012,0.025,0.045))
+    glow_tx.append(Transform3D(Basis.from_scale(Vector3(0.07,0.09,3.0)),Vector3(facade_x+0.46,4.08,z)))
+    glow_colors.append(accent)
+    glow_tx.append(Transform3D(Basis.from_scale(Vector3(0.07,0.09,3.0)),Vector3(facade_x+0.46,3.03,z)))
+    glow_colors.append(accent)
+    for side in [-1.0,1.0]:
+        tx.append(Transform3D(Basis.from_scale(Vector3(0.24,0.22,4.9)),Vector3(facade_x+2.35,2.84,z+side*2.45)))
+        colors.append(Color(0.08,0.12,0.18))
+    var service_names=["HABITAT","NIGHT MARKET","REPAIR EXCHANGE","CLINIC","PARCEL DEPOT"]
+    var label:=Label3D.new()
+    label.name="BuildingFrontage_%d"%building_index
+    label.text="%s  /  %02d\n%d FLOORS  •  %d RENTABLE UNITS"%[service_names[posmod(style,service_names.size())],building_index+1,floors,floors*4]
+    label.font_size=32
+    label.outline_size=7
+    label.modulate=accent
+    label.position=Vector3(facade_x+0.49,3.55,z)
+    label.rotation.y=PI*0.5
+    label.pixel_size=0.006
+    add_child(label)
+
 func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Array[Dictionary],x:float,z:float,w:float,d:float,h:float,floors:int,base_h:float,upper_w:float,upper_d:float,shell_color:Color)->void:
     var floor_height:=h/float(floors)
     var floor_color:=Color(0.045,0.065,0.095)

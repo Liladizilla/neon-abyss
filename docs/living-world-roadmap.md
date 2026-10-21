@@ -115,3 +115,15 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [ ] Run a two-client Godot session to verify entry denial, interior privacy, disconnect cleanup and return-to-city behavior.
 - [ ] Replace temporary peer-ID identities with authenticated stable accounts before persistent public multiplayer.
 - [ ] Move housing and interior occupancy to a dedicated authoritative server with durable transactional storage before public launch.
+
+
+## Citywide buildings and exterior streetscape milestone
+- [x] Keep deterministic building registration active for every generated tower in every streamed chunk; each tower retains its own floor count and four rentable units per floor.
+- [x] Give every tower a distinct mixed-use ground-floor frontage, sheltered entrance, illuminated sign panel, entry plinth and accent lighting.
+- [x] Put each building's floor count and rentable-unit inventory on its exterior identity sign.
+- [x] Dress streamed districts with pedestrian promenade tiles, storm-drain grates, street planters, low-poly jungle canopy clusters, bollards, public benches, waste bins, utility cabinets and wayfinding posts.
+- [x] Add marked crosswalk bars around each district's central arterial junction.
+- [x] Use deterministic district seeding and MultiMesh instancing for repeatable decoration without spawning ambient human NPCs.
+- [ ] Playtest intersections, storefront clearance, vegetation clipping and pedestrian routes in Godot; some decorative props are visual-only and still need selected physical collision.
+- [ ] Expand beyond the current four-tower district pattern into a varied block plan with low-rise housing, markets, clinics, workshops, service alleys, plazas and connected parks.
+- [ ] Replace prototype exterior forms with authored modular building kits, varied facade materials, decals, signage textures, grime, water runoff and building-specific silhouettes.
