@@ -130,3 +130,13 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Size the bridge, side rails and guide strips to the actual gap between the floor façade and lift landing, including upper-floor setbacks.
 - [x] Extend CI assertions for registered footprint data, façade placement, suite orientation and variable bridge geometry.
 - [ ] Graphically walk the bridge from a rented unit into the matching lift landing on podium and recessed upper floors; headless tests cannot certify this route.
+
+
+## Six-task elevator continuity pass
+- [x] Track the current destination floor explicitly while the lift is travelling.
+- [x] Send late-joining peers a snapshot of the authoritative cab height, movement state, destination and door state.
+- [x] Resume an in-progress trip from the replicated cab position instead of leaving a late joiner with a stale idle lift.
+- [x] Clamp received cab height to the configured shaft range before applying the snapshot.
+- [x] Reject invalid replicated destinations before mutating local lift state.
+- [x] Add CI structural assertions for elevator snapshot replication and destination tracking.
+- [ ] Test two clients joining at different points during a lift trip in a graphical multiplayer session.
