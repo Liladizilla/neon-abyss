@@ -41,7 +41,7 @@ func _ready():
     footer.offset_top=-48
     footer.offset_right=900
     footer.offset_bottom=-16
-    footer.text="WASD MOVE / SHIFT SPRINT / SPACE JUMP / F FLIGHT / E THROW / ESC MENU"
+    footer.text="WASD MOVE / SHIFT SPRINT / SPACE JUMP / F FLIGHT / E THROW / R HOUSING / ESC MENU"
     footer.add_theme_font_size_override("font_size",12)
     root.add_child(footer)
     hide()
