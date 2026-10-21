@@ -196,7 +196,7 @@ func _transit_access_stairs()->void:
             var rail_y:=float(step_count)*rise*0.5+0.92+(0.0 if flight==0 else float(step_count)*rise)
             var rail_z:=stair_z-float(step_count)*run*0.5
             rail.position=Vector3(lane_x+side*1.03,rail_y,rail_z)
-            rail.rotation.x=atan2(float(step_count)*rise,float(step_count)*run)
+            rail.rotation.x=-atan2(float(step_count)*rise,float(step_count)*run)
             access.add_child(rail)
     # Mid-landing and top connector bridge align the stairs with the station platform.
     var landing:=MeshInstance3D.new()
@@ -204,21 +204,21 @@ func _transit_access_stairs()->void:
     landing_mesh.size=Vector3(5.6,0.28,3.2)
     landing.mesh=landing_mesh
     landing.material_override=stair_mat
-    landing.position=Vector3(stair_x,step_count*rise+0.12,stair_z-run*step_count*0.5)
+    landing.position=Vector3(stair_x,step_count*rise+0.12,stair_z-run*float(step_count-1))
     access.add_child(landing)
     var connector:=MeshInstance3D.new()
     var connector_mesh:=BoxMesh.new()
-    connector_mesh.size=Vector3(2.25,0.3,7.0)
+    connector_mesh.size=Vector3(3.2,0.3,7.0)
     connector.mesh=connector_mesh
     connector.material_override=stair_mat
-    connector.position=Vector3(stair_x,step_count*rise*2.0+0.12,size*0.5+8.8)
+    connector.position=Vector3(stair_x,step_count*rise*2.0+0.12,size*0.5+10.5)
     access.add_child(connector)
     var edge_light:=MeshInstance3D.new()
     var edge_mesh:=BoxMesh.new()
     edge_mesh.size=Vector3(0.06,0.06,7.0)
     edge_light.mesh=edge_mesh
     edge_light.material_override=light_mat
-    edge_light.position=Vector3(stair_x+1.1,step_count*rise*2.0+0.3,size*0.5+8.8)
+    edge_light.position=Vector3(stair_x+1.58,step_count*rise*2.0+0.3,size*0.5+10.5)
     access.add_child(edge_light)
     if collision_enabled:
         var bridge_cs:=CollisionShape3D.new()
