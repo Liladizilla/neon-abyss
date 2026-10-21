@@ -65,13 +65,12 @@ func _lighting():
     env.tonemap_mode=Environment.TONE_MAPPER_FILMIC
     env.glow_enabled=true
     env.glow_intensity=0.8
-    env.ssao_enabled=true
-    env.ssao_radius=2.0
-    env.ssao_intensity=1.7
-    env.ssil_enabled=true
-    env.volumetric_fog_enabled=true
-    env.volumetric_fog_density=0.018
-    env.volumetric_fog_albedo=Color(0.21,0.12,0.34)
+    # OpenGL Compatibility keeps the game runnable on older integrated GPUs.
+    # Atmospheric depth uses distance fog and emissive materials instead of Vulkan-only volumetrics.
+    env.fog_enabled=true
+    env.fog_light_color=Color(0.12,0.045,0.18)
+    env.fog_density=0.0032
+    env.fog_sun_scatter=0.08
     env.volumetric_fog_emission=Color(0.025,0.009,0.045)
     var we=WorldEnvironment.new()
     we.environment=env
