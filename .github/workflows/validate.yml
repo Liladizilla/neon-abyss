@@ -86,4 +86,6 @@ jobs:
           grep -q 'work_board' scripts/game_root.gd
           grep -q '_request_rent' scripts/rental_manager.gd
           grep -q 'set_local_interior' scripts/network_manager.gd
+          grep -q 'CrossingCurbRamps' scripts/city_chunk.gd
+          grep -q 'TactileCrossingPads' scripts/city_chunk.gd
           echo "Godot import, runtime and structure checks passed."
