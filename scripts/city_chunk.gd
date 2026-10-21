@@ -171,6 +171,7 @@ func _build():
             var floors=rng.randi_range(7,34)
             var h=float(floors)*rng.randf_range(3.0,4.1)
             var style=rng.randi_range(0,4)
+            var building_index=ix*2+iz
             var neon:Color=NEON[rng.randi_range(0,NEON.size()-1)]
             var base_h=h*(0.58 if style==2 or style==4 else 0.72)
             body_tx.append(Transform3D(Basis.from_scale(Vector3(w,base_h,d)),Vector3(x,base_h/2,z)))
@@ -250,7 +251,6 @@ func _build():
                 pos.z+=(d/2+0.22)*(-1.0 if side==2 else 1.0) if side>=2 else 0.0
                 trim_tx.append(Transform3D(Basis.from_scale(sz),pos))
                 trim_colors.append(neon)
-            var building_index=ix*2+iz
             var entrance_local=Vector3(x+w*0.5+2.4,0,z)
             _add_lobby_terminal(entrance_local,building_index)
             _add_job_board(entrance_local+Vector3(-1.5,0,1.6),building_index)
