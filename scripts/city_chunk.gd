@@ -63,6 +63,7 @@ func _build():
     var win_tx:Array[Transform3D]=[]
     var win_colors:Array[Color]=[]
     var roof_tx:Array[Transform3D]=[]
+    var cylinder_tx:Array[Transform3D]=[]
     var colliders:Array[Dictionary]=[]
     for ix in range(2):
         for iz in range(2):
@@ -86,6 +87,13 @@ func _build():
             body_tx.append(Transform3D(Basis.from_scale(Vector3(upper_w,upper_h,upper_d)),Vector3(x,base_h+upper_h/2,z)))
             body_colors.append(Color(0.58,0.66,0.82).lerp(Color(0.09,0.11,0.19),rng.randf()))
             colliders.append({"p":Vector3(x,h/2,z),"s":Vector3(w,h,d)})
+            # Service tanks, antenna masts and roof plant add a non-box silhouette layer.
+            for tank in range(2):
+                var tx=x+rng.randf_range(-w*0.28,w*0.28)
+                var tz=z+rng.randf_range(-d*0.28,d*0.28)
+                var tank_h=rng.randf_range(1.4,2.4)
+                cylinder_tx.append(Transform3D(Basis.from_scale(Vector3(1.8,tank_h,1.8)),Vector3(tx,h+tank_h,tz)))
+            cylinder_tx.append(Transform3D(Basis.from_scale(Vector3(0.16,rng.randf_range(5.0,12.0),0.16)),Vector3(x+w*0.22,h+6.0,z-d*0.2)))
             roof_tx.append(Transform3D(Basis.from_scale(Vector3(upper_w*0.78,2,upper_d*0.78)),Vector3(x,h+1,z)))
             roof_tx.append(Transform3D(Basis.from_scale(Vector3(1.1,rng.randf_range(5,15),1.1)),Vector3(x+w*0.22,h+7,z-d*0.2)))
             for level in range(2,floors,3):
@@ -118,10 +126,33 @@ func _build():
                 pos.z+=(d/2+0.22)*(-1.0 if side==2 else 1.0) if side>=2 else 0.0
                 trim_tx.append(Transform3D(Basis.from_scale(sz),pos))
                 trim_colors.append(neon)
+    # Skybridges join adjacent towers only when both have tall enough structural cores.
+    for i in colliders.size():
+        for j in range(i+1,colliders.size()):
+            var a=colliders[i]
+            var b=colliders[j]
+            var delta:Vector3=b["p"]-a["p"]
+            var bridge_height=minf(a["s"].y,b["s"].y)
+            if bridge_height<70.0: continue
+            if abs(delta.x)>30.0 and abs(delta.z)<15.0:
+                var bridge_len=maxf(3.0,abs(delta.x)-(a["s"].x+b["s"].x)*0.5)
+                var bridge_pos=Vector3((a["p"].x+b["p"].x)*0.5,bridge_height*0.72,(a["p"].z+b["p"].z)*0.5)
+                body_tx.append(Transform3D(Basis.from_scale(Vector3(bridge_len,1.2,3.8)),bridge_pos))
+                body_colors.append(Color(0.13,0.18,0.26))
+                trim_tx.append(Transform3D(Basis.from_scale(Vector3(bridge_len,0.16,4.0)),bridge_pos+Vector3(0,0.68,0)))
+                trim_colors.append(NEON[(i+j)%NEON.size()])
+            elif abs(delta.z)>30.0 and abs(delta.x)<15.0:
+                var bridge_len=maxf(3.0,abs(delta.z)-(a["s"].z+b["s"].z)*0.5)
+                var bridge_pos=Vector3((a["p"].x+b["p"].x)*0.5,bridge_height*0.72,(a["p"].z+b["p"].z)*0.5)
+                body_tx.append(Transform3D(Basis.from_scale(Vector3(3.8,1.2,bridge_len)),bridge_pos))
+                body_colors.append(Color(0.13,0.18,0.26))
+                trim_tx.append(Transform3D(Basis.from_scale(Vector3(4.0,0.16,bridge_len)),bridge_pos+Vector3(0,0.68,0)))
+                trim_colors.append(NEON[(i+j)%NEON.size()])
     _instances("BuildingMasses",body_tx,body_colors,Color(0.2,0.23,0.34),false)
     _instances("NeonBandsAndSigns",trim_tx,trim_colors,Color(0.2,0.5,0.6),true)
     _instances("WindowGrid",win_tx,win_colors,Color(0,0.65,0.9),true)
     _instances("RooftopMachinery",roof_tx,[],Color(0.09,0.14,0.21),false)
+    _instances("CylindricalServiceTanksAndMasts",cylinder_tx,[],Color(0.18,0.23,0.31),false,CylinderMesh.new())
     if collision_enabled:
         var physics=StaticBody3D.new()
         physics.name="BuildingCollision"
@@ -133,11 +164,11 @@ func _build():
             cs.position=data.p
             physics.add_child(cs)
         add_child(physics)
-func _instances(label,tx:Array[Transform3D],colors:Array[Color],tint:Color,emissive:bool):
+func _instances(label,tx:Array[Transform3D],colors:Array[Color],tint:Color,emissive:bool,mesh:Mesh=null):
     var mm=MultiMesh.new()
     mm.transform_format=MultiMesh.TRANSFORM_3D
     mm.use_colors=true
-    mm.mesh=BoxMesh.new()
+    mm.mesh=mesh if mesh!=null else BoxMesh.new()
     mm.instance_count=tx.size()
     for i in tx.size():
         mm.set_instance_transform(i,tx[i])
