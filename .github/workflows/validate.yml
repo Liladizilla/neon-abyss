@@ -73,6 +73,11 @@ jobs:
           grep -q 'LANDING_DOORS' scripts/city_chunk.gd
           grep -q 'lift_colliders.append' scripts/city_chunk.gd
           grep -q 'facade_bridge' scripts/city_chunk.gd
+          grep -q 'floor_width' scripts/city_chunk.gd
+          grep -q 'guide_size' scripts/city_chunk.gd
+          grep -q 'header_size' scripts/city_chunk.gd
+          grep -q 'Label3D.new' scripts/city_chunk.gd
+          grep -q 'bridge_length' scripts/city_chunk.gd
           grep -q '_add_elevator_car' scripts/city_chunk.gd
           grep -q 'ElevatorAccessBridge' scripts/apartment_interior.gd
           grep -q 'floor_height' scripts/rental_manager.gd
