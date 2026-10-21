@@ -63,6 +63,9 @@ jobs:
           grep -q 'elevator_use' scripts/game_root.gd
           grep -q '_server_request_floor' scripts/elevator_car.gd
           grep -q '_broadcast_floor' scripts/elevator_car.gd
+          grep -q '_receive_lift_snapshot' scripts/elevator_car.gd
+          grep -q '_target_floor' scripts/elevator_car.gd
+          grep -q '_receive_lift_snapshot.rpc_id(peer_id, position.y, _busy, _target_floor, _doors_open)' scripts/elevator_car.gd
           grep -q '_build_cab_doors' scripts/elevator_car.gd
           grep -q '_set_doors_open' scripts/elevator_car.gd
           grep -q 'travel_started' scripts/elevator_car.gd
