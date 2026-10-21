@@ -114,23 +114,28 @@ func _street_detail_kit() -> void:
     _instances("ZebraCrossingStripes",crossing_tx,crossing_colors,Color(0.72,0.76,0.82),false)
     _instances("CrossingProtectionBollards",bollard_tx,bollard_colors,Color(0.08,0.12,0.18),false,CylinderMesh.new())
     _instances("SidewalkUtilityRuns",utility_tx,utility_colors,Color(0.08,0.45,0.55),false)
-    var sidewalk_physics:=StaticBody3D.new()
-    sidewalk_physics.name="SidewalkAndCurbCollision"
-    for data in sidewalk_tx:
-        var shape:=BoxShape3D.new()
-        shape.size=data.basis.get_scale()
-        var collision:=CollisionShape3D.new()
-        collision.shape=shape
-        collision.position=data.origin
-        sidewalk_physics.add_child(collision)
-    for data in curb_tx:
-        var shape:=BoxShape3D.new()
-        shape.size=data.basis.get_scale()
-        var collision:=CollisionShape3D.new()
-        collision.shape=shape
-        collision.position=data.origin
-        sidewalk_physics.add_child(collision)
-    add_child(sidewalk_physics)
+    # Visual-only chunks must not introduce hidden collision into the streaming ring.
+    # Keep the detailed curb and sidewalk shapes only in the active 3x3 collision neighborhood.
+    if collision_enabled:
+        var sidewalk_physics:=StaticBody3D.new()
+        sidewalk_physics.name="SidewalkAndCurbCollision"
+        sidewalk_physics.collision_layer=1
+        sidewalk_physics.collision_mask=1
+        for data in sidewalk_tx:
+            var shape:=BoxShape3D.new()
+            shape.size=data.basis.get_scale()
+            var collision:=CollisionShape3D.new()
+            collision.shape=shape
+            collision.position=data.origin
+            sidewalk_physics.add_child(collision)
+        for data in curb_tx:
+            var shape:=BoxShape3D.new()
+            shape.size=data.basis.get_scale()
+            var collision:=CollisionShape3D.new()
+            collision.shape=shape
+            collision.position=data.origin
+            sidewalk_physics.add_child(collision)
+        add_child(sidewalk_physics)
 
 func _transit_infrastructure():
     # Elevated guideway follows the district's east-west arterial.
@@ -813,11 +818,13 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
     escape.name="FireEscape_B%03d" % building_index
     escape.position=anchor
     add_child(escape)
-    var collision_root:=StaticBody3D.new()
-    collision_root.name="FireEscapeCollision"
-    collision_root.collision_layer=1
-    collision_root.collision_mask=1
-    escape.add_child(collision_root)
+    var collision_root:StaticBody3D
+    if collision_enabled:
+        collision_root=StaticBody3D.new()
+        collision_root.name="FireEscapeCollision"
+        collision_root.collision_layer=1
+        collision_root.collision_mask=1
+        escape.add_child(collision_root)
     var steel:=StandardMaterial3D.new()
     steel.albedo_color=Color(0.075,0.095,0.12)
     steel.metallic=0.78
@@ -939,6 +946,8 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
 func _add_fire_escape_box_collision(parent:Node3D,collision_name:String,local_position:Vector3,box_size:Vector3,rotation_z:float=0.0)->void:
     # Consolidate the many fire-escape primitives under one static body per escape.
     # Every detailed tread, rail and support retains its own precise box shape.
+    if not collision_enabled or not is_instance_valid(parent):
+        return
     var collision:=CollisionShape3D.new()
     collision.name=collision_name
     collision.position=local_position
