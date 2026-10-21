@@ -398,6 +398,7 @@ func _build():
             shape.size=data.s
             cs.shape=shape
             cs.position=data.p
+            cs.rotation=data.get("r",Vector3.ZERO)
             physics.add_child(cs)
         add_child(physics)
 func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Array[Dictionary],x:float,z:float,w:float,d:float,h:float,floors:int,base_h:float,upper_w:float,upper_d:float,shell_color:Color,fire_escape_enabled:bool=false)->void:
@@ -469,7 +470,7 @@ func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Ar
             var direction:=1.0 if level%2==0 else -1.0
             var sx:=x+(0.78 if level%2==0 else -0.78)
             var sz:=z-direction*1.35+direction*float(step)*0.30
-            var sy:=y0+float(step+1)*floor_height/10.0-0.12
+            var sy:=y0+slab+float(step+1)*floor_height/10.0-0.12
             var tread_size:=Vector3(1.15,0.22,0.34)
             var tread_at:=Vector3(sx,sy,sz)
             tx.append(Transform3D(Basis.from_scale(tread_size),tread_at))
@@ -482,21 +483,28 @@ func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Ar
         var rail_size:=Vector3(0.075,0.075,3.15)
         for rail_side in [-1.0,1.0]:
             var rail_x:float=x+(0.78 if level%2==0 else -0.78)+rail_side*0.68
-            var rail_y:float=y0+floor_height*0.52+0.42
+            var rail_y:float=y0+slab+floor_height*0.52+0.42
             var rail_basis:=Basis.from_euler(Vector3(-rail_angle,0,0)).scaled(rail_size)
             tx.append(Transform3D(rail_basis,Vector3(rail_x,rail_y,z)))
             colors.append(rail_color)
+            colliders.append({"p":Vector3(rail_x,rail_y,z),"s":rail_size,"r":Vector3(-rail_angle,0,0)})
             for post_index in range(4):
                 var post_t:float=float(post_index)/3.0
                 var post_z:float=z-1.35+post_t*2.7
                 if level%2==1:
                     post_z=z+1.35-post_t*2.7
-                var post_y:float=y0+post_t*floor_height+0.45
+                var post_y:float=y0+slab+post_t*floor_height+0.45
                 var post_size:=Vector3(0.075,0.9,0.075)
                 var post_at:=Vector3(rail_x,post_y,post_z)
                 tx.append(Transform3D(Basis.from_scale(post_size),post_at))
                 colors.append(rail_color)
                 colliders.append({"p":post_at,"s":post_size})
+        # A protected stair-foot landing closes the gap between the floor plate and first/last tread.
+        var stair_landing_size:=Vector3(2.0,slab,1.2)
+        var stair_landing_at:=Vector3(sx,y0+slab*0.5,-stair_direction*1.75)
+        tx.append(Transform3D(Basis.from_scale(stair_landing_size),stair_landing_at))
+        colors.append(floor_color)
+        colliders.append({"p":stair_landing_at,"s":stair_landing_size})
         var landing_size:=Vector3(2.2,0.22,1.2)
         var landing_at:=Vector3(x+fw*0.5-1.1,y0+0.11,z)
         tx.append(Transform3D(Basis.from_scale(landing_size),landing_at))
