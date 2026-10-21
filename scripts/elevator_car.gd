@@ -13,6 +13,8 @@ var _busy := false
 var _door_left: MeshInstance3D
 var _door_right: MeshInstance3D
 var _doors_open := true
+signal travel_started(target_floor: int)
+signal floor_arrived(floor_number: int)
 
 func configure(floors: int, height: float, index: String, enable_physics: bool) -> void:
     floor_count = maxi(1, floors)
@@ -198,6 +200,9 @@ func _server_request_floor(floor_number: int, peer_id: int) -> void:
     if not is_instance_valid(requester) or not _near_shaft(requester.global_position):
         _send_status(peer_id, "Stand beside this tower's elevator shaft first.")
         return
+    if _busy:
+        _send_status(peer_id, "Lift is already moving. Wait for it to arrive.")
+        return
     if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
         _begin_travel(floor_number)
         _broadcast_floor.rpc(floor_number)
@@ -208,16 +213,18 @@ func _begin_travel(floor_number: int) -> void:
     if is_instance_valid(lift_tween) and lift_tween.is_running():
         lift_tween.kill()
     _busy = true
+    travel_started.emit(floor_number)
     lift_tween = create_tween()
     if _doors_open:
         lift_tween.tween_callback(_set_doors_open.bind(false))
-        lift_tween.tween_interval(0.22)
+        lift_tween.tween_interval(0.32)
     var duration := maxf(1.5, absf(position.y - _floor_y(floor_number)) / 5.0)
     lift_tween.tween_property(self, "position:y", _floor_y(floor_number), duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
     lift_tween.tween_interval(0.12)
     lift_tween.tween_callback(_set_doors_open.bind(true))
     lift_tween.finished.connect(func() -> void:
         _busy = false
+        floor_arrived.emit(floor_number)
         if panel.visible:
             _open_panel()
     )

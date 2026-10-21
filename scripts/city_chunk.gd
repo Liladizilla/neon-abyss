@@ -1,5 +1,6 @@
 extends Node3D
 const ELEVATOR=preload("res://scripts/elevator_car.gd")
+const LANDING_DOORS=preload("res://scripts/elevator_landing_door.gd")
 const NEON=[Color(0,0.92,1),Color(1,0.08,0.72),Color(1,0.56,0.04),Color(0.34,0.2,1),Color(0.12,1,0.48)]
 var coord=Vector2i.ZERO
 var size=96.0
@@ -184,7 +185,7 @@ func _build():
             # Exterior glass elevator core with a visible landing for every generated floor.
             var lift_x=x+w*0.5+4.6
             var floor_height=h/float(floors)
-            _add_elevator_car(lift_x,z,h,floors,building_index)
+            var lift_car: Node3D = _add_elevator_car(lift_x,z,h,floors,building_index)
             for side_x in [-1.0,1.0]:
                 for side_z in [-1.0,1.0]:
                     lift_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,h,0.22)),Vector3(lift_x+side_x*1.35,h*0.5,z+side_z*1.35)))
@@ -201,34 +202,73 @@ func _build():
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.7,0.18,3.7)),Vector3(lift_x,landing_y,z)))
                 lift_landing_colors.append(Color(0.07,0.12,0.19))
                 lift_colliders.append({"p":Vector3(lift_x,landing_y,z),"s":Vector3(3.7,0.18,3.7)})
-                # Short bridge joins the lift landing to the tower facade.
-                var facade_bridge=Vector3(x+w*0.5+1.35,landing_y,z)
-                lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.0,0.18,2.8)),facade_bridge))
+                # Align each bridge with the actual floor footprint; upper tower setbacks vary by style.
+                var floor_wall_height: float = maxf(0.2,floor_height-0.12)
+                var floor_mid_y: float = float(floor_level-1)*floor_height+floor_wall_height*0.5
+                var floor_width: float = upper_w if floor_mid_y >= base_h else w
+                var facade_x: float = x+floor_width*0.5
+                var landing_inner_x: float = lift_x-1.85
+                var bridge_length: float = maxf(0.8,landing_inner_x-facade_x+0.25)
+                var facade_bridge: Vector3 = Vector3((facade_x+landing_inner_x)*0.5,landing_y,z)
+                var bridge_size: Vector3 = Vector3(bridge_length,0.18,2.8)
+                lift_landing_tx.append(Transform3D(Basis.from_scale(bridge_size),facade_bridge))
                 lift_landing_colors.append(Color(0.07,0.12,0.19))
-                lift_colliders.append({"p":facade_bridge,"s":Vector3(3.0,0.18,2.8)})
+                lift_colliders.append({"p":facade_bridge,"s":bridge_size})
+                # Recessed corridor guide strips lead to the elevator opening without blocking movement.
+                for guide_side in [-1.0,1.0]:
+                    var guide_size: Vector3 = Vector3(maxf(1.0, floor_width*0.5-2.1),0.035,0.055)
+                    var guide_pos: Vector3 = Vector3(x+floor_width*0.25,landing_y+0.13,z+guide_side*1.22)
+                    lift_landing_tx.append(Transform3D(Basis.from_scale(guide_size),guide_pos))
+                    lift_landing_colors.append(Color(0.02,0.48,0.72))
+                # Lit doorway trim marks the real opening in the tower's side wall.
+                var frame_mat_color: Color = Color(0.02,0.72,0.88)
+                for frame_side in [-1.0,1.0]:
+                    var frame_size: Vector3 = Vector3(0.12,2.35,0.12)
+                    var frame_pos: Vector3 = Vector3(facade_x-0.22,landing_y+1.25,z+frame_side*1.68)
+                    lift_landing_tx.append(Transform3D(Basis.from_scale(frame_size),frame_pos))
+                    lift_landing_colors.append(frame_mat_color)
+                var header_size: Vector3 = Vector3(0.12,0.12,3.48)
+                var header_pos: Vector3 = Vector3(facade_x-0.22,landing_y+2.48,z)
+                lift_landing_tx.append(Transform3D(Basis.from_scale(header_size),header_pos))
+                lift_landing_colors.append(frame_mat_color)
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(3.65,0.06,0.08)),Vector3(lift_x,landing_y+0.12,z-1.82)))
                 lift_landing_colors.append(Color(0.02,0.72,1.0))
-                # Paired landing doors frame the lift opening on every generated floor.
+                # Full-length guardrails follow each bridge, including deeper upper-floor setbacks.
+                for rail_side in [-1.0,1.0]:
+                    var rail_pos: Vector3 = facade_bridge+Vector3(0.0,0.48,rail_side*1.34)
+                    var rail_size: Vector3 = Vector3(bridge_length,0.92,0.10)
+                    lift_landing_tx.append(Transform3D(Basis.from_scale(rail_size),rail_pos))
+                    lift_landing_colors.append(Color(0.035,0.13,0.19))
+                    lift_colliders.append({"p":rail_pos,"s":rail_size})
+                # Landing doors are individual meshes so the correct floor can open on arrival.
+                var landing_door = LANDING_DOORS.new()
+                landing_door.position=Vector3(lift_x,0.0,z)
+                landing_door.call("configure",floor_level,landing_y)
+                add_child(landing_door)
+                lift_car.connect("travel_started",Callable(landing_door,"on_travel_started"))
+                lift_car.connect("floor_arrived",Callable(landing_door,"on_floor_arrived"))
+                if floor_level==1:
+                    landing_door.call("open_doors",false)
+                # A vertical floor-call display sits beside the doorway.
                 var door_y:float=landing_y+1.08
                 var door_z:float=z+1.78
-                var door_h:float=1.85
-                var door_w:float=0.82
-                var door_mat_color:=Color(0.035,0.09,0.14)
-                for door_side in [-1.0,1.0]:
-                    var door_pos:=Vector3(lift_x+door_side*0.43,door_y,door_z)
-                    lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(door_w,door_h,0.09)),door_pos))
-                    lift_landing_colors.append(door_mat_color)
-                    var seam_pos:=Vector3(lift_x+door_side*0.035,door_y,door_z+0.055)
-                    lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.035,door_h,0.025)),seam_pos))
-                    lift_landing_colors.append(Color(0.02,0.72,1.0))
-                # A vertical floor-call display sits beside the doorway.
-                var display_pos:=Vector3(lift_x+1.28,landing_y+1.42,door_z)
+                var display_pos:=Vector3(lift_x+1.28,door_y+0.34,door_z)
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.24,0.62,0.08)),display_pos))
                 lift_landing_colors.append(Color(0.01,0.035,0.055))
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.12,0.025,0.035)),display_pos+Vector3(0,0.13,0.055)))
                 lift_landing_colors.append(Color(0.02,0.88,1.0))
                 lift_landing_tx.append(Transform3D(Basis.from_scale(Vector3(0.07,0.07,0.035)),display_pos+Vector3(0,-0.12,0.055)))
                 lift_landing_colors.append(Color(1.0,0.24,0.12))
+                # Explicit floor labels make the landing legible without relying on color alone.
+                var floor_label := Label3D.new()
+                floor_label.name = "LiftFloorLabel_B%d_F%02d" % [building_index,floor_level]
+                floor_label.text = "F%02d" % floor_level
+                floor_label.font_size = 32
+                floor_label.outline_size = 6
+                floor_label.modulate = Color(0.2,0.9,1.0)
+                floor_label.position = display_pos+Vector3(0.0,0.0,0.12)
+                floor_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+                add_child(floor_label)
             # Service tanks, antenna masts and roof plant add a non-box silhouette layer.
             for tank in range(2):
                 var tx=x+rng.randf_range(-w*0.28,w*0.28)
@@ -474,6 +514,7 @@ func _add_elevator_car(local_x:float,local_z:float,height:float,floors:int,build
     neon.emission_energy_multiplier=2.2
     door_line.material_override=neon
     car.add_child(door_line)
+    return car
 func _add_lobby_terminal(local_position:Vector3,building_index:int):
     var kiosk=Node3D.new()
     kiosk.name="RentalTerminal_%d"%building_index

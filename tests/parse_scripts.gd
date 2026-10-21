@@ -5,6 +5,7 @@ func _initialize():
         "res://scripts/employment_manager.gd",
         "res://scripts/apartment_interior.gd",
         "res://scripts/elevator_car.gd",
+        "res://scripts/elevator_landing_door.gd",
         "res://scripts/game_root.gd",
         "res://scripts/city_chunk.gd",
         "res://scripts/city_streamer.gd",
