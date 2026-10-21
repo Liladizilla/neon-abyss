@@ -770,12 +770,27 @@ func _add_fire_escape(anchor:Vector3,building_width:float,building_depth:float,t
                 tread_collision.shape=tread_shape
                 tread_body.add_child(tread_collision)
                 escape.add_child(tread_body)
-            var stringer:=MeshInstance3D.new()
-            var stringer_mesh:=BoxMesh.new()
-            stringer_mesh.size=Vector3(landing_width*0.78,0.12,0.12)
-            stringer.mesh=stringer_mesh
-            stringer.material_override=safety
-            stringer.position=Vector3(offset_x+side*landing_width*0.42,y+floor_step*0.5+0.55,0)
-            stringer.rotation.z=-side*atan2(floor_step*0.72,landing_width*0.72)
-            escape.add_child(stringer)
+            # Paired continuous handrails follow the stair pitch; short uprights tie them back to the flight.
+            var rail_length:float=flight_width+0.18
+            var rail_pitch:float=atan2(flight_rise,flight_width)
+            for handrail_side in [-1.0,1.0]:
+                var handrail:=MeshInstance3D.new()
+                handrail.name="Handrail_%02d_%s" % [level,"L" if handrail_side<0.0 else "R"]
+                var handrail_mesh:=BoxMesh.new()
+                handrail_mesh.size=Vector3(rail_length,0.09,0.09)
+                handrail.mesh=handrail_mesh
+                handrail.material_override=safety
+                handrail.position=Vector3(offset_x+side*flight_width*0.5,y+0.18+flight_rise*0.5+0.92,handrail_side*0.48)
+                handrail.rotation.z=side*rail_pitch
+                escape.add_child(handrail)
+                for support_index in range(3):
+                    var support_progress:float=0.18+float(support_index)*0.32
+                    var support:=MeshInstance3D.new()
+                    support.name="HandrailPost_%02d_%s_%d" % [level,"L" if handrail_side<0.0 else "R",support_index]
+                    var support_mesh:=BoxMesh.new()
+                    support_mesh.size=Vector3(0.075,0.94,0.075)
+                    support.mesh=support_mesh
+                    support.material_override=steel
+                    support.position=Vector3(offset_x+side*support_progress*flight_width,y+0.18+support_progress*flight_rise+0.43,handrail_side*0.48)
+                    escape.add_child(support)
             offset_x+=side*landing_width*0.18
