@@ -35,7 +35,7 @@ func _run() -> void:
         checked_profiles[profile] = true
 
     if failures.is_empty():
-        print("CITY_SMOKE_OK buildings=%d profiles=%s" % [manager.buildings.size(), ", ".join(checked_profiles.keys())])
+        print("CITY_SMOKE_OK buildings=%d profiles=%s" % [manager.buildings.size(), str(checked_profiles.keys())])
         quit(0)
     else:
         for failure in failures:
