@@ -20,6 +20,10 @@ func _build_room():
     _box("FrontWallLeft",Vector3(4.3,3.4,0.22),Vector3(-3.85,1.6,4),wall_mat,true)
     _box("FrontWallRight",Vector3(4.3,3.4,0.22),Vector3(3.85,1.6,4),wall_mat,true)
     _box("DoorHeader",Vector3(3.4,0.45,0.22),Vector3(0,3.0,4),wall_mat,true)
+    # Exterior access bridge aligns with the tower's elevator landing at this floor.
+    _box("ElevatorAccessBridge",Vector3(2.8,0.16,5.4),Vector3(0,-0.08,6.7),floor_mat,true)
+    _box("BridgeRailLeft",Vector3(0.12,0.95,5.4),Vector3(-1.34,0.43,6.7),trim_mat,true)
+    _box("BridgeRailRight",Vector3(0.12,0.95,5.4),Vector3(1.34,0.43,6.7),trim_mat,true)
     _box("WindowFrameTop",Vector3(4.2,0.12,0.16),Vector3(0,2.9,-3.84),trim_mat,false)
     _box("WindowFrameBottom",Vector3(4.2,0.12,0.16),Vector3(0,1.0,-3.84),trim_mat,false)
     _box("WindowFrameLeft",Vector3(0.12,1.9,0.16),Vector3(-2.05,1.95,-3.84),trim_mat,false)
