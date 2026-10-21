@@ -141,3 +141,9 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Build nearby-chunk stair tread and connector collision so the access can be approached physically in active gameplay areas.
 - [ ] Run a first-person Godot playtest to validate step dimensions, handrail clearance, landing alignment and safe station entry; visual/headless checks alone cannot confirm traversal feel.
 - [ ] Replace prototype stair geometry with a shared modular stair kit and connect the station lift core into the same vertical circulation graph.
+
+## Road and pedestrian separation pass
+- [x] Add repeated raised curb modules to distinguish sidewalk promenades from the road surface.
+- [x] Add broken lane markings along both arterial directions using instanced geometry and deterministic district placement.
+- [ ] Add curb ramps, tactile crossing pads, accessible route continuity, and physical curb collision at the player scale.
+- [ ] Validate that sidewalk modules align with every generated intersection and elevated street transition in a graphical playtest.
