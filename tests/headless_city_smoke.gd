@@ -85,11 +85,7 @@ func _run() -> void:
         if not door_has_collision:
             failures.append("One or more apartment door panels lack collision shapes.")
         player.global_position = interior.to_global(Vector3(0, 1.0, 3.9))
-        var found_player = interior.get_tree().get_first_node_in_group("local_player")
-        var door_distance = found_player.global_position.distance_to(interior.to_global(Vector3(0, 1.0, 3.9))) if is_instance_valid(found_player) else -1.0
-        print("DOOR_DEBUG found=", is_instance_valid(found_player), " distance=", door_distance, " panels=", interior.entry_door_panels.size(), " before=", closed_positions)
-        interior._process(1.0)
-        print("DOOR_DEBUG after=", [interior.entry_door_panels[0].body.position.x, interior.entry_door_panels[1].body.position.x])
+        interior.update_entry_doors(1.0)
         var opened := false
         for i in range(interior.entry_door_panels.size()):
             var door: AnimatableBody3D = interior.entry_door_panels[i].body
