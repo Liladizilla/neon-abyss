@@ -73,5 +73,6 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 ## Apartment livability: essential fixtures
 - [x] Add a compact kitchenette with base and upper cabinets, counter, sink, cooktop and refrigerator.
 - [x] Add a washroom zone with tiled floor, privacy partitions, shower tray/glass, vanity basin and toilet fixtures.
+- [x] Add entryway trim, kitchen drawer details, tap hardware, shower fittings, mirror, wardrobe, bedside cabinet, desk shelf and window sill.
 - [ ] Replace placeholder furniture with interactable, customizable props and reliable placement persistence.
 - [ ] Validate clear walking routes around the kitchen, washroom and apartment entrance in a graphical Godot session.
