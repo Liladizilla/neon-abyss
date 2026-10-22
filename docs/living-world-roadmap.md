@@ -353,3 +353,14 @@ The doorway checks are geometric regression checks, not a substitute for walking
 - [x] Verify the active district produces all eight ramp colliders at the four crossings.
 - [x] Add a visual-only chunk regression check that confirms ramp meshes remain while ramp physics is absent.
 - [ ] Measure total physics-body count and frame time in an actual graphical run; no measured performance claim is made yet.
+
+
+## Six-task empty-presence streaming safety pass
+
+- [x] Detect the absence of visible connected players before leaving streamed districts active.
+- [x] Clear queued generation work when no active player center exists.
+- [x] Remove loaded chunks through the centralized cleanup path so rental and employment footprints are unregistered.
+- [x] Prevent stale collision-enabled districts from surviving a disconnect or hidden player state.
+- [x] Reset per-frame generation and active-center diagnostics to reflect the empty world state.
+- [x] Add headless regression assertions for queue and diagnostic cleanup; real multiplayer disconnect testing remains outstanding.
+- [ ] Test player disconnect/reconnect and visibility changes in a graphical multiplayer session, including re-generation around the returning player.
