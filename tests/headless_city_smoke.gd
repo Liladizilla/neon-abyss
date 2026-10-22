@@ -36,6 +36,30 @@ func _run() -> void:
             failures.append("Building %s has no rentable floors." % building_id)
         checked_profiles[profile] = true
 
+    # Regression-test forward/backward movement without synthesizing keyboard hardware.
+    var movement_player = PLAYER_SCENE.instantiate()
+    movement_player.name = "HeadlessMovementPlayer"
+    root.add_child(movement_player)
+    var forward_wish: Vector3 = movement_player.movement_wish_from_axis(Vector2(0, -1))
+    var backward_wish: Vector3 = movement_player.movement_wish_from_axis(Vector2(0, 1))
+    if forward_wish.dot(Vector3.FORWARD) < 0.99:
+        failures.append("Forward input does not move toward -Z.")
+    if backward_wish.dot(Vector3.BACK) < 0.99:
+        failures.append("Backward input does not move toward +Z.")
+
+    # Mouse-look should update yaw and pitch while captured, even if UI nodes exist.
+    var previous_mouse_mode = Input.mouse_mode
+    Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+    var mouse_event = InputEventMouseMotion.new()
+    mouse_event.relative = Vector2(10, -5)
+    movement_player._input(mouse_event)
+    if absf(movement_player.rotation.y + 10.0 * movement_player.mouse_sensitivity) > 0.0001:
+        failures.append("Mouse horizontal motion did not rotate player yaw.")
+    if absf(movement_player._pitch - 5.0 * movement_player.mouse_sensitivity) > 0.0001:
+        failures.append("Mouse vertical motion did not update camera pitch.")
+    Input.mouse_mode = previous_mouse_mode
+    movement_player.queue_free()
+
     # Exercise an apartment's physical shell without rendering the city.
     for action_name in ["move_left", "move_right", "move_forward", "move_back", "sprint", "jump", "toggle_flight", "throw_prop", "interact", "ui_cancel"]:
         if not InputMap.has_action(action_name):
