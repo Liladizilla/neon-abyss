@@ -317,3 +317,15 @@ Godot validation and the headless building-registration workflow passed on commi
 - [ ] Run both Godot CI workflows and inspect any failures before treating this pass as validated.
 
 The headless checks validate control math and collision setup, but they do not replace a live Godot walkthrough. Mouse capture/release behavior, entrance traversal, and physical wall blocking still need hands-on confirmation in the actual game window.
+
+
+## Apartment doorway and access-bridge clearance checks
+
+- [x] Assert the player scene retains a capsule collider.
+- [x] Verify the sliding-door opening leaves at least the player diameter plus a 20 cm clearance margin.
+- [x] Check that the elevator-access bridge has a physical collider.
+- [x] Check that both access-bridge safety rails retain collision.
+- [x] Guard the minimum bridge landing length.
+- [x] Keep these clearance checks in the headless smoke suite alongside the two-sided wall collision test.
+
+The doorway checks are geometric regression checks, not a substitute for walking the route in a graphical build. Door animation synchronization and snagging against the bridge rails still need live playtesting.
