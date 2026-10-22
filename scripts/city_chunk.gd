@@ -400,7 +400,7 @@ func _build():
             var z=24.0+iz*48.0+rng.randf_range(-3,3)
             var w=rng.randf_range(18,27)
             var d=rng.randf_range(18,27)
-            var floors=rng.randi_range(7,34)
+            var floors=rng.randi_range(18,42)
             var h=float(floors)*rng.randf_range(3.0,4.1)
             var style=rng.randi_range(0,4)
             var building_index=ix*2+iz
@@ -514,7 +514,7 @@ func _build():
             cylinder_tx.append(Transform3D(Basis.from_scale(Vector3(0.16,rng.randf_range(5.0,12.0),0.16)),Vector3(x+w*0.22,h+6.0,z-d*0.2)))
             roof_tx.append(Transform3D(Basis.from_scale(Vector3(upper_w*0.78,2,upper_d*0.78)),Vector3(x,h+1,z)))
             roof_tx.append(Transform3D(Basis.from_scale(Vector3(1.1,rng.randf_range(5,15),1.1)),Vector3(x+w*0.22,h+7,z-d*0.2)))
-            for level in range(2,floors,3):
+            for level in range(2,floors,2):
                 var y=float(level)*h/float(floors)
                 for side in range(4):
                     var fx=side<2
@@ -527,7 +527,7 @@ func _build():
                         var pos=Vector3(x+sign*(w/2+0.035),y,z+u*d) if fx else Vector3(x+u*w,y,z+sign*(d/2+0.035))
                         win_tx.append(Transform3D(Basis.from_scale(sz),pos))
                         win_colors.append(neon if rng.randf()>0.28 else Color(0.015,0.02,0.035))
-                if level%6==2:
+                if level%8==2:
                     trim_tx.append(Transform3D(Basis.from_scale(Vector3(w*1.025,0.18,d*1.025)),Vector3(x,y,z)))
                     trim_colors.append(neon)
             # Roof plant, vents, aerials, facade billboards and corner light bars.
@@ -617,18 +617,23 @@ func _build():
             if bridge_height<70.0: continue
             if abs(delta.x)>30.0 and abs(delta.z)<15.0:
                 var bridge_len=maxf(3.0,abs(delta.x)-(a["s"].x+b["s"].x)*0.5)
-                var bridge_pos=Vector3((a["p"].x+b["p"].x)*0.5,bridge_height*0.72,(a["p"].z+b["p"].z)*0.5)
-                body_tx.append(Transform3D(Basis.from_scale(Vector3(bridge_len,1.2,3.8)),bridge_pos))
-                body_colors.append(Color(0.13,0.18,0.26))
-                trim_tx.append(Transform3D(Basis.from_scale(Vector3(bridge_len,0.16,4.0)),bridge_pos+Vector3(0,0.68,0)))
-                trim_colors.append(NEON[(i+j)%NEON.size()])
+                # Multiple inhabited sky-lanes turn the gap between towers into vertical urban space.
+                # Reuse the same restrained bridge kit at several heights instead of a single token bridge.
+                for level_ratio in [0.48,0.72,0.9]:
+                    var bridge_pos=Vector3((a["p"].x+b["p"].x)*0.5,bridge_height*level_ratio,(a["p"].z+b["p"].z)*0.5)
+                    body_tx.append(Transform3D(Basis.from_scale(Vector3(bridge_len,1.2,3.8)),bridge_pos))
+                    body_colors.append(Color(0.13,0.18,0.26))
+                    trim_tx.append(Transform3D(Basis.from_scale(Vector3(bridge_len,0.16,4.0)),bridge_pos+Vector3(0,0.68,0)))
+                    trim_colors.append(NEON[(i+j)%NEON.size()])
             elif abs(delta.z)>30.0 and abs(delta.x)<15.0:
                 var bridge_len=maxf(3.0,abs(delta.z)-(a["s"].z+b["s"].z)*0.5)
-                var bridge_pos=Vector3((a["p"].x+b["p"].x)*0.5,bridge_height*0.72,(a["p"].z+b["p"].z)*0.5)
-                body_tx.append(Transform3D(Basis.from_scale(Vector3(3.8,1.2,bridge_len)),bridge_pos))
-                body_colors.append(Color(0.13,0.18,0.26))
-                trim_tx.append(Transform3D(Basis.from_scale(Vector3(4.0,0.16,bridge_len)),bridge_pos+Vector3(0,0.68,0)))
-                trim_colors.append(NEON[(i+j)%NEON.size()])
+                # Cross-axis connections use the same stacked sky-lane levels.
+                for level_ratio in [0.48,0.72,0.9]:
+                    var bridge_pos=Vector3((a["p"].x+b["p"].x)*0.5,bridge_height*level_ratio,(a["p"].z+b["p"].z)*0.5)
+                    body_tx.append(Transform3D(Basis.from_scale(Vector3(3.8,1.2,bridge_len)),bridge_pos))
+                    body_colors.append(Color(0.13,0.18,0.26))
+                    trim_tx.append(Transform3D(Basis.from_scale(Vector3(4.0,0.16,bridge_len)),bridge_pos+Vector3(0,0.68,0)))
+                    trim_colors.append(NEON[(i+j)%NEON.size()])
     _instances("BuildingMasses",body_tx,body_colors,Color(0.2,0.23,0.34),false)
     _instances("GroundFloorShopfrontGlazing",frontage_glass_tx,frontage_glass_colors,Color(0.025,0.34,0.42),false)
     _instances("GroundFloorSignageAndFrames",frontage_frame_tx,frontage_frame_colors,Color(0.08,0.12,0.16),true)
