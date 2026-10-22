@@ -305,3 +305,15 @@ The anchor now sits on the side facing the central arterial, but this is not yet
 - [x] Fix the headless regression test to read the registered `dimensions` field, then rerun both Godot workflows.
 
 Godot validation and the headless building-registration workflow passed on commit `8bed9c480e7b1330bbec64134c075443a401004c`. Follow-up regression coverage now checks each entrance's own threshold against sidewalk collision in all three dimensions and verifies that the walkable top faces are within 5 cm. The newest test change is awaiting its own CI result. A graphical walkthrough remains necessary to confirm first-person clearance, facade trim placement, and an unobstructed sidewalk approach.
+
+
+## First-person controls and collision regression pass
+
+- [x] Make walking direction explicitly yaw-relative so camera pitch cannot affect ground movement.
+- [x] Clamp movement input magnitude to prevent faster diagonal walking.
+- [x] Add headless checks for W/S direction, turned-camera forward direction, normalized diagonals, mouse yaw/pitch response, and pitch limits.
+- [x] Assert that the player uses the same collision layer and mask as generated world geometry.
+- [x] Extend the apartment wall regression to attempt crossing from both sides.
+- [ ] Run both Godot CI workflows and inspect any failures before treating this pass as validated.
+
+The headless checks validate control math and collision setup, but they do not replace a live Godot walkthrough. Mouse capture/release behavior, entrance traversal, and physical wall blocking still need hands-on confirmation in the actual game window.
