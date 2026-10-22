@@ -281,3 +281,15 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - Extended the headless smoke test to check four building entrance kits, light bars, threshold collision, and anchor alignment.
 
 This pass improves the legibility and physical threshold at the existing side entrance. It does **not** claim to create a complete traversable lobby-to-street route or solve every building's ground-floor door collision. Next work should validate actual player approach paths against each building's shell openings, then connect street sidewalks to those thresholds without blocking neighbouring chunks.
+
+
+## Six-task arterial entrance alignment pass
+
+- Restored the entrance canopy, edge-light and threshold instance arrays in the building generation path so their render calls have concrete generated geometry.
+- Orient the entrance anchor toward the central arterial based on building column, instead of placing every entrance on the east side.
+- Keep each threshold visual and collider at the registered rental interaction anchor, avoiding a mismatch between the visual pad and interaction distance.
+- Preserve batched MultiMesh rendering for the canopy and lighting.
+- Keep threshold collision limited to active collision-enabled chunks.
+- Extend smoke coverage for exact canopy/light counts and anchor-to-threshold alignment.
+
+The anchor now sits on the side facing the central arterial, but this is not yet proof that the shell's wall opening is aligned with the entrance or that a continuous, unobstructed walk strip reaches it. Those require a graphical walk-through and a follow-up geometry/collision pass.
