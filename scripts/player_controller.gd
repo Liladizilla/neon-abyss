@@ -45,7 +45,7 @@ func _physics_process(delta: float) -> void:
 
     # Input.get_vector returns negative Y for the negative_y action (W/forward).
     # Add that value along +Z so W moves toward the camera's forward (-Z) direction.
-    var wish := (global_basis.x * axis.x + global_basis.z * axis.y).normalized()
+    var wish := movement_wish_from_axis(axis)
     var speed := sprint_speed if Input.is_action_pressed("sprint") else walk_speed
 
     if flight_mode:
@@ -68,6 +68,10 @@ func _physics_process(delta: float) -> void:
         pivot.position.y = 1.58 + sin(_bob) * 0.035
     else:
         pivot.position.y = move_toward(pivot.position.y, 1.58, delta * 3.0)
+
+# Exposed as a pure helper so the forward/backward mapping can be regression-tested headlessly.
+func movement_wish_from_axis(axis: Vector2) -> Vector3:
+    return (global_basis.x * axis.x + global_basis.z * axis.y).normalized()
 
 func _throw_prop() -> void:
     var prop := RigidBody3D.new()
