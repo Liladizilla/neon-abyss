@@ -209,6 +209,24 @@ func _run() -> void:
                 opened = true
         if not opened:
             failures.append("Apartment sliding doors did not respond to nearby player.")
+        var left_door: AnimatableBody3D = interior.entry_door_panels[0].body
+        var right_door: AnimatableBody3D = interior.entry_door_panels[1].body
+        var clear_gap: float = absf(right_door.position.x - left_door.position.x) - 0.94
+        var player_shape_node = player.get_node_or_null("CollisionShape3D")
+        var player_capsule: CapsuleShape3D = player_shape_node.shape if is_instance_valid(player_shape_node) and player_shape_node.shape is CapsuleShape3D else null
+        if player_capsule == null:
+            failures.append("Player collision capsule is missing.")
+        elif clear_gap < player_capsule.radius * 2.0 + 0.2:
+            failures.append("Open apartment doorway is narrower than the player capsule plus clearance margin.")
+        var bridge_body = interior.find_child("ElevatorAccessBridge_Collision", true, false)
+        if not is_instance_valid(bridge_body) or not bridge_body is StaticBody3D or bridge_body.get_child_count() == 0:
+            failures.append("Apartment access bridge is missing physical collision.")
+        var bridge_rail_left = interior.find_child("BridgeRailLeft_Collision", true, false)
+        var bridge_rail_right = interior.find_child("BridgeRailRight_Collision", true, false)
+        if not is_instance_valid(bridge_rail_left) or not is_instance_valid(bridge_rail_right):
+            failures.append("Apartment access bridge must retain collision on both safety rails.")
+        if interior.access_bridge_length < 2.8:
+            failures.append("Apartment access bridge is shorter than the minimum landing span.")
 
     if failures.is_empty():
         print("CITY_SMOKE_OK buildings=%d profiles=%s apartment_collision=ok sliding_doors=ok" % [manager.buildings.size(), str(checked_profiles.keys())])
