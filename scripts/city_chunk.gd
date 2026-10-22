@@ -563,6 +563,12 @@ func _build():
     var lift_landing_tx:Array[Transform3D]=[]
     var lift_landing_colors:Array[Color]=[]
     var lift_colliders:Array[Dictionary]=[]
+    var entrance_canopy_tx:Array[Transform3D]=[]
+    var entrance_canopy_colors:Array[Color]=[]
+    var entrance_light_tx:Array[Transform3D]=[]
+    var entrance_light_colors:Array[Color]=[]
+    var entrance_walk_tx:Array[Transform3D]=[]
+    var entrance_walk_colliders:Array[Dictionary]=[]
     for ix in range(2):
         for iz in range(2):
             var x=24.0+ix*48.0+rng.randf_range(-3,3)
@@ -765,7 +771,24 @@ func _build():
                 var growth_x:float=x+growth_side*(w*0.5-1.1)
                 base_growth_tx.append(Transform3D(Basis.from_scale(Vector3(0.62,0.85,0.55)),Vector3(growth_x,0.48,frontage_z-0.36)))
                 base_growth_colors.append(Color(0.055,0.2,0.11) if district_profile!=2 else Color(0.1,0.29,0.13))
-            var entrance_local=Vector3(x+w*0.5+2.4,0,z)
+            # Face each entrance toward the central arterial to shorten the sidewalk approach.
+            var entrance_side:float=1.0 if ix==0 else -1.0
+            var entrance_local:=Vector3(x+entrance_side*(w*0.5+2.4),0,z)
+            var canopy_center:=entrance_local+Vector3(-entrance_side*0.05,2.65,0.0)
+            entrance_canopy_tx.append(Transform3D(Basis.from_scale(Vector3(3.8,0.22,4.2)),canopy_center))
+            entrance_canopy_colors.append(Color(0.045,0.075,0.11))
+            for edge_side in [-1.0,1.0]:
+                entrance_canopy_tx.append(Transform3D(Basis.from_scale(Vector3(3.8,0.07,0.09)),canopy_center+Vector3(0,0.15,edge_side*2.02)))
+                entrance_canopy_colors.append(frontage_neon)
+                entrance_canopy_tx.append(Transform3D(Basis.from_scale(Vector3(0.09,0.07,4.0)),canopy_center+Vector3(edge_side*1.84,0.15,0)))
+                entrance_canopy_colors.append(Color(0.08,0.16,0.22))
+            entrance_light_tx.append(Transform3D(Basis.from_scale(Vector3(1.1,0.07,0.07)),entrance_local+Vector3(-entrance_side*0.05,2.30,-0.10)))
+            entrance_light_colors.append(frontage_neon)
+            # Threshold pad aligns with the entrance's actual side rather than always facing east.
+            var threshold_size:=Vector3(3.5,0.16,3.8)
+            var threshold_pos:=entrance_local+Vector3(-entrance_side*0.9,0.04,0.0)
+            entrance_walk_tx.append(Transform3D(Basis.from_scale(threshold_size),threshold_pos))
+            entrance_walk_colliders.append({"p":threshold_pos,"s":threshold_size})
             _add_lobby_terminal(entrance_local,building_index)
             if has_fire_escape:
                 _add_fire_escape(Vector3(x,0,z-d*0.5-0.18),w,d,h,floors,upper_d,base_h,building_index)
