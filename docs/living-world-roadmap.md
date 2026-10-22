@@ -329,3 +329,16 @@ The headless checks validate control math and collision setup, but they do not r
 - [x] Keep these clearance checks in the headless smoke suite alongside the two-sided wall collision test.
 
 The doorway checks are geometric regression checks, not a substitute for walking the route in a graphical build. Door animation synchronization and snagging against the bridge rails still need live playtesting.
+
+
+## Six-task streamed-district collision safety pass
+
+- [x] Map negative world coordinates with floor-based district indexing so crossing the world origin does not select the wrong chunk.
+- [x] Reconcile loaded chunks against the required collision state even when the sorted player-center list itself has not changed.
+- [x] Centralize chunk removal and unregister housing/employment footprints before the old district is freed.
+- [x] Prioritize queued districts by distance to the nearest connected player, with deterministic tie-breaking for reproducible streaming.
+- [x] Discard stale or duplicate queue entries before scheduling generation.
+- [x] Expose loaded, queued, active-center, per-frame generation and collision-chunk counters for profiling without altering visible asset quality.
+- [x] Extend headless smoke checks for negative coordinates, diagonal collision-ring boundaries, queue priority and diagnostics.
+- [ ] Profile chunk generation and physics-body count on the target integrated GPU; instrumentation is present, but no performance numbers are claimed until measured.
+- [ ] Graphically test rapid district-boundary crossings and multi-client streaming in Godot.
