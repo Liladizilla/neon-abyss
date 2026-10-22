@@ -108,9 +108,12 @@ func _distance_squared_to_nearest_center(k:Vector2i) -> int:
     return best
 
 func get_streaming_diagnostics() -> Dictionary:
+    var physics_counts := _physics_counts()
     return {"loaded_chunks": chunks.size(), "queued_chunks": queue.size(),
         "active_player_centers": last_stream_center_count, "generated_this_frame": generated_this_frame,
-        "collision_chunks": _collision_chunk_count()}
+        "collision_chunks": _collision_chunk_count(),
+        "static_bodies": physics_counts["static_bodies"],
+        "collision_shapes": physics_counts["collision_shapes"]}
 
 func _collision_chunk_count() -> int:
     var total := 0
@@ -151,3 +154,20 @@ func _handle_no_active_centers() -> void:
     queue.clear()
     for key in chunks.keys():
         _remove_chunk(key, false)
+
+
+func _physics_counts() -> Dictionary:
+    # Called only when diagnostics are requested, never as part of the per-frame stream loop.
+    var counts := {"static_bodies": 0, "collision_shapes": 0}
+    for chunk_node in chunks.values():
+        if is_instance_valid(chunk_node):
+            _accumulate_physics_counts(chunk_node, counts)
+    return counts
+
+func _accumulate_physics_counts(parent: Node, counts: Dictionary) -> void:
+    if parent is StaticBody3D:
+        counts["static_bodies"] += 1
+    if parent is CollisionShape3D:
+        counts["collision_shapes"] += 1
+    for child in parent.get_children():
+        _accumulate_physics_counts(child, counts)

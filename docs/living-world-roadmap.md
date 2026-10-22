@@ -364,3 +364,14 @@ The doorway checks are geometric regression checks, not a substitute for walking
 - [x] Reset per-frame generation and active-center diagnostics to reflect the empty world state.
 - [x] Add headless regression assertions for queue and diagnostic cleanup; real multiplayer disconnect testing remains outstanding.
 - [ ] Test player disconnect/reconnect and visibility changes in a graphical multiplayer session, including re-generation around the returning player.
+
+
+## Six-task on-demand physics-budget diagnostics pass
+
+- [x] Add a static-body counter across currently loaded streamed districts.
+- [x] Add a collision-shape counter so body consolidation and shape growth can be distinguished.
+- [x] Compute counts only when diagnostics are requested, not every frame.
+- [x] Keep the existing active collision-chunk counter for ring-budget visibility.
+- [x] Extend headless assertions to require both new physics counters.
+- [x] Document that counts are instrumentation, not a performance benchmark; frame time and memory still require measurement in a real Godot session.
+- [ ] Record baseline body/shape counts, frame time and memory on the target machine before tuning further.

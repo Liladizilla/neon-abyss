@@ -166,7 +166,7 @@ func _run() -> void:
     if streamer.generated_this_frame != 0 or streamer.last_stream_center_count != 0:
         failures.append("Empty player presence left stale streaming diagnostics.")
     var stream_stats:Dictionary = streamer.get_streaming_diagnostics()
-    for stat_name in ["loaded_chunks", "queued_chunks", "active_player_centers", "generated_this_frame", "collision_chunks"]:
+    for stat_name in ["loaded_chunks", "queued_chunks", "active_player_centers", "generated_this_frame", "collision_chunks", "static_bodies", "collision_shapes"]:
         if not stream_stats.has(stat_name):
             failures.append("Streaming diagnostics missing counter: %s." % stat_name)
     streamer.queue_free()
