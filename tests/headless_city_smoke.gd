@@ -86,12 +86,15 @@ func _run() -> void:
                     var sidewalk_pos: Vector3 = sidewalk_shape.global_position
                     var sidewalk_size: Vector3 = sidewalk_shape.shape.size
                     var overlap_x: float = (threshold_size.x + sidewalk_size.x) * 0.5 - absf(threshold_pos.x - sidewalk_pos.x)
+                    var overlap_y: float = (threshold_size.y + sidewalk_size.y) * 0.5 - absf(threshold_pos.y - sidewalk_pos.y)
                     var overlap_z: float = (threshold_size.z + sidewalk_size.z) * 0.5 - absf(threshold_pos.z - sidewalk_pos.z)
-                    if overlap_x > 0.0 and overlap_z > 0.0:
+                    # Horizontal overlap alone can hide a raised or sunken threshold.
+                    # Require the physical boxes to intersect on all three axes.
+                    if overlap_x > 0.0 and overlap_y > 0.0 and overlap_z > 0.0:
                         threshold_reaches_sidewalk = true
                         break
             if not threshold_reaches_sidewalk:
-                failures.append("Registered rental entrance %s has no horizontal overlap between its own threshold and physical sidewalk collision." % building_id)
+                failures.append("Registered rental entrance %s does not physically overlap the sidewalk collider in 3D." % building_id)
 
     var checked_profiles := {}
     for building_id in manager.buildings:
