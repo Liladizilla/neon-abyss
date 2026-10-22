@@ -153,16 +153,18 @@ func _handle_no_active_centers() -> void:
         _remove_chunk(key, false)
 
 
-func _physics_node_count(node_type: Variant) -> int:
+func _physics_counts() -> Dictionary:
     # Called only when diagnostics are requested, never as part of the per-frame stream loop.
-    var total := 0
+    var counts := {"static_bodies": 0, "collision_shapes": 0}
     for chunk_node in chunks.values():
         if is_instance_valid(chunk_node):
-            total += _count_descendants_of_type(chunk_node, node_type)
-    return total
+            _accumulate_physics_counts(chunk_node, counts)
+    return counts
 
-func _count_descendants_of_type(parent: Node, node_type: Variant) -> int:
-    var total := 1 if is_instance_valid(parent) and parent is node_type else 0
+func _accumulate_physics_counts(parent: Node, counts: Dictionary) -> void:
+    if parent is StaticBody3D:
+        counts["static_bodies"] += 1
+    if parent is CollisionShape3D:
+        counts["collision_shapes"] += 1
     for child in parent.get_children():
-        total += _count_descendants_of_type(child, node_type)
-    return total
+        _accumulate_physics_counts(child, counts)
