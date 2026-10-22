@@ -883,13 +883,17 @@ func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Ar
         var hx:=fw*0.5
         var hz:=fd*0.5
         var side_depth:=maxf(1.0,(fd-stair_opening_z)*0.5)
+        # Split both X-facing walls around the central access opening. This lets the
+        # left and right building columns expose a real doorway toward the arterial.
         var wall_specs:Array[Dictionary]=[
-            {"size":Vector3(0.48,wall_height,fd),"pos":Vector3(x-hx+0.24,cy,z)},
+            {"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(x-hx+0.24,cy,z-stair_opening_z*0.5-side_depth*0.5)},
+            {"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(x-hx+0.24,cy,z+stair_opening_z*0.5+side_depth*0.5)},
             {"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(x+hx-0.24,cy,z-stair_opening_z*0.5-side_depth*0.5)},
             {"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(x+hx-0.24,cy,z+stair_opening_z*0.5+side_depth*0.5)},
             {"size":Vector3(fw,wall_height,0.48),"pos":Vector3(x,cy,z+hz-0.24)}
         ]
-        # Leave a real opening in the front wall instead of placing a decorative door over solid collision.
+        # Preserve a real front-wall doorway and matching trim. The arterial-facing side
+        # openings above are generated from the same floor band and remain free of wall collision.
         var doorway_width:float=1.55
         var doorway_height:float=minf(2.35,wall_height-0.25)
         var doorway_side_width:float=maxf(0.5,(fw-doorway_width)*0.5)
@@ -897,7 +901,7 @@ func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Ar
         wall_specs.append({"size":Vector3(doorway_side_width,wall_height,0.48),"pos":Vector3(x+(doorway_width*0.5+doorway_side_width*0.5),cy,z-hz+0.24)})
         var header_height:float=wall_height-doorway_height
         wall_specs.append({"size":Vector3(doorway_width,header_height,0.48),"pos":Vector3(x,y0+doorway_height+header_height*0.5,z-hz+0.24)})
-        # Cyan jambs and header make the floor exit visible from the landing.
+        # Front-wall exit trim is kept separate from the new side access openings.
         var exit_trim:Color=Color(0.02,0.72,0.88)
         for jamb_side in [-1.0,1.0]:
             var jamb_size:=Vector3(0.10,doorway_height,0.10)
