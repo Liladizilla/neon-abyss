@@ -269,3 +269,15 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Keep the profile argument backward-compatible for any other registration callers by providing a residential-lobby default.
 - [ ] Validate the registry label against generated frontages and rental kiosk positions in a graphical Godot session.
 - [ ] Follow-up: wire actual entrance access states to doors and collision; these profile labels are metadata, not functional locks or shutters.
+
+
+## Six-task building entrance connectivity pass
+
+- Added a reusable five-piece weather canopy kit to each generated building entrance, with district-accent edge lighting.
+- Added a dedicated entrance light bar so the approach remains visually readable in the dark city palette.
+- Added a shallow threshold pad at the existing registered entrance anchor.
+- Added collision for threshold pads only in active collision-enabled chunks; visual-only streamed chunks remain non-solid.
+- Kept the rental registry, lobby terminal, and employment board on the same existing entrance anchor rather than inventing a separate interaction location.
+- Extended the headless smoke test to check four building entrance kits, light bars, threshold collision, and anchor alignment.
+
+This pass improves the legibility and physical threshold at the existing side entrance. It does **not** claim to create a complete traversable lobby-to-street route or solve every building's ground-floor door collision. Next work should validate actual player approach paths against each building's shell openings, then connect street sidewalks to those thresholds without blocking neighbouring chunks.
