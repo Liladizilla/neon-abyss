@@ -31,7 +31,7 @@ func _process(_delta):
         if not next_centers.has(c):
             next_centers.append(c)
     if next_centers.is_empty():
-        generated_this_frame=0
+        _handle_no_active_centers()
         return
     next_centers.sort_custom(func(a,b):
         if a.x==b.x:return a.y<b.y
@@ -140,3 +140,14 @@ func _queue_ring(c:Vector2i):
     for k in coords:
         if not chunks.has(k) and not queue.has(k):
             queue.append(k)
+
+
+func _handle_no_active_centers() -> void:
+    # No connected, visible players means no district should retain live collision
+    # or registry footprints. The spawn ring is queued again when a player appears.
+    active_centers.clear()
+    last_stream_center_count = 0
+    generated_this_frame = 0
+    queue.clear()
+    for key in chunks.keys():
+        _remove_chunk(key, false)
