@@ -365,11 +365,11 @@ func _transit_infrastructure():
         var upper:float=stair_levels[flight].y
         var flight_x:float=size*0.5+float(flight)*8.0+8.0
         var flight_z:float=size*0.5-15.0
-        var steps:int=18
+        var steps:int=130
         for step in range(steps):
             var t:float=float(step)/float(steps-1)
             var tread_y:float=lower+1.0+t*(upper-lower)
-            var tread_z:float=flight_z-t*8.0
+            var tread_z:float=flight_z-t*36.0
             var tread_transform:=Transform3D(Basis.from_scale(Vector3(2.8,0.28,0.62)),Vector3(flight_x,tread_y,tread_z))
             stair_tx.append(tread_transform)
             stair_colors.append(Color(0.12,0.16,0.22))
