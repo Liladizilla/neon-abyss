@@ -321,6 +321,34 @@ func _transit_infrastructure():
     _instances("SkyLaneTransferPlazas",plaza_tx,plaza_colors,Color(0.075,0.12,0.18),false)
     _instances("SkyLaneTransferPlazaEdges",plaza_edge_tx,plaza_edge_colors,Color(0.02,0.65,0.82),true)
 
+    # Transit stop modules sit beside each transfer plaza. They are structural shells for
+    # future boarding logic, not a claim that trains or passenger simulation exist yet.
+    var station_floor_tx:Array[Transform3D]=[]
+    var station_roof_tx:Array[Transform3D]=[]
+    var station_post_tx:Array[Transform3D]=[]
+    var station_trim_tx:Array[Transform3D]=[]
+    var station_floor_colors:Array[Color]=[]
+    var station_roof_colors:Array[Color]=[]
+    var station_post_colors:Array[Color]=[]
+    var station_trim_colors:Array[Color]=[]
+    for deck_y in deck_heights:
+        var station_center:=Vector3(size*0.5+18.0,deck_y+0.62,size*0.5)
+        station_floor_tx.append(Transform3D(Basis.from_scale(Vector3(12.0,0.5,18.0)),station_center))
+        station_floor_colors.append(Color(0.08,0.12,0.18))
+        station_roof_tx.append(Transform3D(Basis.from_scale(Vector3(12.0,0.28,18.0)),station_center+Vector3(0,4.2,0)))
+        station_roof_colors.append(Color(0.045,0.075,0.12))
+        for xside in [-1.0,1.0]:
+            for zside in [-1.0,1.0]:
+                station_post_tx.append(Transform3D(Basis.from_scale(Vector3(0.32,4.0,0.32)),station_center+Vector3(xside*5.4,2.1,zside*8.2)))
+                station_post_colors.append(Color(0.12,0.16,0.23))
+        for side in [-1.0,1.0]:
+            station_trim_tx.append(Transform3D(Basis.from_scale(Vector3(12.0,0.12,0.16)),station_center+Vector3(0,0.42,side*8.8)))
+            station_trim_colors.append(Color(0.02,0.65,0.82))
+    _instances("ElevatedTransitStationFloors",station_floor_tx,station_floor_colors,Color(0.08,0.12,0.18),false)
+    _instances("ElevatedTransitStationRoofs",station_roof_tx,station_roof_colors,Color(0.045,0.075,0.12),false)
+    _instances("ElevatedTransitStationPosts",station_post_tx,station_post_colors,Color(0.12,0.16,0.23),false)
+    _instances("ElevatedTransitStationNeonTrim",station_trim_tx,station_trim_colors,Color(0.02,0.65,0.82),true)
+
     # Give every elevated deck a matching physical surface in nearby chunks.
     # The visual MultiMeshes remain batched; collision uses one shared unit box shape per deck.
     if collision_enabled:
