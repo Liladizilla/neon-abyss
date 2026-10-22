@@ -1,3 +1,12 @@
+## Six-task vertical access wayfinding pass
+- [x] Add deterministic wayfinding pylons at each of the three elevated transfer heights.
+- [x] Use two contrasting emissive colors so transfer nodes can be recognized in the dark city canyon.
+- [x] Place markers around the transfer-node center rather than scattering them randomly.
+- [x] Keep markers in one MultiMesh batch to avoid one draw call per marker.
+- [x] Extend the headless smoke test to require exactly twelve markers across the three levels.
+- [x] Keep the distinction clear: these are visual wayfinding markers only; they do not claim that building entrances, transit boarding, or all chunk-boundary routes are connected.
+- [ ] Next: register actual building-side access anchors and connect them to traversable routes with collision and interaction logic.
+
 # NEON ABYSS: living-world roadmap
 
 The goal is a persistent, shared dystopian jungle-city where every resident can rent a home and participate in a functioning urban world. This roadmap separates implemented systems from future production work; listing a system here does not mean it already exists.
@@ -260,3 +269,27 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [x] Keep the profile argument backward-compatible for any other registration callers by providing a residential-lobby default.
 - [ ] Validate the registry label against generated frontages and rental kiosk positions in a graphical Godot session.
 - [ ] Follow-up: wire actual entrance access states to doors and collision; these profile labels are metadata, not functional locks or shutters.
+
+
+## Six-task building entrance connectivity pass
+
+- Added a reusable five-piece weather canopy kit to each generated building entrance, with district-accent edge lighting.
+- Added a dedicated entrance light bar so the approach remains visually readable in the dark city palette.
+- Added a shallow threshold pad at the existing registered entrance anchor.
+- Added collision for threshold pads only in active collision-enabled chunks; visual-only streamed chunks remain non-solid.
+- Kept the rental registry, lobby terminal, and employment board on the same existing entrance anchor rather than inventing a separate interaction location.
+- Extended the headless smoke test to check four building entrance kits, light bars, threshold collision, and anchor alignment.
+
+This pass improves the legibility and physical threshold at the existing side entrance. It does **not** claim to create a complete traversable lobby-to-street route or solve every building's ground-floor door collision. Next work should validate actual player approach paths against each building's shell openings, then connect street sidewalks to those thresholds without blocking neighbouring chunks.
+
+
+## Six-task arterial entrance alignment pass
+
+- Restored the entrance canopy, edge-light and threshold instance arrays in the building generation path so their render calls have concrete generated geometry.
+- Orient the entrance anchor toward the central arterial based on building column, instead of placing every entrance on the east side.
+- Keep each threshold visual and collider at the registered rental interaction anchor, avoiding a mismatch between the visual pad and interaction distance.
+- Preserve batched MultiMesh rendering for the canopy and lighting.
+- Keep threshold collision limited to active collision-enabled chunks.
+- Extend smoke coverage for exact canopy/light counts and anchor-to-threshold alignment.
+
+The anchor now sits on the side facing the central arterial, but this is not yet proof that the shell's wall opening is aligned with the entrance or that a continuous, unobstructed walk strip reaches it. Those require a graphical walk-through and a follow-up geometry/collision pass.

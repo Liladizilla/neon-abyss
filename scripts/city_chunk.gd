@@ -252,6 +252,22 @@ func _transit_infrastructure():
     _instances("ElevatedTransitRails",rails,[],Color(0.16,0.2,0.29),false)
     _instances("TransitGuidewayPylons",supports,[],Color(0.12,0.16,0.23),false)
 
+    # Deterministic access nodes are chunk-local and repeated at each elevated level.
+    # Their coordinates are shared by the plaza, stair and building-side connector recipes.
+    var access_node_tx:Array[Transform3D]=[]
+    var access_node_colors:Array[Color]=[]
+    var access_node_heights:Array[float]=[27.0,49.0,73.0]
+    for level_index in range(access_node_heights.size()):
+        var access_y:float=access_node_heights[level_index]
+        var access_center:=Vector3(size*0.5,access_y+0.9,size*0.5)
+        # Four illuminated wayfinding pylons identify the transfer node from a distance.
+        for side in [-1.0,1.0]:
+            access_node_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,1.8,0.22)),access_center+Vector3(side*8.0,0,0)))
+            access_node_colors.append(Color(0.02,0.65,0.82))
+            access_node_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,1.8,0.22)),access_center+Vector3(0,0,side*8.0)))
+            access_node_colors.append(Color(1.0,0.12,0.48))
+    _instances("VerticalAccessWayfindingPylons",access_node_tx,access_node_colors,Color(0.02,0.65,0.82),true)
+
     # Vertical-city infrastructure: three reusable elevated service decks per district.
     # They form a layered silhouette above street level and align exactly with chunk edges.
     var deck_tx:Array[Transform3D]=[]
@@ -547,6 +563,12 @@ func _build():
     var lift_landing_tx:Array[Transform3D]=[]
     var lift_landing_colors:Array[Color]=[]
     var lift_colliders:Array[Dictionary]=[]
+    var entrance_canopy_tx:Array[Transform3D]=[]
+    var entrance_canopy_colors:Array[Color]=[]
+    var entrance_light_tx:Array[Transform3D]=[]
+    var entrance_light_colors:Array[Color]=[]
+    var entrance_walk_tx:Array[Transform3D]=[]
+    var entrance_walk_colliders:Array[Dictionary]=[]
     for ix in range(2):
         for iz in range(2):
             var x=24.0+ix*48.0+rng.randf_range(-3,3)
@@ -749,7 +771,24 @@ func _build():
                 var growth_x:float=x+growth_side*(w*0.5-1.1)
                 base_growth_tx.append(Transform3D(Basis.from_scale(Vector3(0.62,0.85,0.55)),Vector3(growth_x,0.48,frontage_z-0.36)))
                 base_growth_colors.append(Color(0.055,0.2,0.11) if district_profile!=2 else Color(0.1,0.29,0.13))
-            var entrance_local=Vector3(x+w*0.5+2.4,0,z)
+            # Face each entrance toward the central arterial to shorten the sidewalk approach.
+            var entrance_side:float=1.0 if ix==0 else -1.0
+            var entrance_local:=Vector3(x+entrance_side*(w*0.5+2.4),0,z)
+            var canopy_center:=entrance_local+Vector3(-entrance_side*0.05,2.65,0.0)
+            entrance_canopy_tx.append(Transform3D(Basis.from_scale(Vector3(3.8,0.22,4.2)),canopy_center))
+            entrance_canopy_colors.append(Color(0.045,0.075,0.11))
+            for edge_side in [-1.0,1.0]:
+                entrance_canopy_tx.append(Transform3D(Basis.from_scale(Vector3(3.8,0.07,0.09)),canopy_center+Vector3(0,0.15,edge_side*2.02)))
+                entrance_canopy_colors.append(frontage_neon)
+                entrance_canopy_tx.append(Transform3D(Basis.from_scale(Vector3(0.09,0.07,4.0)),canopy_center+Vector3(edge_side*1.84,0.15,0)))
+                entrance_canopy_colors.append(Color(0.08,0.16,0.22))
+            entrance_light_tx.append(Transform3D(Basis.from_scale(Vector3(1.1,0.07,0.07)),entrance_local+Vector3(-entrance_side*0.05,2.30,-0.10)))
+            entrance_light_colors.append(frontage_neon)
+            # Threshold pad aligns with the entrance's actual side rather than always facing east.
+            var threshold_size:=Vector3(3.5,0.16,3.8)
+            var threshold_pos:=entrance_local+Vector3(0.0,0.04,0.0)
+            entrance_walk_tx.append(Transform3D(Basis.from_scale(threshold_size),threshold_pos))
+            entrance_walk_colliders.append({"p":threshold_pos,"s":threshold_size})
             _add_lobby_terminal(entrance_local,building_index)
             if has_fire_escape:
                 _add_fire_escape(Vector3(x,0,z-d*0.5-0.18),w,d,h,floors,upper_d,base_h,building_index)
@@ -798,6 +837,9 @@ func _build():
     _instances("CylindricalServiceTanksAndMasts",cylinder_tx,[],Color(0.18,0.23,0.31),false,CylinderMesh.new())
     _instances("ExteriorElevatorFrames",lift_tx,lift_colors,Color(0.1,0.18,0.26),false)
     _instances("ElevatorFloorLandings",lift_landing_tx,lift_landing_colors,Color(0.1,0.18,0.26),false)
+    _instances("BuildingEntranceCanopies",entrance_canopy_tx,entrance_canopy_colors,Color(0.045,0.075,0.11),true)
+    _instances("BuildingEntranceLightBars",entrance_light_tx,entrance_light_colors,Color(0.02,0.72,0.88),true)
+    _instances("BuildingEntranceThresholds",entrance_walk_tx,[],Color(0.18,0.22,0.29),false)
     _district_landmark()
     if collision_enabled:
         var physics=StaticBody3D.new()
@@ -811,6 +853,19 @@ func _build():
             cs.rotation=data.get("r",Vector3.ZERO)
             physics.add_child(cs)
         add_child(physics)
+        if not entrance_walk_colliders.is_empty():
+            var entrance_physics:=StaticBody3D.new()
+            entrance_physics.name="BuildingEntranceThresholdCollision"
+            entrance_physics.collision_layer=1
+            entrance_physics.collision_mask=1
+            for data in entrance_walk_colliders:
+                var threshold_shape:=BoxShape3D.new()
+                threshold_shape.size=data.s
+                var threshold_collision:=CollisionShape3D.new()
+                threshold_collision.shape=threshold_shape
+                threshold_collision.position=data.p
+                entrance_physics.add_child(threshold_collision)
+            add_child(entrance_physics)
 func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Array[Dictionary],x:float,z:float,w:float,d:float,h:float,floors:int,base_h:float,upper_w:float,upper_d:float,shell_color:Color,fire_escape_enabled:bool=false)->void:
     var floor_height:=h/float(floors)
     var floor_color:=Color(0.045,0.065,0.095)
