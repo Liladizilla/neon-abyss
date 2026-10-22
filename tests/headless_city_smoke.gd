@@ -29,6 +29,9 @@ func _run() -> void:
             failures.append("Missing physical elevated access component: %s." % physics_name)
         elif physics_node.get_child_count() == 0:
             failures.append("Elevated access component has no collision shapes: %s." % physics_name)
+    var wayfinding = chunk.find_child("VerticalAccessWayfindingPylons", true, false)
+    if not is_instance_valid(wayfinding) or not wayfinding is MultiMeshInstance3D or wayfinding.multimesh == null or wayfinding.multimesh.instance_count != 12:
+        failures.append("Vertical access wayfinding must generate 12 markers across three levels.")
     if manager.buildings.is_empty():
         failures.append("Generated chunk did not register any rentable buildings.")
 
