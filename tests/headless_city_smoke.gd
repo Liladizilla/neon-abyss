@@ -49,6 +49,11 @@ func _run() -> void:
         for building_id in manager.buildings:
             var building:Dictionary = manager.buildings[building_id]
             var entrance:Vector3 = building.get("entrance", Vector3.INF)
+            var center:Vector3 = building.get("center", Vector3.INF)
+            var footprint:Vector3 = building.get("size", Vector3.ZERO)
+            var expected_side_offset:float=footprint.x*0.5+1.9
+            if absf(entrance.z-center.z)>0.05 or absf(absf(entrance.x-center.x)-expected_side_offset)>0.15:
+                failures.append("Registered entrance %s is not aligned with its arterial-facing X-wall opening." % building_id)
             var near_threshold := false
             for child in threshold_collision.get_children():
                 if child is CollisionShape3D and child.shape != null and child.global_position.distance_to(entrance) < 1.2:
