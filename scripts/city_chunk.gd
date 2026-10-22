@@ -882,20 +882,32 @@ func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Ar
         var fd:=upper_d if upper else d
         var hx:=fw*0.5
         var hz:=fd*0.5
-        var side_depth:=maxf(1.0,(fd-stair_opening_z)*0.5)
-        # Split both X-facing walls around the central access opening. This lets the
-        # left and right building columns expose a real doorway toward the arterial.
-        var wall_specs:Array[Dictionary]=[
-            {"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(x-hx+0.24,cy,z-stair_opening_z*0.5-side_depth*0.5)},
-            {"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(x-hx+0.24,cy,z+stair_opening_z*0.5+side_depth*0.5)},
-            {"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(x+hx-0.24,cy,z-stair_opening_z*0.5-side_depth*0.5)},
-            {"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(x+hx-0.24,cy,z+stair_opening_z*0.5+side_depth*0.5)},
-            {"size":Vector3(fw,wall_height,0.48),"pos":Vector3(x,cy,z+hz-0.24)}
-        ]
-        # Preserve a real front-wall doorway and matching trim. The arterial-facing side
-        # openings above are generated from the same floor band and remain free of wall collision.
+        # Keep the stairwell dimensions for the internal floor-plate opening only.
+        # The street-facing side wall gets a human-scale doorway on the ground floor;
+        # upper floors retain continuous shell walls instead of becoming open galleries.
         var doorway_width:float=1.55
         var doorway_height:float=minf(2.35,wall_height-0.25)
+        var side_depth:float=maxf(0.5,(fd-doorway_width)*0.5)
+        var wall_specs:Array[Dictionary]=[]
+        if level==0:
+            for side_x in [-1.0,1.0]:
+                var wall_x:float=x+side_x*(hx-0.24)
+                wall_specs.append({"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(wall_x,cy,z-doorway_width*0.5-side_depth*0.5)})
+                wall_specs.append({"size":Vector3(0.48,wall_height,side_depth),"pos":Vector3(wall_x,cy,z+doorway_width*0.5+side_depth*0.5)})
+                var side_header_height:float=wall_height-doorway_height
+                wall_specs.append({"size":Vector3(0.48,side_header_height,doorway_width),"pos":Vector3(wall_x,y0+doorway_height+side_header_height*0.5,z)})
+                # Jambs and header follow the X-facing facade, matching the side doorway.
+                var side_trim:Color=Color(0.02,0.72,0.88)
+                for jamb_side in [-1.0,1.0]:
+                    tx.append(Transform3D(Basis.from_scale(Vector3(0.10,doorway_height,0.10)),Vector3(wall_x+side_x*0.035,y0+doorway_height*0.5,z+jamb_side*(doorway_width*0.5+0.04))))
+                    colors.append(side_trim)
+                tx.append(Transform3D(Basis.from_scale(Vector3(0.10,0.10,doorway_width+0.18)),Vector3(wall_x+side_x*0.035,y0+doorway_height+0.04,z)))
+                colors.append(side_trim)
+        else:
+            wall_specs.append({"size":Vector3(0.48,wall_height,fd),"pos":Vector3(x-hx+0.24,cy,z)})
+            wall_specs.append({"size":Vector3(0.48,wall_height,fd),"pos":Vector3(x+hx-0.24,cy,z)})
+        wall_specs.append({"size":Vector3(fw,wall_height,0.48),"pos":Vector3(x,cy,z+hz-0.24)})
+        # Preserve the existing -Z-facing floor opening and matching trim.
         var doorway_side_width:float=maxf(0.5,(fw-doorway_width)*0.5)
         wall_specs.append({"size":Vector3(doorway_side_width,wall_height,0.48),"pos":Vector3(x-(doorway_width*0.5+doorway_side_width*0.5),cy,z-hz+0.24)})
         wall_specs.append({"size":Vector3(doorway_side_width,wall_height,0.48),"pos":Vector3(x+(doorway_width*0.5+doorway_side_width*0.5),cy,z-hz+0.24)})
