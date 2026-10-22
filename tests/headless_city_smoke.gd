@@ -64,7 +64,7 @@ func _run() -> void:
     var visual_ramp_colliders = visual_chunk.find_children("CurbRampCollision_*", "StaticBody3D", true, false)
     if not visual_ramp_colliders.is_empty():
         failures.append("Visual-only district created curb-ramp physics outside the collision ring.")
-    var visual_ramp_meshes = visual_chunk.find_children("AccessibleCurbRamps", "MultiMeshInstance3D", true, false)
+    var visual_ramp_meshes = visual_chunk.find_children("CrossingCurbRamps", "MultiMeshInstance3D", true, false)
     if visual_ramp_meshes.is_empty():
         failures.append("Visual-only district lost curb-ramp visuals while omitting collision.")
     visual_chunk.queue_free()
