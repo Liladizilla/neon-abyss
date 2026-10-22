@@ -170,7 +170,15 @@ func _run() -> void:
         var target_position: Vector3 = interior.to_global(Vector3(0, 1.0, -5.0))
         var collision = player.move_and_collide(target_position - player.global_position)
         if collision == null:
-            failures.append("Player passed through the apartment back wall.")
+            failures.append("Player passed through the apartment back wall when approaching from inside.")
+        # Repeat the same wall crossing in the opposite direction. One-way collision bugs
+        # are still collision bugs, regardless of which side the player starts on.
+        player.global_position = interior.to_global(Vector3(0, 1.0, -5.0))
+        await physics_frame
+        var reverse_target: Vector3 = interior.to_global(Vector3(0, 1.0, -2.8))
+        var reverse_collision = player.move_and_collide(reverse_target - player.global_position)
+        if reverse_collision == null:
+            failures.append("Player passed through the apartment back wall when approaching from outside.")
 
     # Door panels must have physics shapes and slide open when the player approaches.
     if interior.entry_door_panels.size() != 2:
