@@ -786,7 +786,7 @@ func _build():
             entrance_light_colors.append(frontage_neon)
             # Threshold pad aligns with the entrance's actual side rather than always facing east.
             var threshold_size:=Vector3(3.5,0.16,3.8)
-            var threshold_pos:=entrance_local+Vector3(-entrance_side*0.9,0.04,0.0)
+            var threshold_pos:=entrance_local+Vector3(0.0,0.04,0.0)
             entrance_walk_tx.append(Transform3D(Basis.from_scale(threshold_size),threshold_pos))
             entrance_walk_colliders.append({"p":threshold_pos,"s":threshold_size})
             _add_lobby_terminal(entrance_local,building_index)
