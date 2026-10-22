@@ -297,11 +297,11 @@ The anchor now sits on the side facing the central arterial, but this is not yet
 
 ## Six-task arterial entrance and approach clearance pass
 
-- [x] Add side-wall openings to both X-facing tower walls so either building column can expose a real access point toward the central arterial.
-- [x] Preserve the existing -Z ground-floor opening and its floor-by-floor wall collision layout.
-- [x] Place entrance anchors on the X-facing side selected by the building column, toward the central arterial sidewalks.
-- [x] Reorient canopy proportions and edge lighting for a side-facing approach.
-- [x] Keep rental terminal, employment board, workplace registration and threshold collider aligned with the selected entrance side.
-- [x] Extend headless smoke coverage to assert side-anchor offsets and threshold alignment.
+- [x] Align arterial-facing entrance anchors with the correct X-facing shell wall and threshold pad.
+- [x] Replace the oversized multi-storey side gaps with 1.55 m ground-floor door openings and collision-matched jamb/header geometry.
+- [x] Keep upper-storey X-facing shell walls continuous instead of exposing every floor to the street.
+- [x] Preserve the existing -Z-facing floor opening and stairwell floor-plate opening.
+- [x] Reorient canopy and edge lighting while keeping the rental terminal, employment board, and workplace registration aligned.
+- [x] Fix the headless regression test to read the registered `dimensions` field, then rerun both Godot workflows.
 
-The new X-side openings reuse the existing central side-wall gap dimensions; they are openings in the generated wall/collision recipe, not proof of a finished door leaf or access-controlled entrance. The headless smoke test has been updated but has not yet been run in this environment. A graphical Godot walkthrough is still required to confirm the canopy clears the facade, the approach reaches the sidewalk, and the opening feels like a usable doorway.
+Godot validation and the headless building-registration workflow passed after the test-field correction. The ground-floor doorway refinement is a new commit and still needs its own CI run. A graphical walkthrough remains necessary to confirm first-person clearance, facade trim placement, and an unobstructed sidewalk approach.
