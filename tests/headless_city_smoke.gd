@@ -69,11 +69,12 @@ func _run() -> void:
             # Visual sidewalk meshes alone are not enough to make a route walkable.
             var threshold_reaches_sidewalk := false
             var entrance_threshold_size := Vector2(3.8, 3.5)
+            var sidewalk_shapes: Array = sidewalk_collision.get_children() if is_instance_valid(sidewalk_collision) else []
             for threshold_shape in threshold_collision.get_children():
                 if not threshold_shape is CollisionShape3D or threshold_shape.shape == null:
                     continue
                 var threshold_pos: Vector3 = threshold_shape.global_position
-                for sidewalk_shape in sidewalk_collision.get_children() if is_instance_valid(sidewalk_collision) else []:
+                for sidewalk_shape in sidewalk_shapes:
                     if not sidewalk_shape is CollisionShape3D or not sidewalk_shape.shape is BoxShape3D:
                         continue
                     var sidewalk_pos: Vector3 = sidewalk_shape.global_position
