@@ -29,6 +29,10 @@ func _run() -> void:
             failures.append("Missing physical elevated access component: %s." % physics_name)
         elif physics_node.get_child_count() == 0:
             failures.append("Elevated access component has no collision shapes: %s." % physics_name)
+    for visual_name in ["SkyLaneTransferPlazas", "SkyLaneInterdeckStairs", "SkyLaneInterdeckStairRails", "ElevatedTransitStationFloors", "ElevatedTransitStationRoofs"]:
+        var visual_node = chunk.find_child(visual_name, true, false)
+        if not is_instance_valid(visual_node) or not visual_node is MultiMeshInstance3D or visual_node.multimesh == null or visual_node.multimesh.instance_count == 0:
+            failures.append("Missing generated vertical-city module: %s." % visual_name)
     if manager.buildings.is_empty():
         failures.append("Generated chunk did not register any rentable buildings.")
 
