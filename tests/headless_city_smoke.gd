@@ -88,9 +88,11 @@ func _run() -> void:
                     var overlap_x: float = (threshold_size.x + sidewalk_size.x) * 0.5 - absf(threshold_pos.x - sidewalk_pos.x)
                     var overlap_y: float = (threshold_size.y + sidewalk_size.y) * 0.5 - absf(threshold_pos.y - sidewalk_pos.y)
                     var overlap_z: float = (threshold_size.z + sidewalk_size.z) * 0.5 - absf(threshold_pos.z - sidewalk_pos.z)
+                    var threshold_top: float = threshold_pos.y + threshold_size.y * 0.5
+                    var sidewalk_top: float = sidewalk_pos.y + sidewalk_size.y * 0.5
                     # Horizontal overlap alone can hide a raised or sunken threshold.
-                    # Require the physical boxes to intersect on all three axes.
-                    if overlap_x > 0.0 and overlap_y > 0.0 and overlap_z > 0.0:
+                    # Require physical intersection in 3D and nearly flush walkable top faces.
+                    if overlap_x > 0.0 and overlap_y > 0.0 and overlap_z > 0.0 and absf(threshold_top - sidewalk_top) <= 0.05:
                         threshold_reaches_sidewalk = true
                         break
             if not threshold_reaches_sidewalk:
