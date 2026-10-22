@@ -771,34 +771,34 @@ func _build():
                 var growth_x:float=x+growth_side*(w*0.5-1.1)
                 base_growth_tx.append(Transform3D(Basis.from_scale(Vector3(0.62,0.85,0.55)),Vector3(growth_x,0.48,frontage_z-0.36)))
                 base_growth_colors.append(Color(0.055,0.2,0.11) if district_profile!=2 else Color(0.1,0.29,0.13))
-            # Face each entrance toward the central arterial to shorten the sidewalk approach.
+            # Face entrances toward the central arterial. Both X-facing shell walls have real
+            # openings, so anchors and thresholds now meet an actual gap in the wall collision.
             var entrance_side:float=1.0 if ix==0 else -1.0
-            var entrance_local:=Vector3(x+entrance_side*(w*0.5+2.4),0,z)
+            var entrance_local:=Vector3(x+entrance_side*(w*0.5+1.9),0,z)
             var canopy_center:=entrance_local+Vector3(-entrance_side*0.05,2.65,0.0)
-            entrance_canopy_tx.append(Transform3D(Basis.from_scale(Vector3(3.8,0.22,4.2)),canopy_center))
+            entrance_canopy_tx.append(Transform3D(Basis.from_scale(Vector3(4.2,0.22,3.8)),canopy_center))
             entrance_canopy_colors.append(Color(0.045,0.075,0.11))
             for edge_side in [-1.0,1.0]:
-                entrance_canopy_tx.append(Transform3D(Basis.from_scale(Vector3(3.8,0.07,0.09)),canopy_center+Vector3(0,0.15,edge_side*2.02)))
+                entrance_canopy_tx.append(Transform3D(Basis.from_scale(Vector3(0.09,0.07,3.6)),canopy_center+Vector3(edge_side*2.02,0.15,0)))
                 entrance_canopy_colors.append(frontage_neon)
-                entrance_canopy_tx.append(Transform3D(Basis.from_scale(Vector3(0.09,0.07,4.0)),canopy_center+Vector3(edge_side*1.84,0.15,0)))
+                entrance_canopy_tx.append(Transform3D(Basis.from_scale(Vector3(4.0,0.07,0.09)),canopy_center+Vector3(0,0.15,edge_side*1.84)))
                 entrance_canopy_colors.append(Color(0.08,0.16,0.22))
-            entrance_light_tx.append(Transform3D(Basis.from_scale(Vector3(1.1,0.07,0.07)),entrance_local+Vector3(-entrance_side*0.05,2.30,-0.10)))
+            entrance_light_tx.append(Transform3D(Basis.from_scale(Vector3(0.07,0.07,1.1)),entrance_local+Vector3(-entrance_side*0.05,2.30,0)))
             entrance_light_colors.append(frontage_neon)
-            # Threshold pad aligns with the entrance's actual side rather than always facing east.
-            var threshold_size:=Vector3(3.5,0.16,3.8)
+            var threshold_size:=Vector3(3.8,0.16,3.5)
             var threshold_pos:=entrance_local+Vector3(0.0,0.04,0.0)
             entrance_walk_tx.append(Transform3D(Basis.from_scale(threshold_size),threshold_pos))
             entrance_walk_colliders.append({"p":threshold_pos,"s":threshold_size})
             _add_lobby_terminal(entrance_local,building_index)
             if has_fire_escape:
                 _add_fire_escape(Vector3(x,0,z-d*0.5-0.18),w,d,h,floors,upper_d,base_h,building_index)
-            _add_job_board(entrance_local+Vector3(-1.5,0,1.6),building_index)
+            _add_job_board(entrance_local+Vector3(-entrance_side*1.6,0,1.5),building_index)
             var manager=get_tree().get_first_node_in_group("rental_manager")
             if is_instance_valid(manager):
                 manager.register_building(coord,building_index,floors,to_global(entrance_local+Vector3(0,1,0)),style,to_global(Vector3(x,0,z)),Vector3(w,h,d),h/float(floors),to_global(Vector3(lift_x,0,z)).x,upper_w,base_h,building_use)
             var employment=get_tree().get_first_node_in_group("employment_manager")
             if is_instance_valid(employment):
-                employment.register_workplace(to_global(entrance_local+Vector3(0,0,1.8)))
+                employment.register_workplace(to_global(entrance_local+Vector3(-entrance_side*1.8,0,0)))
     # Skybridges join adjacent towers only when both have tall enough structural cores.
     for i in colliders.size():
         for j in range(i+1,colliders.size()):
@@ -1059,6 +1059,9 @@ func _add_lobby_terminal(local_position:Vector3,building_index:int):
     var kiosk=Node3D.new()
     kiosk.name="RentalTerminal_%d"%building_index
     kiosk.position=local_position
+    # The screen's local +X normal faces outward from the selected arterial-facing side.
+    var side:float=1.0 if local_position.x>=size*0.5 else -1.0
+    kiosk.rotation.y=0.0 if side>0.0 else PI
     add_child(kiosk)
     var body=MeshInstance3D.new()
     var body_mesh=BoxMesh.new()
