@@ -293,3 +293,15 @@ This pass improves the legibility and physical threshold at the existing side en
 - Extend smoke coverage for exact canopy/light counts and anchor-to-threshold alignment.
 
 The anchor now sits on the side facing the central arterial, but this is not yet proof that the shell's wall opening is aligned with the entrance or that a continuous, unobstructed walk strip reaches it. Those require a graphical walk-through and a follow-up geometry/collision pass.
+
+
+## Six-task arterial entrance and approach clearance pass
+
+- [x] Align arterial-facing entrance anchors with the correct X-facing shell wall and threshold pad.
+- [x] Replace the oversized multi-storey side gaps with 1.55 m ground-floor door openings and collision-matched jamb/header geometry.
+- [x] Keep upper-storey X-facing shell walls continuous instead of exposing every floor to the street.
+- [x] Preserve the existing -Z-facing floor opening and stairwell floor-plate opening.
+- [x] Reorient canopy and edge lighting while keeping the rental terminal, employment board, and workplace registration aligned.
+- [x] Fix the headless regression test to read the registered `dimensions` field, then rerun both Godot workflows.
+
+Godot validation and the headless building-registration workflow passed on commit `8bed9c480e7b1330bbec64134c075443a401004c`. Follow-up regression coverage now checks each entrance's own threshold against sidewalk collision in all three dimensions and verifies that the walkable top faces are within 5 cm. The newest test change is awaiting its own CI result. A graphical walkthrough remains necessary to confirm first-person clearance, facade trim placement, and an unobstructed sidewalk approach.
