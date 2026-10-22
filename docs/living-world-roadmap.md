@@ -217,6 +217,15 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [ ] Check that crosswalks, tactile pads, street furniture, and vegetation leave a continuous accessible route.
 
 
+## Six-task vertical abyss scale pass
+- [x] Raise procedural tower height to 18–42 floors so each block holds substantially more rentable homes.
+- [x] Increase facade window-grid frequency to every second floor for a denser inhabited-window rhythm.
+- [x] Stack sky-lane bridges at 48%, 72%, and 90% of each eligible tower pair's shared height.
+- [x] Apply the same stacked connections across both district axes to avoid a one-direction-only skyline.
+- [x] Reuse the existing bridge and neon-trim meshes so the added skyline layers do not require unique assets per bridge.
+- [ ] Validate skyline silhouettes and frame time in a graphical session; the taller towers and denser windows add rendering work.
+- [ ] Next: add varied intermediate podiums, occupied mid-level infrastructure, and a true distant vertical city backdrop without spawning ambient NPCs.
+
 ## Six-task registered building-use pass
 - [x] Derive one deterministic use-profile key for each generated building: retail, residential lobby, maintenance, or loading.
 - [x] Store the profile in the authoritative local building registry alongside footprint, floor height and lift coordinates.
