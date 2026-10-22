@@ -112,6 +112,30 @@ func _run() -> void:
         if not InputMap.has_action(action_name):
             InputMap.add_action(action_name)
 
+    # Streaming regression checks: negative coordinates, collision ring, queue priority, and diagnostics.
+    var streamer_script = load("res://scripts/city_streamer.gd")
+    var streamer = streamer_script.new()
+    streamer.name = "HeadlessStreamingValidation"
+    streamer.radius = 2
+    streamer.chunk_size = 96.0
+    root.add_child(streamer)
+    if streamer._chunk_coord_for_position(Vector3(-0.1, 0.0, -96.1)) != Vector2i(-1, -2):
+        failures.append("Negative world positions map to the wrong streamed district.")
+    if not streamer._needs_collision(Vector2i(1, -1), [Vector2i(0, 0)]):
+        failures.append("Collision neighborhood excludes a diagonal adjacent district.")
+    if streamer._needs_collision(Vector2i(2, 0), [Vector2i(0, 0)]):
+        failures.append("Collision neighborhood extends beyond the intended 3x3 ring.")
+    streamer.active_centers = [Vector2i(5, 5), Vector2i(0, 0)]
+    streamer.queue = [Vector2i(5, 7), Vector2i(0, 2), Vector2i(5, 6), Vector2i(0, 1)]
+    streamer._prioritize_queue()
+    if streamer.queue.is_empty() or streamer.queue[0] != Vector2i(0, 1):
+        failures.append("Stream queue does not prioritize the nearest district deterministically.")
+    var stream_stats:Dictionary = streamer.get_streaming_diagnostics()
+    for stat_name in ["loaded_chunks", "queued_chunks", "active_player_centers", "generated_this_frame", "collision_chunks"]:
+        if not stream_stats.has(stat_name):
+            failures.append("Streaming diagnostics missing counter: %s." % stat_name)
+    streamer.queue_free()
+
     # Regression-test forward/backward movement without synthesizing keyboard hardware.
     var movement_player = PLAYER_SCENE.instantiate()
     movement_player.name = "HeadlessMovementPlayer"
