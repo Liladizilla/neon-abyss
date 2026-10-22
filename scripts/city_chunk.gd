@@ -521,17 +521,21 @@ func _street_furniture():
                     rotation.x=side*0.10
                 ramp_tx.append(Transform3D(Basis.from_euler(rotation).scaled(ramp_size),p))
                 ramp_colors.append(Color(0.29,0.32,0.37))
-                # Match the rotated panel with a physical collider so the curb cut is not decorative.
-                var ramp_body:=StaticBody3D.new()
-                ramp_body.name="CurbRampCollision_%d_%d_%d" % [int(side),axis,int(approach)]
-                ramp_body.position=p
-                ramp_body.rotation=rotation
-                var ramp_collision:=CollisionShape3D.new()
-                var ramp_shape:=BoxShape3D.new()
-                ramp_shape.size=ramp_size
-                ramp_collision.shape=ramp_shape
-                ramp_body.add_child(ramp_collision)
-                add_child(ramp_body)
+                # Visual-only outer chunks keep the same detailed ramp mesh but no physics bodies.
+                # The player-near collision ring receives the matching rotated curb-cut collider.
+                if collision_enabled:
+                    var ramp_body:=StaticBody3D.new()
+                    ramp_body.name="CurbRampCollision_%d_%d_%d" % [int(side),axis,int(approach)]
+                    ramp_body.position=p
+                    ramp_body.rotation=rotation
+                    ramp_body.collision_layer=1
+                    ramp_body.collision_mask=1
+                    var ramp_collision:=CollisionShape3D.new()
+                    var ramp_shape:=BoxShape3D.new()
+                    ramp_shape.size=ramp_size
+                    ramp_collision.shape=ramp_shape
+                    ramp_body.add_child(ramp_collision)
+                    add_child(ramp_body)
                 var pad_pos=p+Vector3(0,0.09,0)
                 tactile_tx.append(Transform3D(Basis.from_scale(Vector3(1.45,0.035,0.55)),pad_pos))
                 tactile_colors.append(tactile_mat)

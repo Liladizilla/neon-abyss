@@ -342,3 +342,14 @@ The doorway checks are geometric regression checks, not a substitute for walking
 - [x] Extend headless smoke checks for negative coordinates, diagonal collision-ring boundaries, queue priority and diagnostics.
 - [ ] Profile chunk generation and physics-body count on the target integrated GPU; instrumentation is present, but no performance numbers are claimed until measured.
 - [ ] Graphically test rapid district-boundary crossings and multi-client streaming in Godot.
+
+
+## Six-task collision-ring physics budget pass
+
+- [x] Keep detailed curb-ramp meshes in all streamed districts.
+- [x] Create physical curb-ramp colliders only for chunks marked collision-enabled.
+- [x] Match active ramp collision layers and masks to the player/world collision contract.
+- [x] Verify each active curb ramp has its own shape collider.
+- [x] Verify the active district produces all eight ramp colliders at the four crossings.
+- [x] Add a visual-only chunk regression check that confirms ramp meshes remain while ramp physics is absent.
+- [ ] Measure total physics-body count and frame time in an actual graphical run; no measured performance claim is made yet.
