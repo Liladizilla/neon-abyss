@@ -108,9 +108,12 @@ func _distance_squared_to_nearest_center(k:Vector2i) -> int:
     return best
 
 func get_streaming_diagnostics() -> Dictionary:
+    var physics_counts := _physics_counts()
     return {"loaded_chunks": chunks.size(), "queued_chunks": queue.size(),
         "active_player_centers": last_stream_center_count, "generated_this_frame": generated_this_frame,
-        "collision_chunks": _collision_chunk_count(),\n        "static_bodies": _physics_node_count(StaticBody3D),\n        "collision_shapes": _physics_node_count(CollisionShape3D)}
+        "collision_chunks": _collision_chunk_count(),
+        "static_bodies": physics_counts["static_bodies"],
+        "collision_shapes": physics_counts["collision_shapes"]}
 
 func _collision_chunk_count() -> int:
     var total := 0
