@@ -293,3 +293,15 @@ This pass improves the legibility and physical threshold at the existing side en
 - Extend smoke coverage for exact canopy/light counts and anchor-to-threshold alignment.
 
 The anchor now sits on the side facing the central arterial, but this is not yet proof that the shell's wall opening is aligned with the entrance or that a continuous, unobstructed walk strip reaches it. Those require a graphical walk-through and a follow-up geometry/collision pass.
+
+
+## Six-task arterial entrance and approach clearance pass
+
+- [x] Add side-wall openings to both X-facing tower walls so either building column can expose a real access point toward the central arterial.
+- [x] Preserve the existing -Z ground-floor opening and its floor-by-floor wall collision layout.
+- [x] Place entrance anchors on the X-facing side selected by the building column, toward the central arterial sidewalks.
+- [x] Reorient canopy proportions and edge lighting for a side-facing approach.
+- [x] Keep rental terminal, employment board, workplace registration and threshold collider aligned with the selected entrance side.
+- [x] Extend headless smoke coverage to assert side-anchor offsets and threshold alignment.
+
+The new X-side openings reuse the existing central side-wall gap dimensions; they are openings in the generated wall/collision recipe, not proof of a finished door leaf or access-controlled entrance. The headless smoke test has been updated but has not yet been run in this environment. A graphical Godot walkthrough is still required to confirm the canopy clears the facade, the approach reaches the sidewalk, and the opening feels like a usable doorway.
