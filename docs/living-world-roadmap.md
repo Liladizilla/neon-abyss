@@ -217,6 +217,15 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [ ] Check that crosswalks, tactile pads, street furniture, and vegetation leave a continuous accessible route.
 
 
+## Six-task elevated access pass
+- [x] Add a segmented inclined access ramp from street level toward the first elevated sky-lane.
+- [x] Reuse instanced deck segments, guard rails, and structural supports rather than creating a unique mesh for each segment.
+- [x] Align the ramp geometry to its incline direction for a coherent sloped surface.
+- [x] Add collision shapes for ramp deck segments only in collision-enabled active chunks.
+- [x] Keep ramp generation deterministic and chunk-local so streaming districts can repeat the same infrastructure recipe.
+- [x] Document the current access route and its limits: the ramp reaches the first elevated level, but does not yet connect every stacked deck or building entrance.
+- [ ] Validate ramp walkability and collision in a graphical session; headless parsing cannot prove a player can traverse the incline comfortably.
+
 ## Six-task stacked infrastructure pass
 - [x] Add three repeatable elevated deck heights at 27, 49, and 73 metres in each streamed district.
 - [x] Lay decks along both district axes so the vertical network is not limited to one direction.
