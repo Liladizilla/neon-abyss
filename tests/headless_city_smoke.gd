@@ -155,6 +155,16 @@ func _run() -> void:
     streamer._prioritize_queue()
     if streamer.queue.is_empty() or streamer.queue[0] != Vector2i(0, 1):
         failures.append("Stream queue does not prioritize the nearest district deterministically.")
+    # A disconnect or hidden player must not leave orphan districts and colliders behind.
+    streamer.active_centers = [Vector2i.ZERO]
+    streamer.queue = [Vector2i(1, 0), Vector2i(0, 1)]
+    streamer.generated_this_frame = 2
+    streamer.last_stream_center_count = 1
+    streamer._handle_no_active_centers()
+    if not streamer.active_centers.is_empty() or not streamer.queue.is_empty():
+        failures.append("Empty player presence did not clear active centers and queued districts.")
+    if streamer.generated_this_frame != 0 or streamer.last_stream_center_count != 0:
+        failures.append("Empty player presence left stale streaming diagnostics.")
     var stream_stats:Dictionary = streamer.get_streaming_diagnostics()
     for stat_name in ["loaded_chunks", "queued_chunks", "active_player_centers", "generated_this_frame", "collision_chunks"]:
         if not stream_stats.has(stat_name):
