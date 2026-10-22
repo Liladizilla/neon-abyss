@@ -44,6 +44,31 @@ func _run() -> void:
     var sidewalk_collision = chunk.find_child("SidewalkAndCurbCollision", true, false)
     if not is_instance_valid(sidewalk_collision) or not sidewalk_collision is StaticBody3D:
         failures.append("Active chunks must provide physical sidewalk and curb collision.")
+    var active_ramp_colliders := 0
+    for node in chunk.find_children("CurbRampCollision_*", "StaticBody3D", true, false):
+        active_ramp_colliders += 1
+        if node.collision_layer != 1 or node.collision_mask != 1:
+            failures.append("Active curb-ramp collision must use the world/player collision layer and mask.")
+        if node.get_child_count() != 1 or not node.get_child(0) is CollisionShape3D:
+            failures.append("Each active curb-ramp body must have exactly one matching shape.")
+    if active_ramp_colliders != 8:
+        failures.append("Active district must generate eight physical curb-cut ramp colliders.")
+
+    # Outer visual-only districts must preserve ramp visuals without retaining hidden physics.
+    var visual_chunk = CHUNK.new()
+    visual_chunk.configure(Vector2i(1, 0), 96.0, 20261021, false)
+    visual_chunk.name = "HeadlessVisualOnlyChunk"
+    root.add_child(visual_chunk)
+    await process_frame
+    await process_frame
+    var visual_ramp_colliders = visual_chunk.find_children("CurbRampCollision_*", "StaticBody3D", true, false)
+    if not visual_ramp_colliders.is_empty():
+        failures.append("Visual-only district created curb-ramp physics outside the collision ring.")
+    var visual_ramp_meshes = visual_chunk.find_children("AccessibleCurbRamps", "MultiMeshInstance3D", true, false)
+    if visual_ramp_meshes.is_empty():
+        failures.append("Visual-only district lost curb-ramp visuals while omitting collision.")
+    visual_chunk.queue_free()
+
     if manager.buildings.is_empty():
         failures.append("Generated chunk did not register any rentable buildings.")
     if manager.buildings.size() != 4:
