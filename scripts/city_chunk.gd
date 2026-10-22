@@ -251,6 +251,54 @@ func _transit_infrastructure():
         supports.append(Transform3D(Basis.from_scale(Vector3(0.8,6.0,0.8)),Vector3(along,6.0,size*0.5)))
     _instances("ElevatedTransitRails",rails,[],Color(0.16,0.2,0.29),false)
     _instances("TransitGuidewayPylons",supports,[],Color(0.12,0.16,0.23),false)
+
+    # Vertical-city infrastructure: three reusable elevated service decks per district.
+    # They form a layered silhouette above street level and align exactly with chunk edges.
+    var deck_tx:Array[Transform3D]=[]
+    var deck_colors:Array[Color]=[]
+    var beam_tx:Array[Transform3D]=[]
+    var beam_colors:Array[Color]=[]
+    var pylon_tx:Array[Transform3D]=[]
+    var pylon_colors:Array[Color]=[]
+    var cable_tx:Array[Transform3D]=[]
+    var cable_colors:Array[Color]=[]
+    var deck_heights:Array[float]=[27.0,49.0,73.0]
+    for deck_index in range(deck_heights.size()):
+        var deck_y:float=deck_heights[deck_index]
+        var deck_tint:Array[Color]=[Color(0.10,0.14,0.20),Color(0.075,0.11,0.17),Color(0.055,0.085,0.14)]
+        # Longitudinal decks stay clear of the central transit spine and are repeated per chunk.
+        for side in [-1.0,1.0]:
+            var lane_z:float=size*0.5+side*12.0
+            deck_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.72,3.2)),Vector3(size*0.5,deck_y,lane_z)))
+            deck_colors.append(deck_tint[deck_index])
+            beam_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.18,0.18)),Vector3(size*0.5,deck_y+0.42,lane_z-1.62)))
+            beam_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.18,0.18)),Vector3(size*0.5,deck_y+0.42,lane_z+1.62)))
+            beam_colors.append(Color(0.02,0.65,0.82))
+            beam_colors.append(Color(0.02,0.65,0.82))
+            for along in [12.0,36.0,60.0,84.0]:
+                pylon_tx.append(Transform3D(Basis.from_scale(Vector3(0.72,deck_y-1.0,0.72)),Vector3(along,deck_y*0.5,lane_z)))
+                pylon_colors.append(Color(0.055,0.075,0.11))
+            # Thin overhead utility conduits add infrastructure detail without unique meshes.
+            cable_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.12,0.12)),Vector3(size*0.5,deck_y+1.15,lane_z)))
+            cable_colors.append(Color(0.12,0.25,0.32))
+        # Cross-district deck segments use matching heights and repeat on every chunk.
+        for side in [-1.0,1.0]:
+            var lane_x:float=size*0.5+side*12.0
+            deck_tx.append(Transform3D(Basis.from_scale(Vector3(3.2,0.72,size)),Vector3(lane_x,deck_y,size*0.5)))
+            deck_colors.append(deck_tint[deck_index])
+            beam_tx.append(Transform3D(Basis.from_scale(Vector3(0.18,0.18,size)),Vector3(lane_x-1.62,deck_y+0.42,size*0.5)))
+            beam_tx.append(Transform3D(Basis.from_scale(Vector3(0.18,0.18,size)),Vector3(lane_x+1.62,deck_y+0.42,size*0.5)))
+            beam_colors.append(Color(0.02,0.65,0.82))
+            beam_colors.append(Color(0.02,0.65,0.82))
+            for along in [12.0,36.0,60.0,84.0]:
+                pylon_tx.append(Transform3D(Basis.from_scale(Vector3(0.72,deck_y-1.0,0.72)),Vector3(lane_x,deck_y*0.5,along)))
+                pylon_colors.append(Color(0.055,0.075,0.11))
+            cable_tx.append(Transform3D(Basis.from_scale(Vector3(0.12,0.12,size)),Vector3(lane_x,deck_y+1.15,size*0.5)))
+            cable_colors.append(Color(0.12,0.25,0.32))
+    _instances("StackedSkyLaneDecks",deck_tx,deck_colors,Color(0.08,0.12,0.18),false)
+    _instances("SkyLaneGuardBeams",beam_tx,beam_colors,Color(0.02,0.65,0.82),true)
+    _instances("SkyLaneStructuralPylons",pylon_tx,pylon_colors,Color(0.055,0.075,0.11),false)
+    _instances("ElevatedUtilityConduits",cable_tx,cable_colors,Color(0.12,0.25,0.32),false)
     if posmod(coord.x,3)==0:
         var station=Node3D.new()
         station.name="ElevatedTransitStation"
