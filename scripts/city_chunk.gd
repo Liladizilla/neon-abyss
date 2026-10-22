@@ -299,6 +299,60 @@ func _transit_infrastructure():
     _instances("SkyLaneGuardBeams",beam_tx,beam_colors,Color(0.02,0.65,0.82),true)
     _instances("SkyLaneStructuralPylons",pylon_tx,pylon_colors,Color(0.055,0.075,0.11),false)
     _instances("ElevatedUtilityConduits",cable_tx,cable_colors,Color(0.12,0.25,0.32),false)
+
+    # Walkable connector ramps: segmented inclines join street-level approaches to the first
+    # elevated deck. These are physical ramps, not teleport links; they are repeated per chunk.
+    var ramp_tx:Array[Transform3D]=[]
+    var ramp_colors:Array[Color]=[]
+    var ramp_rail_tx:Array[Transform3D]=[]
+    var ramp_rail_colors:Array[Color]=[]
+    var ramp_support_tx:Array[Transform3D]=[]
+    var ramp_support_colors:Array[Color]=[]
+    var ramp_colliders:Array[Dictionary]=[]
+    var ramp_start:=Vector3(size*0.5-18.0,0.55,size*0.5+17.0)
+    var ramp_end:=Vector3(size*0.5-18.0,27.0,size*0.5+12.0)
+    var ramp_delta:=ramp_end-ramp_start
+    var ramp_length:=ramp_delta.length()
+    var ramp_basis:=Basis(Vector3.RIGHT, ramp_delta.normalized().cross(Vector3.RIGHT).normalized(), ramp_delta.normalized())
+    # Use a vertical axis and the incline direction as a stable basis for the long deck pieces.
+    var ramp_forward:=ramp_delta.normalized()
+    var ramp_right:=Vector3.RIGHT
+    var ramp_up:=ramp_forward.cross(ramp_right).normalized()
+    ramp_basis=Basis(ramp_right,ramp_up,ramp_forward)
+    for segment in range(18):
+        var t:float=(float(segment)+0.5)/18.0
+        var point:=ramp_start.lerp(ramp_end,t)
+        var basis:=ramp_basis
+        ramp_tx.append(Transform3D(basis.scaled(Vector3(3.2,0.28,ramp_length/18.0+0.08)),point))
+        ramp_colors.append(Color(0.09,0.13,0.19))
+        for side in [-1.0,1.0]:
+            var rail_point:=point+Vector3(side*1.52,0.72,0)
+            ramp_rail_tx.append(Transform3D(Basis.from_scale(Vector3(0.12,1.1,ramp_length/18.0+0.08)),rail_point))
+            ramp_rail_colors.append(Color(0.02,0.62,0.82))
+    for along in [0.0,0.25,0.5,0.75,1.0]:
+        var support_point:=ramp_start.lerp(ramp_end,along)
+        var support_height:=maxf(0.8,support_point.y)
+        ramp_support_tx.append(Transform3D(Basis.from_scale(Vector3(0.46,support_height,0.46)),Vector3(support_point.x,support_height*0.5,support_point.z)))
+        ramp_support_colors.append(Color(0.055,0.075,0.11))
+    _instances("SkyLaneAccessRampDeck",ramp_tx,ramp_colors,Color(0.09,0.13,0.19),false)
+    _instances("SkyLaneAccessRampRails",ramp_rail_tx,ramp_rail_colors,Color(0.02,0.62,0.82),true)
+    _instances("SkyLaneAccessRampSupports",ramp_support_tx,ramp_support_colors,Color(0.055,0.075,0.11),false)
+    if collision_enabled:
+        var ramp_physics:=StaticBody3D.new()
+        ramp_physics.name="SkyLaneRampCollision"
+        ramp_physics.collision_layer=1
+        ramp_physics.collision_mask=1
+        for segment in range(18):
+            var t:float=(float(segment)+0.5)/18.0
+            var point:=ramp_start.lerp(ramp_end,t)
+            var shape:=BoxShape3D.new()
+            shape.size=Vector3(3.2,0.36,ramp_length/18.0+0.1)
+            var collision:=CollisionShape3D.new()
+            collision.shape=shape
+            collision.position=point
+            collision.rotation=Vector3(atan2(ramp_forward.y,sqrt(ramp_forward.x*ramp_forward.x+ramp_forward.z*ramp_forward.z)),0,0)
+            ramp_physics.add_child(collision)
+        add_child(ramp_physics)
     if posmod(coord.x,3)==0:
         var station=Node3D.new()
         station.name="ElevatedTransitStation"
