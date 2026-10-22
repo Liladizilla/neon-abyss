@@ -14,7 +14,7 @@ func _run() -> void:
     manager.name = "RentalManager"
     root.add_child(manager)
     var chunk = CHUNK.new()
-    chunk.configure(Vector2i.ZERO, 96.0, 20261021, false)
+    chunk.configure(Vector2i.ZERO, 96.0, 20261021, true)
     chunk.name = "HeadlessValidationChunk"
     root.add_child(chunk)
 
@@ -23,6 +23,12 @@ func _run() -> void:
     await process_frame
 
     var failures: Array[String] = []
+    for physics_name in ["StackedSkyLaneDeckCollision", "SkyLaneInterdeckStairCollision", "SkyLaneRampCollision"]:
+        var physics_node = chunk.find_child(physics_name, true, false)
+        if not is_instance_valid(physics_node) or not physics_node is StaticBody3D:
+            failures.append("Missing physical elevated access component: %s." % physics_name)
+        elif physics_node.get_child_count() == 0:
+            failures.append("Elevated access component has no collision shapes: %s." % physics_name)
     if manager.buildings.is_empty():
         failures.append("Generated chunk did not register any rentable buildings.")
 
