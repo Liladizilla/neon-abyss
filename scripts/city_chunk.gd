@@ -300,6 +300,22 @@ func _transit_infrastructure():
     _instances("SkyLaneStructuralPylons",pylon_tx,pylon_colors,Color(0.055,0.075,0.11),false)
     _instances("ElevatedUtilityConduits",cable_tx,cable_colors,Color(0.12,0.25,0.32),false)
 
+    # Give every elevated deck a matching physical surface in nearby chunks.
+    # The visual MultiMeshes remain batched; collision uses one shared unit box shape per deck.
+    if collision_enabled:
+        var deck_physics:=StaticBody3D.new()
+        deck_physics.name="StackedSkyLaneDeckCollision"
+        deck_physics.collision_layer=1
+        deck_physics.collision_mask=1
+        var unit_deck_shape:=BoxShape3D.new()
+        unit_deck_shape.size=Vector3.ONE
+        for deck_transform in deck_tx:
+            var deck_collision:=CollisionShape3D.new()
+            deck_collision.shape=unit_deck_shape
+            deck_collision.transform=deck_transform
+            deck_physics.add_child(deck_collision)
+        add_child(deck_physics)
+
     # Walkable connector ramps: segmented inclines join street-level approaches to the first
     # elevated deck. These are physical ramps, not teleport links; they are repeated per chunk.
     var ramp_tx:Array[Transform3D]=[]
