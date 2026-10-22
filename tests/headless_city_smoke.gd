@@ -41,6 +41,9 @@ func _run() -> void:
     var threshold_collision = chunk.find_child("BuildingEntranceThresholdCollision", true, false)
     if not is_instance_valid(threshold_collision) or not threshold_collision is StaticBody3D or threshold_collision.get_child_count() != 4:
         failures.append("Active chunks must have one physical entrance threshold per generated building.")
+    var sidewalk_collision = chunk.find_child("SidewalkAndCurbCollision", true, false)
+    if not is_instance_valid(sidewalk_collision) or not sidewalk_collision is StaticBody3D:
+        failures.append("Active chunks must provide physical sidewalk and curb collision.")
     if manager.buildings.is_empty():
         failures.append("Generated chunk did not register any rentable buildings.")
     if manager.buildings.size() != 4:
@@ -61,6 +64,29 @@ func _run() -> void:
                     break
             if not near_threshold:
                 failures.append("Registered rental entrance %s is not aligned with a physical threshold." % building_id)
+
+            # The threshold pad must overlap a real sidewalk collider in the horizontal plane.
+            # Visual sidewalk meshes alone are not enough to make a route walkable.
+            var threshold_reaches_sidewalk := false
+            var entrance_threshold_size := Vector2(3.8, 3.5)
+            for threshold_shape in threshold_collision.get_children():
+                if not threshold_shape is CollisionShape3D or threshold_shape.shape == null:
+                    continue
+                var threshold_pos: Vector3 = threshold_shape.global_position
+                for sidewalk_shape in sidewalk_collision.get_children() if is_instance_valid(sidewalk_collision) else []:
+                    if not sidewalk_shape is CollisionShape3D or not sidewalk_shape.shape is BoxShape3D:
+                        continue
+                    var sidewalk_pos: Vector3 = sidewalk_shape.global_position
+                    var sidewalk_size: Vector3 = sidewalk_shape.shape.size
+                    var overlap_x: float = (entrance_threshold_size.x + sidewalk_size.x) * 0.5 - absf(threshold_pos.x - sidewalk_pos.x)
+                    var overlap_z: float = (entrance_threshold_size.y + sidewalk_size.z) * 0.5 - absf(threshold_pos.z - sidewalk_pos.z)
+                    if overlap_x > 0.0 and overlap_z > 0.0:
+                        threshold_reaches_sidewalk = true
+                        break
+                if threshold_reaches_sidewalk:
+                    break
+            if not threshold_reaches_sidewalk:
+                failures.append("Registered rental entrance %s has no horizontal overlap with physical sidewalk collision." % building_id)
 
     var checked_profiles := {}
     for building_id in manager.buildings:
