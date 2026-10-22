@@ -353,6 +353,42 @@ func _transit_infrastructure():
     _instances("SkyLaneAccessRampDeck",ramp_tx,ramp_colors,Color(0.09,0.13,0.19),false)
     _instances("SkyLaneAccessRampRails",ramp_rail_tx,ramp_rail_colors,Color(0.02,0.62,0.82),true)
     _instances("SkyLaneAccessRampSupports",ramp_support_tx,ramp_support_colors,Color(0.055,0.075,0.11),false)
+
+    # Compact stair flights connect the three deck elevations at a protected service core.
+    # Their treads are repeated box instances; active chunks also receive matching collision.
+    var stair_tx:Array[Transform3D]=[]
+    var stair_colors:Array[Color]=[]
+    var stair_collision_transforms:Array[Transform3D]=[]
+    var stair_levels:Array[Vector2]=[Vector2(27.0,49.0),Vector2(49.0,73.0)]
+    for flight in range(stair_levels.size()):
+        var lower:float=stair_levels[flight].x
+        var upper:float=stair_levels[flight].y
+        var flight_x:float=size*0.5+float(flight)*8.0+8.0
+        var flight_z:float=size*0.5-15.0
+        var steps:int=18
+        for step in range(steps):
+            var t:float=float(step)/float(steps-1)
+            var tread_y:float=lower+1.0+t*(upper-lower)
+            var tread_z:float=flight_z-t*8.0
+            var tread_transform:=Transform3D(Basis.from_scale(Vector3(2.8,0.28,0.62)),Vector3(flight_x,tread_y,tread_z))
+            stair_tx.append(tread_transform)
+            stair_colors.append(Color(0.12,0.16,0.22))
+            stair_collision_transforms.append(tread_transform)
+    _instances("SkyLaneInterdeckStairs",stair_tx,stair_colors,Color(0.12,0.16,0.22),false)
+    if collision_enabled:
+        var stair_physics:=StaticBody3D.new()
+        stair_physics.name="SkyLaneInterdeckStairCollision"
+        stair_physics.collision_layer=1
+        stair_physics.collision_mask=1
+        var unit_tread:=BoxShape3D.new()
+        unit_tread.size=Vector3.ONE
+        for tread_transform in stair_collision_transforms:
+            var tread_collision:=CollisionShape3D.new()
+            tread_collision.shape=unit_tread
+            tread_collision.transform=tread_transform
+            stair_physics.add_child(tread_collision)
+        add_child(stair_physics)
+
     if collision_enabled:
         var ramp_physics:=StaticBody3D.new()
         ramp_physics.name="SkyLaneRampCollision"
