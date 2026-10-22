@@ -32,8 +32,30 @@ func _run() -> void:
     var wayfinding = chunk.find_child("VerticalAccessWayfindingPylons", true, false)
     if not is_instance_valid(wayfinding) or not wayfinding is MultiMeshInstance3D or wayfinding.multimesh == null or wayfinding.multimesh.instance_count != 12:
         failures.append("Vertical access wayfinding must generate 12 markers across three levels.")
+    var entrance_canopies = chunk.find_child("BuildingEntranceCanopies", true, false)
+    if not is_instance_valid(entrance_canopies) or not entrance_canopies is MultiMeshInstance3D or entrance_canopies.multimesh == null or entrance_canopies.multimesh.instance_count != 20:
+        failures.append("Four generated buildings must each receive a five-piece entrance canopy kit.")
+    var entrance_lights = chunk.find_child("BuildingEntranceLightBars", true, false)
+    if not is_instance_valid(entrance_lights) or not entrance_lights is MultiMeshInstance3D or entrance_lights.multimesh == null or entrance_lights.multimesh.instance_count != 4:
+        failures.append("Each generated building must have one entrance light bar.")
+    var threshold_collision = chunk.find_child("BuildingEntranceThresholdCollision", true, false)
+    if not is_instance_valid(threshold_collision) or not threshold_collision is StaticBody3D or threshold_collision.get_child_count() != 4:
+        failures.append("Active chunks must have one physical entrance threshold per generated building.")
     if manager.buildings.is_empty():
         failures.append("Generated chunk did not register any rentable buildings.")
+    if manager.buildings.size() != 4:
+        failures.append("Expected four registered buildings in the deterministic 2x2 chunk.")
+    if is_instance_valid(threshold_collision):
+        for building_id in manager.buildings:
+            var building:Dictionary = manager.buildings[building_id]
+            var entrance:Vector3 = building.get("entrance", Vector3.INF)
+            var near_threshold := false
+            for child in threshold_collision.get_children():
+                if child is CollisionShape3D and child.shape != null and child.global_position.distance_to(entrance) < 1.2:
+                    near_threshold = true
+                    break
+            if not near_threshold:
+                failures.append("Registered rental entrance %s is not aligned with a physical threshold." % building_id)
 
     var checked_profiles := {}
     for building_id in manager.buildings:
