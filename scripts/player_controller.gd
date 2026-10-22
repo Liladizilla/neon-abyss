@@ -73,9 +73,15 @@ func apply_mouse_motion(relative: Vector2) -> void:
     _pitch = clampf(_pitch - relative.y * mouse_sensitivity, -1.48, 1.48)
     pivot.rotation.x = _pitch
 
-# Exposed as a pure helper so the forward/backward mapping can be regression-tested headlessly.
+# Exposed as a pure helper so movement mapping can be regression-tested headlessly.
+# Use the player's yaw only: camera pitch must never push walking into the floor or sky.
+# Input.get_vector supplies negative Y for W/forward, so the result points along camera-forward (-Z).
 func movement_wish_from_axis(axis: Vector2) -> Vector3:
-    return (global_basis.x * axis.x + global_basis.z * axis.y).normalized()
+    var input_vector := axis.limit_length(1.0)
+    var forward := Vector3.FORWARD.rotated(Vector3.UP, rotation.y)
+    var right := Vector3.RIGHT.rotated(Vector3.UP, rotation.y)
+    var wish := right * input_vector.x + forward * -input_vector.y
+    return wish.normalized() if wish.length_squared() > 0.0001 else Vector3.ZERO
 
 func _throw_prop() -> void:
     var prop := RigidBody3D.new()
