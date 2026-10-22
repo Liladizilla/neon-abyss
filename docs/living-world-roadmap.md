@@ -217,6 +217,15 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [ ] Check that crosswalks, tactile pads, street furniture, and vegetation leave a continuous accessible route.
 
 
+## Six-task stacked infrastructure pass
+- [x] Add three repeatable elevated deck heights at 27, 49, and 73 metres in each streamed district.
+- [x] Lay decks along both district axes so the vertical network is not limited to one direction.
+- [x] Add reusable guard beams with neon emissive accents to give elevated routes a readable silhouette.
+- [x] Add structural pylons at deterministic intervals to visually support each deck.
+- [x] Add slim elevated utility conduits to suggest power and service routing above the street canyon.
+- [x] Keep all new pieces in MultiMesh batches and reuse existing box geometry/material handling to limit draw-call growth.
+- [ ] Check deck intersections, silhouettes, and frame time in graphical play; these decks are currently visual infrastructure and do not yet provide walkable collision or route navigation.
+
 ## Six-task vertical abyss scale pass
 - [x] Raise procedural tower height to 18–42 floors so each block holds substantially more rentable homes.
 - [x] Increase facade window-grid frequency to every second floor for a denser inhabited-window rhythm.
