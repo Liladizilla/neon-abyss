@@ -814,6 +814,9 @@ func _build():
     _instances("CylindricalServiceTanksAndMasts",cylinder_tx,[],Color(0.18,0.23,0.31),false,CylinderMesh.new())
     _instances("ExteriorElevatorFrames",lift_tx,lift_colors,Color(0.1,0.18,0.26),false)
     _instances("ElevatorFloorLandings",lift_landing_tx,lift_landing_colors,Color(0.1,0.18,0.26),false)
+    _instances("BuildingEntranceCanopies",entrance_canopy_tx,entrance_canopy_colors,Color(0.045,0.075,0.11),true)
+    _instances("BuildingEntranceLightBars",entrance_light_tx,entrance_light_colors,Color(0.02,0.72,0.88),true)
+    _instances("BuildingEntranceThresholds",entrance_walk_tx,[],Color(0.18,0.22,0.29),false)
     _district_landmark()
     if collision_enabled:
         var physics=StaticBody3D.new()
@@ -827,6 +830,19 @@ func _build():
             cs.rotation=data.get("r",Vector3.ZERO)
             physics.add_child(cs)
         add_child(physics)
+        if not entrance_walk_colliders.is_empty():
+            var entrance_physics:=StaticBody3D.new()
+            entrance_physics.name="BuildingEntranceThresholdCollision"
+            entrance_physics.collision_layer=1
+            entrance_physics.collision_mask=1
+            for data in entrance_walk_colliders:
+                var threshold_shape:=BoxShape3D.new()
+                threshold_shape.size=data.s
+                var threshold_collision:=CollisionShape3D.new()
+                threshold_collision.shape=threshold_shape
+                threshold_collision.position=data.p
+                entrance_physics.add_child(threshold_collision)
+            add_child(entrance_physics)
 func _append_hollow_tower(tx:Array[Transform3D],colors:Array[Color],colliders:Array[Dictionary],x:float,z:float,w:float,d:float,h:float,floors:int,base_h:float,upper_w:float,upper_d:float,shell_color:Color,fire_escape_enabled:bool=false)->void:
     var floor_height:=h/float(floors)
     var floor_color:=Color(0.045,0.065,0.095)
