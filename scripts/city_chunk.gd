@@ -252,6 +252,22 @@ func _transit_infrastructure():
     _instances("ElevatedTransitRails",rails,[],Color(0.16,0.2,0.29),false)
     _instances("TransitGuidewayPylons",supports,[],Color(0.12,0.16,0.23),false)
 
+    # Deterministic access nodes are chunk-local and repeated at each elevated level.
+    # Their coordinates are shared by the plaza, stair and building-side connector recipes.
+    var access_node_tx:Array[Transform3D]=[]
+    var access_node_colors:Array[Color]=[]
+    var access_node_heights:Array[float]=[27.0,49.0,73.0]
+    for level_index in range(access_node_heights.size()):
+        var access_y:float=access_node_heights[level_index]
+        var access_center:=Vector3(size*0.5,access_y+0.9,size*0.5)
+        # Four illuminated wayfinding pylons identify the transfer node from a distance.
+        for side in [-1.0,1.0]:
+            access_node_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,1.8,0.22)),access_center+Vector3(side*8.0,0,0)))
+            access_node_colors.append(Color(0.02,0.65,0.82))
+            access_node_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,1.8,0.22)),access_center+Vector3(0,0,side*8.0)))
+            access_node_colors.append(Color(1.0,0.12,0.48))
+    _instances("VerticalAccessWayfindingPylons",access_node_tx,access_node_colors,Color(0.02,0.65,0.82),true)
+
     # Vertical-city infrastructure: three reusable elevated service decks per district.
     # They form a layered silhouette above street level and align exactly with chunk edges.
     var deck_tx:Array[Transform3D]=[]
