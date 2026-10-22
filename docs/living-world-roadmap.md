@@ -217,6 +217,15 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [ ] Check that crosswalks, tactile pads, street furniture, and vegetation leave a continuous accessible route.
 
 
+## Six-task elevated junction and station pass
+- [x] Add a transfer plaza at each of the three elevated sky-lane heights, joining the two district axes.
+- [x] Give each plaza collision geometry in collision-enabled chunks.
+- [x] Add illuminated guardrails to the inter-deck stair flights.
+- [x] Add repeatable elevated transit station shells beside the transfer plazas at all three heights.
+- [x] Extend headless smoke checks to require the plazas, stairs, rails, and station shell MultiMeshes.
+- [x] Keep the gameplay boundary explicit: station shells are not yet functional trains, and visual existence plus collision-shape presence do not prove comfortable traversal or seamless chunk-to-chunk routes.
+- [ ] Next: add verified building-side access points, route continuity across chunk edges, and actual transit boarding/elevator behavior.
+
 ## Six-task connected vertical access pass
 - [x] Add collision surfaces for elevated decks in collision-enabled chunks, matching the reusable deck transforms.
 - [x] Add repeated stair treads between the 27 m, 49 m, and 73 m sky-lane levels.
