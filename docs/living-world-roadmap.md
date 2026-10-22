@@ -1,3 +1,12 @@
+## Six-task vertical access wayfinding pass
+- [x] Add deterministic wayfinding pylons at each of the three elevated transfer heights.
+- [x] Use two contrasting emissive colors so transfer nodes can be recognized in the dark city canyon.
+- [x] Place markers around the transfer-node center rather than scattering them randomly.
+- [x] Keep markers in one MultiMesh batch to avoid one draw call per marker.
+- [x] Extend the headless smoke test to require exactly twelve markers across the three levels.
+- [x] Keep the distinction clear: these are visual wayfinding markers only; they do not claim that building entrances, transit boarding, or all chunk-boundary routes are connected.
+- [ ] Next: register actual building-side access anchors and connect them to traversable routes with collision and interaction logic.
+
 # NEON ABYSS: living-world roadmap
 
 The goal is a persistent, shared dystopian jungle-city where every resident can rent a home and participate in a functioning urban world. This roadmap separates implemented systems from future production work; listing a system here does not mean it already exists.
