@@ -317,7 +317,7 @@ func _transit_infrastructure():
     # Use a vertical axis and the incline direction as a stable basis for the long deck pieces.
     var ramp_forward:=ramp_delta.normalized()
     var ramp_right:=Vector3.RIGHT
-    var ramp_up:=ramp_forward.cross(ramp_right).normalized()
+    var ramp_up:=ramp_right.cross(ramp_forward).normalized()
     ramp_basis=Basis(ramp_right,ramp_up,ramp_forward)
     for segment in range(18):
         var t:float=(float(segment)+0.5)/18.0
@@ -349,8 +349,7 @@ func _transit_infrastructure():
             shape.size=Vector3(3.2,0.36,ramp_length/18.0+0.1)
             var collision:=CollisionShape3D.new()
             collision.shape=shape
-            collision.position=point
-            collision.rotation=Vector3(atan2(ramp_forward.y,sqrt(ramp_forward.x*ramp_forward.x+ramp_forward.z*ramp_forward.z)),0,0)
+            collision.transform=Transform3D(ramp_basis,point)
             ramp_physics.add_child(collision)
         add_child(ramp_physics)
     if posmod(coord.x,3)==0:
