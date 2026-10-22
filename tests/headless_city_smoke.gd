@@ -122,14 +122,27 @@ func _run() -> void:
         failures.append("Forward input does not move toward -Z.")
     if backward_wish.dot(Vector3.BACK) < 0.99:
         failures.append("Backward input does not move toward +Z.")
+    var diagonal_wish: Vector3 = movement_player.movement_wish_from_axis(Vector2(1, -1))
+    if absf(diagonal_wish.length() - 1.0) > 0.001:
+        failures.append("Diagonal movement is not normalized and may be faster than straight movement.")
+    movement_player.rotation.y = PI * 0.5
+    var rotated_forward: Vector3 = movement_player.movement_wish_from_axis(Vector2(0, -1))
+    if rotated_forward.dot(Vector3.LEFT) < 0.99:
+        failures.append("Forward movement does not follow player yaw after turning.")
+    movement_player.rotation.y = 0.0
 
-    # Mouse-look should update yaw and pitch while captured, even if UI nodes exist.
+    # Mouse-look should update yaw and pitch and clamp pitch before the camera flips.
     var mouse_delta := Vector2(10, -5)
     movement_player.apply_mouse_motion(mouse_delta)
     if absf(movement_player.rotation.y + mouse_delta.x * movement_player.mouse_sensitivity) > 0.0001:
         failures.append("Mouse horizontal motion did not rotate player yaw.")
     if absf(movement_player._pitch + mouse_delta.y * movement_player.mouse_sensitivity) > 0.0001:
         failures.append("Mouse vertical motion did not update camera pitch.")
+    movement_player.apply_mouse_motion(Vector2(0, -100000))
+    if movement_player._pitch > 1.481:
+        failures.append("Mouse pitch was not clamped at the upper look limit.")
+    if movement_player.collision_layer != 1 or movement_player.collision_mask != 1:
+        failures.append("Player collision layer/mask no longer matches generated world geometry.")
     movement_player.queue_free()
 
     # Exercise an apartment's physical shell without rendering the city.
