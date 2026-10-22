@@ -72,7 +72,7 @@ func _run() -> void:
             for threshold_shape in threshold_collision.get_children():
                 if not threshold_shape is CollisionShape3D or not threshold_shape.shape is BoxShape3D:
                     continue
-                var distance := threshold_shape.global_position.distance_to(entrance)
+                var distance: float = threshold_shape.global_position.distance_to(entrance)
                 if distance < matching_distance:
                     matching_distance = distance
                     matching_threshold = threshold_shape
