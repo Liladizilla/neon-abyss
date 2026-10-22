@@ -408,6 +408,22 @@ func _transit_infrastructure():
             stair_colors.append(Color(0.12,0.16,0.22))
             stair_collision_transforms.append(tread_transform)
     _instances("SkyLaneInterdeckStairs",stair_tx,stair_colors,Color(0.12,0.16,0.22),false)
+    var stair_rail_tx:Array[Transform3D]=[]
+    var stair_rail_colors:Array[Color]=[]
+    for flight in range(stair_levels.size()):
+        var lower:float=stair_levels[flight].x
+        var upper:float=stair_levels[flight].y
+        var flight_x:float=size*0.5+float(flight)*8.0+8.0
+        var flight_z:float=size*0.5-15.0
+        var rise:=upper-lower
+        var run:=36.0
+        var rail_length:=sqrt(rise*rise+run*run)
+        var rail_angle:=atan2(rise,run)
+        for side in [-1.0,1.0]:
+            var rail_transform:=Transform3D(Basis(Vector3.RIGHT,Vector3(0,cos(rail_angle),sin(rail_angle)),Vector3(0,-sin(rail_angle),cos(rail_angle))).scaled(Vector3(0.12,0.12,rail_length)),Vector3(flight_x+side*1.55,(lower+upper)*0.5+0.9,flight_z-run*0.5))
+            stair_rail_tx.append(rail_transform)
+            stair_rail_colors.append(Color(0.02,0.65,0.82))
+    _instances("SkyLaneInterdeckStairRails",stair_rail_tx,stair_rail_colors,Color(0.02,0.65,0.82),true)
     if collision_enabled:
         var stair_physics:=StaticBody3D.new()
         stair_physics.name="SkyLaneInterdeckStairCollision"
