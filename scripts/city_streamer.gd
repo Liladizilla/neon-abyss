@@ -110,7 +110,7 @@ func _distance_squared_to_nearest_center(k:Vector2i) -> int:
 func get_streaming_diagnostics() -> Dictionary:
     return {"loaded_chunks": chunks.size(), "queued_chunks": queue.size(),
         "active_player_centers": last_stream_center_count, "generated_this_frame": generated_this_frame,
-        "collision_chunks": _collision_chunk_count()}
+        "collision_chunks": _collision_chunk_count(),\n        "static_bodies": _physics_node_count(StaticBody3D),\n        "collision_shapes": _physics_node_count(CollisionShape3D)}
 
 func _collision_chunk_count() -> int:
     var total := 0
@@ -151,3 +151,18 @@ func _handle_no_active_centers() -> void:
     queue.clear()
     for key in chunks.keys():
         _remove_chunk(key, false)
+
+
+func _physics_node_count(node_type: Variant) -> int:
+    # Called only when diagnostics are requested, never as part of the per-frame stream loop.
+    var total := 0
+    for chunk_node in chunks.values():
+        if is_instance_valid(chunk_node):
+            total += _count_descendants_of_type(chunk_node, node_type)
+    return total
+
+func _count_descendants_of_type(parent: Node, node_type: Variant) -> int:
+    var total := 1 if is_instance_valid(parent) and parent is node_type else 0
+    for child in parent.get_children():
+        total += _count_descendants_of_type(child, node_type)
+    return total
