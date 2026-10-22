@@ -23,7 +23,7 @@ func _run() -> void:
     await process_frame
 
     var failures: Array[String] = []
-    for physics_name in ["StackedSkyLaneDeckCollision", "SkyLaneInterdeckStairCollision", "SkyLaneRampCollision"]:
+    for physics_name in ["StackedSkyLaneDeckCollision", "SkyLaneTransferPlazaCollision", "SkyLaneInterdeckStairCollision", "SkyLaneRampCollision"]:
         var physics_node = chunk.find_child(physics_name, true, false)
         if not is_instance_valid(physics_node) or not physics_node is StaticBody3D:
             failures.append("Missing physical elevated access component: %s." % physics_name)
