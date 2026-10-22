@@ -300,6 +300,27 @@ func _transit_infrastructure():
     _instances("SkyLaneStructuralPylons",pylon_tx,pylon_colors,Color(0.055,0.075,0.11),false)
     _instances("ElevatedUtilityConduits",cable_tx,cable_colors,Color(0.12,0.25,0.32),false)
 
+    # A transfer plaza joins the north/south and east/west decks at each elevation.
+    # Keep it chunk-centred so neighbouring chunks use the same local junction recipe.
+    var plaza_tx:Array[Transform3D]=[]
+    var plaza_colors:Array[Color]=[]
+    var plaza_edge_tx:Array[Transform3D]=[]
+    var plaza_edge_colors:Array[Color]=[]
+    var plaza_collision:Array[Transform3D]=[]
+    for deck_y in deck_heights:
+        var plaza_center:=Vector3(size*0.5,deck_y+0.48,size*0.5)
+        var plaza_transform:=Transform3D(Basis.from_scale(Vector3(22.0,0.72,22.0)),plaza_center)
+        plaza_tx.append(plaza_transform)
+        plaza_colors.append(Color(0.075,0.12,0.18))
+        plaza_collision.append(plaza_transform)
+        for side in [-1.0,1.0]:
+            plaza_edge_tx.append(Transform3D(Basis.from_scale(Vector3(22.0,0.16,0.22)),plaza_center+Vector3(0,0.46,side*10.8)))
+            plaza_edge_tx.append(Transform3D(Basis.from_scale(Vector3(0.22,0.16,22.0)),plaza_center+Vector3(side*10.8,0.46,0)))
+            plaza_edge_colors.append(Color(0.02,0.65,0.82))
+            plaza_edge_colors.append(Color(0.02,0.65,0.82))
+    _instances("SkyLaneTransferPlazas",plaza_tx,plaza_colors,Color(0.075,0.12,0.18),false)
+    _instances("SkyLaneTransferPlazaEdges",plaza_edge_tx,plaza_edge_colors,Color(0.02,0.65,0.82),true)
+
     # Give every elevated deck a matching physical surface in nearby chunks.
     # The visual MultiMeshes remain batched; collision uses one shared unit box shape per deck.
     if collision_enabled:
@@ -315,6 +336,18 @@ func _transit_infrastructure():
             deck_collision.transform=deck_transform
             deck_physics.add_child(deck_collision)
         add_child(deck_physics)
+        var plaza_physics:=StaticBody3D.new()
+        plaza_physics.name="SkyLaneTransferPlazaCollision"
+        plaza_physics.collision_layer=1
+        plaza_physics.collision_mask=1
+        var unit_plaza:=BoxShape3D.new()
+        unit_plaza.size=Vector3.ONE
+        for plaza_transform in plaza_collision:
+            var plaza_shape:=CollisionShape3D.new()
+            plaza_shape.shape=unit_plaza
+            plaza_shape.transform=plaza_transform
+            plaza_physics.add_child(plaza_shape)
+        add_child(plaza_physics)
 
     # Walkable connector ramps: segmented inclines join street-level approaches to the first
     # elevated deck. These are physical ramps, not teleport links; they are repeated per chunk.
