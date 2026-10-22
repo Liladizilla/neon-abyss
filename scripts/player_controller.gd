@@ -29,9 +29,7 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
     # Use _input rather than _unhandled_input so HUD controls cannot swallow mouse-look.
     if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-        rotate_y(-event.relative.x * mouse_sensitivity)
-        _pitch = clampf(_pitch - event.relative.y * mouse_sensitivity, -1.48, 1.48)
-        pivot.rotation.x = _pitch
+        apply_mouse_motion(event.relative)
 
     if event.is_action_pressed("toggle_flight"):
         flight_mode = not flight_mode
@@ -45,7 +43,7 @@ func _physics_process(delta: float) -> void:
 
     # Input.get_vector returns negative Y for the negative_y action (W/forward).
     # Add that value along +Z so W moves toward the camera's forward (-Z) direction.
-    var wish := (global_basis.x * axis.x + global_basis.z * axis.y).normalized()
+    var wish := movement_wish_from_axis(axis)
     var speed := sprint_speed if Input.is_action_pressed("sprint") else walk_speed
 
     if flight_mode:
@@ -68,6 +66,16 @@ func _physics_process(delta: float) -> void:
         pivot.position.y = 1.58 + sin(_bob) * 0.035
     else:
         pivot.position.y = move_toward(pivot.position.y, 1.58, delta * 3.0)
+
+# Separate mouse math from input capture so it can be regression-tested without a real mouse device.
+func apply_mouse_motion(relative: Vector2) -> void:
+    rotate_y(-relative.x * mouse_sensitivity)
+    _pitch = clampf(_pitch - relative.y * mouse_sensitivity, -1.48, 1.48)
+    pivot.rotation.x = _pitch
+
+# Exposed as a pure helper so the forward/backward mapping can be regression-tested headlessly.
+func movement_wish_from_axis(axis: Vector2) -> Vector3:
+    return (global_basis.x * axis.x + global_basis.z * axis.y).normalized()
 
 func _throw_prop() -> void:
     var prop := RigidBody3D.new()

@@ -10,6 +10,10 @@ func configure(unit_id:String,world_origin:Vector3,bridge_length:float=5.4):
 func _ready():
     _build_room()
 func _process(delta:float):
+    update_entry_doors(delta)
+
+# Kept separate from the engine callback so door behaviour can be tested headlessly.
+func update_entry_doors(delta:float) -> void:
     if entry_door_panels.is_empty():
         return
     var local_player=get_tree().get_first_node_in_group("local_player")

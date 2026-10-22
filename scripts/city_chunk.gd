@@ -251,6 +251,159 @@ func _transit_infrastructure():
         supports.append(Transform3D(Basis.from_scale(Vector3(0.8,6.0,0.8)),Vector3(along,6.0,size*0.5)))
     _instances("ElevatedTransitRails",rails,[],Color(0.16,0.2,0.29),false)
     _instances("TransitGuidewayPylons",supports,[],Color(0.12,0.16,0.23),false)
+
+    # Vertical-city infrastructure: three reusable elevated service decks per district.
+    # They form a layered silhouette above street level and align exactly with chunk edges.
+    var deck_tx:Array[Transform3D]=[]
+    var deck_colors:Array[Color]=[]
+    var beam_tx:Array[Transform3D]=[]
+    var beam_colors:Array[Color]=[]
+    var pylon_tx:Array[Transform3D]=[]
+    var pylon_colors:Array[Color]=[]
+    var cable_tx:Array[Transform3D]=[]
+    var cable_colors:Array[Color]=[]
+    var deck_heights:Array[float]=[27.0,49.0,73.0]
+    for deck_index in range(deck_heights.size()):
+        var deck_y:float=deck_heights[deck_index]
+        var deck_tint:Array[Color]=[Color(0.10,0.14,0.20),Color(0.075,0.11,0.17),Color(0.055,0.085,0.14)]
+        # Longitudinal decks stay clear of the central transit spine and are repeated per chunk.
+        for side in [-1.0,1.0]:
+            var lane_z:float=size*0.5+side*12.0
+            deck_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.72,3.2)),Vector3(size*0.5,deck_y,lane_z)))
+            deck_colors.append(deck_tint[deck_index])
+            beam_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.18,0.18)),Vector3(size*0.5,deck_y+0.42,lane_z-1.62)))
+            beam_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.18,0.18)),Vector3(size*0.5,deck_y+0.42,lane_z+1.62)))
+            beam_colors.append(Color(0.02,0.65,0.82))
+            beam_colors.append(Color(0.02,0.65,0.82))
+            for along in [12.0,36.0,60.0,84.0]:
+                pylon_tx.append(Transform3D(Basis.from_scale(Vector3(0.72,deck_y-1.0,0.72)),Vector3(along,deck_y*0.5,lane_z)))
+                pylon_colors.append(Color(0.055,0.075,0.11))
+            # Thin overhead utility conduits add infrastructure detail without unique meshes.
+            cable_tx.append(Transform3D(Basis.from_scale(Vector3(size,0.12,0.12)),Vector3(size*0.5,deck_y+1.15,lane_z)))
+            cable_colors.append(Color(0.12,0.25,0.32))
+        # Cross-district deck segments use matching heights and repeat on every chunk.
+        for side in [-1.0,1.0]:
+            var lane_x:float=size*0.5+side*12.0
+            deck_tx.append(Transform3D(Basis.from_scale(Vector3(3.2,0.72,size)),Vector3(lane_x,deck_y,size*0.5)))
+            deck_colors.append(deck_tint[deck_index])
+            beam_tx.append(Transform3D(Basis.from_scale(Vector3(0.18,0.18,size)),Vector3(lane_x-1.62,deck_y+0.42,size*0.5)))
+            beam_tx.append(Transform3D(Basis.from_scale(Vector3(0.18,0.18,size)),Vector3(lane_x+1.62,deck_y+0.42,size*0.5)))
+            beam_colors.append(Color(0.02,0.65,0.82))
+            beam_colors.append(Color(0.02,0.65,0.82))
+            for along in [12.0,36.0,60.0,84.0]:
+                pylon_tx.append(Transform3D(Basis.from_scale(Vector3(0.72,deck_y-1.0,0.72)),Vector3(lane_x,deck_y*0.5,along)))
+                pylon_colors.append(Color(0.055,0.075,0.11))
+            cable_tx.append(Transform3D(Basis.from_scale(Vector3(0.12,0.12,size)),Vector3(lane_x,deck_y+1.15,size*0.5)))
+            cable_colors.append(Color(0.12,0.25,0.32))
+    _instances("StackedSkyLaneDecks",deck_tx,deck_colors,Color(0.08,0.12,0.18),false)
+    _instances("SkyLaneGuardBeams",beam_tx,beam_colors,Color(0.02,0.65,0.82),true)
+    _instances("SkyLaneStructuralPylons",pylon_tx,pylon_colors,Color(0.055,0.075,0.11),false)
+    _instances("ElevatedUtilityConduits",cable_tx,cable_colors,Color(0.12,0.25,0.32),false)
+
+    # Give every elevated deck a matching physical surface in nearby chunks.
+    # The visual MultiMeshes remain batched; collision uses one shared unit box shape per deck.
+    if collision_enabled:
+        var deck_physics:=StaticBody3D.new()
+        deck_physics.name="StackedSkyLaneDeckCollision"
+        deck_physics.collision_layer=1
+        deck_physics.collision_mask=1
+        var unit_deck_shape:=BoxShape3D.new()
+        unit_deck_shape.size=Vector3.ONE
+        for deck_transform in deck_tx:
+            var deck_collision:=CollisionShape3D.new()
+            deck_collision.shape=unit_deck_shape
+            deck_collision.transform=deck_transform
+            deck_physics.add_child(deck_collision)
+        add_child(deck_physics)
+
+    # Walkable connector ramps: segmented inclines join street-level approaches to the first
+    # elevated deck. These are physical ramps, not teleport links; they are repeated per chunk.
+    var ramp_tx:Array[Transform3D]=[]
+    var ramp_colors:Array[Color]=[]
+    var ramp_rail_tx:Array[Transform3D]=[]
+    var ramp_rail_colors:Array[Color]=[]
+    var ramp_support_tx:Array[Transform3D]=[]
+    var ramp_support_colors:Array[Color]=[]
+    var ramp_colliders:Array[Dictionary]=[]
+    var ramp_start:=Vector3(size*0.5-18.0,0.55,size*0.5+17.0)
+    var ramp_end:=Vector3(size*0.5-18.0,27.0,size*0.5+12.0)
+    var ramp_delta:=ramp_end-ramp_start
+    var ramp_length:=ramp_delta.length()
+    var ramp_basis:=Basis(Vector3.RIGHT, ramp_delta.normalized().cross(Vector3.RIGHT).normalized(), ramp_delta.normalized())
+    # Use a vertical axis and the incline direction as a stable basis for the long deck pieces.
+    var ramp_forward:=ramp_delta.normalized()
+    var ramp_right:=Vector3.RIGHT
+    var ramp_up:=ramp_right.cross(ramp_forward).normalized()
+    ramp_basis=Basis(ramp_right,ramp_up,ramp_forward)
+    for segment in range(18):
+        var t:float=(float(segment)+0.5)/18.0
+        var point:=ramp_start.lerp(ramp_end,t)
+        var basis:=ramp_basis
+        ramp_tx.append(Transform3D(basis.scaled(Vector3(3.2,0.28,ramp_length/18.0+0.08)),point))
+        ramp_colors.append(Color(0.09,0.13,0.19))
+        for side in [-1.0,1.0]:
+            var rail_point:=point+Vector3(side*1.52,0.72,0)
+            ramp_rail_tx.append(Transform3D(Basis.from_scale(Vector3(0.12,1.1,ramp_length/18.0+0.08)),rail_point))
+            ramp_rail_colors.append(Color(0.02,0.62,0.82))
+    for along in [0.0,0.25,0.5,0.75,1.0]:
+        var support_point:=ramp_start.lerp(ramp_end,along)
+        var support_height:=maxf(0.8,support_point.y)
+        ramp_support_tx.append(Transform3D(Basis.from_scale(Vector3(0.46,support_height,0.46)),Vector3(support_point.x,support_height*0.5,support_point.z)))
+        ramp_support_colors.append(Color(0.055,0.075,0.11))
+    _instances("SkyLaneAccessRampDeck",ramp_tx,ramp_colors,Color(0.09,0.13,0.19),false)
+    _instances("SkyLaneAccessRampRails",ramp_rail_tx,ramp_rail_colors,Color(0.02,0.62,0.82),true)
+    _instances("SkyLaneAccessRampSupports",ramp_support_tx,ramp_support_colors,Color(0.055,0.075,0.11),false)
+
+    # Compact stair flights connect the three deck elevations at a protected service core.
+    # Their treads are repeated box instances; active chunks also receive matching collision.
+    var stair_tx:Array[Transform3D]=[]
+    var stair_colors:Array[Color]=[]
+    var stair_collision_transforms:Array[Transform3D]=[]
+    var stair_levels:Array[Vector2]=[Vector2(27.0,49.0),Vector2(49.0,73.0)]
+    for flight in range(stair_levels.size()):
+        var lower:float=stair_levels[flight].x
+        var upper:float=stair_levels[flight].y
+        var flight_x:float=size*0.5+float(flight)*8.0+8.0
+        var flight_z:float=size*0.5-15.0
+        var steps:int=130
+        for step in range(steps):
+            var t:float=float(step)/float(steps-1)
+            var tread_y:float=lower+1.0+t*(upper-lower)
+            var tread_z:float=flight_z-t*36.0
+            var tread_transform:=Transform3D(Basis.from_scale(Vector3(2.8,0.28,0.62)),Vector3(flight_x,tread_y,tread_z))
+            stair_tx.append(tread_transform)
+            stair_colors.append(Color(0.12,0.16,0.22))
+            stair_collision_transforms.append(tread_transform)
+    _instances("SkyLaneInterdeckStairs",stair_tx,stair_colors,Color(0.12,0.16,0.22),false)
+    if collision_enabled:
+        var stair_physics:=StaticBody3D.new()
+        stair_physics.name="SkyLaneInterdeckStairCollision"
+        stair_physics.collision_layer=1
+        stair_physics.collision_mask=1
+        var unit_tread:=BoxShape3D.new()
+        unit_tread.size=Vector3.ONE
+        for tread_transform in stair_collision_transforms:
+            var tread_collision:=CollisionShape3D.new()
+            tread_collision.shape=unit_tread
+            tread_collision.transform=tread_transform
+            stair_physics.add_child(tread_collision)
+        add_child(stair_physics)
+
+    if collision_enabled:
+        var ramp_physics:=StaticBody3D.new()
+        ramp_physics.name="SkyLaneRampCollision"
+        ramp_physics.collision_layer=1
+        ramp_physics.collision_mask=1
+        for segment in range(18):
+            var t:float=(float(segment)+0.5)/18.0
+            var point:=ramp_start.lerp(ramp_end,t)
+            var shape:=BoxShape3D.new()
+            shape.size=Vector3(3.2,0.36,ramp_length/18.0+0.1)
+            var collision:=CollisionShape3D.new()
+            collision.shape=shape
+            collision.transform=Transform3D(ramp_basis,point)
+            ramp_physics.add_child(collision)
+        add_child(ramp_physics)
     if posmod(coord.x,3)==0:
         var station=Node3D.new()
         station.name="ElevatedTransitStation"
@@ -400,7 +553,7 @@ func _build():
             var z=24.0+iz*48.0+rng.randf_range(-3,3)
             var w=rng.randf_range(18,27)
             var d=rng.randf_range(18,27)
-            var floors=rng.randi_range(7,34)
+            var floors=rng.randi_range(18,42)
             var h=float(floors)*rng.randf_range(3.0,4.1)
             var style=rng.randi_range(0,4)
             var building_index=ix*2+iz
@@ -514,7 +667,7 @@ func _build():
             cylinder_tx.append(Transform3D(Basis.from_scale(Vector3(0.16,rng.randf_range(5.0,12.0),0.16)),Vector3(x+w*0.22,h+6.0,z-d*0.2)))
             roof_tx.append(Transform3D(Basis.from_scale(Vector3(upper_w*0.78,2,upper_d*0.78)),Vector3(x,h+1,z)))
             roof_tx.append(Transform3D(Basis.from_scale(Vector3(1.1,rng.randf_range(5,15),1.1)),Vector3(x+w*0.22,h+7,z-d*0.2)))
-            for level in range(2,floors,3):
+            for level in range(2,floors,2):
                 var y=float(level)*h/float(floors)
                 for side in range(4):
                     var fx=side<2
@@ -527,7 +680,7 @@ func _build():
                         var pos=Vector3(x+sign*(w/2+0.035),y,z+u*d) if fx else Vector3(x+u*w,y,z+sign*(d/2+0.035))
                         win_tx.append(Transform3D(Basis.from_scale(sz),pos))
                         win_colors.append(neon if rng.randf()>0.28 else Color(0.015,0.02,0.035))
-                if level%6==2:
+                if level%8==2:
                     trim_tx.append(Transform3D(Basis.from_scale(Vector3(w*1.025,0.18,d*1.025)),Vector3(x,y,z)))
                     trim_colors.append(neon)
             # Roof plant, vents, aerials, facade billboards and corner light bars.
@@ -547,6 +700,7 @@ func _build():
             # Ground-floor use profile is deterministic per building and district.
             # The kit is visual-only; solid tower walls and real doorway collision remain authoritative.
             var frontage_kind:int=posmod(building_index+district_profile,4)
+            var building_use:String=["retail","residential_lobby","maintenance","loading"][frontage_kind]
             var frontage_z:float=z-d*0.5-0.30
             var pane_count:int=maxi(3,int(w/3.2))
             var service_x:float=x+w*0.5-1.05
@@ -602,7 +756,7 @@ func _build():
             _add_job_board(entrance_local+Vector3(-1.5,0,1.6),building_index)
             var manager=get_tree().get_first_node_in_group("rental_manager")
             if is_instance_valid(manager):
-                manager.register_building(coord,building_index,floors,to_global(entrance_local+Vector3(0,1,0)),style,to_global(Vector3(x,0,z)),Vector3(w,h,d),h/float(floors),to_global(Vector3(lift_x,0,z)).x,upper_w,base_h)
+                manager.register_building(coord,building_index,floors,to_global(entrance_local+Vector3(0,1,0)),style,to_global(Vector3(x,0,z)),Vector3(w,h,d),h/float(floors),to_global(Vector3(lift_x,0,z)).x,upper_w,base_h,building_use)
             var employment=get_tree().get_first_node_in_group("employment_manager")
             if is_instance_valid(employment):
                 employment.register_workplace(to_global(entrance_local+Vector3(0,0,1.8)))
@@ -616,18 +770,23 @@ func _build():
             if bridge_height<70.0: continue
             if abs(delta.x)>30.0 and abs(delta.z)<15.0:
                 var bridge_len=maxf(3.0,abs(delta.x)-(a["s"].x+b["s"].x)*0.5)
-                var bridge_pos=Vector3((a["p"].x+b["p"].x)*0.5,bridge_height*0.72,(a["p"].z+b["p"].z)*0.5)
-                body_tx.append(Transform3D(Basis.from_scale(Vector3(bridge_len,1.2,3.8)),bridge_pos))
-                body_colors.append(Color(0.13,0.18,0.26))
-                trim_tx.append(Transform3D(Basis.from_scale(Vector3(bridge_len,0.16,4.0)),bridge_pos+Vector3(0,0.68,0)))
-                trim_colors.append(NEON[(i+j)%NEON.size()])
+                # Multiple inhabited sky-lanes turn the gap between towers into vertical urban space.
+                # Reuse the same restrained bridge kit at several heights instead of a single token bridge.
+                for level_ratio in [0.48,0.72,0.9]:
+                    var bridge_pos=Vector3((a["p"].x+b["p"].x)*0.5,bridge_height*level_ratio,(a["p"].z+b["p"].z)*0.5)
+                    body_tx.append(Transform3D(Basis.from_scale(Vector3(bridge_len,1.2,3.8)),bridge_pos))
+                    body_colors.append(Color(0.13,0.18,0.26))
+                    trim_tx.append(Transform3D(Basis.from_scale(Vector3(bridge_len,0.16,4.0)),bridge_pos+Vector3(0,0.68,0)))
+                    trim_colors.append(NEON[(i+j)%NEON.size()])
             elif abs(delta.z)>30.0 and abs(delta.x)<15.0:
                 var bridge_len=maxf(3.0,abs(delta.z)-(a["s"].z+b["s"].z)*0.5)
-                var bridge_pos=Vector3((a["p"].x+b["p"].x)*0.5,bridge_height*0.72,(a["p"].z+b["p"].z)*0.5)
-                body_tx.append(Transform3D(Basis.from_scale(Vector3(3.8,1.2,bridge_len)),bridge_pos))
-                body_colors.append(Color(0.13,0.18,0.26))
-                trim_tx.append(Transform3D(Basis.from_scale(Vector3(4.0,0.16,bridge_len)),bridge_pos+Vector3(0,0.68,0)))
-                trim_colors.append(NEON[(i+j)%NEON.size()])
+                # Cross-axis connections use the same stacked sky-lane levels.
+                for level_ratio in [0.48,0.72,0.9]:
+                    var bridge_pos=Vector3((a["p"].x+b["p"].x)*0.5,bridge_height*level_ratio,(a["p"].z+b["p"].z)*0.5)
+                    body_tx.append(Transform3D(Basis.from_scale(Vector3(3.8,1.2,bridge_len)),bridge_pos))
+                    body_colors.append(Color(0.13,0.18,0.26))
+                    trim_tx.append(Transform3D(Basis.from_scale(Vector3(4.0,0.16,bridge_len)),bridge_pos+Vector3(0,0.68,0)))
+                    trim_colors.append(NEON[(i+j)%NEON.size()])
     _instances("BuildingMasses",body_tx,body_colors,Color(0.2,0.23,0.34),false)
     _instances("GroundFloorShopfrontGlazing",frontage_glass_tx,frontage_glass_colors,Color(0.025,0.34,0.42),false)
     _instances("GroundFloorSignageAndFrames",frontage_frame_tx,frontage_frame_colors,Color(0.08,0.12,0.16),true)

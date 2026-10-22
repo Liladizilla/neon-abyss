@@ -215,3 +215,48 @@ The goal is a persistent, shared dystopian jungle-city where every resident can 
 - [ ] Confirm closed-looking decorative panels do not mislead players into assuming a working door; next implementation should connect actual access state to the rental/building interaction system.
 - [ ] Walk from street to lobby, elevator landing, and apartment interior on multiple generated floors.
 - [ ] Check that crosswalks, tactile pads, street furniture, and vegetation leave a continuous accessible route.
+
+
+## Six-task connected vertical access pass
+- [x] Add collision surfaces for elevated decks in collision-enabled chunks, matching the reusable deck transforms.
+- [x] Add repeated stair treads between the 27 m, 49 m, and 73 m sky-lane levels.
+- [x] Give stair treads collision shapes in active chunks so the inter-deck route has physical surfaces.
+- [x] Refine the stair flight to a longer run with smaller tread spacing rather than a short, implausibly steep stack.
+- [x] Extend the headless city smoke test to require deck, inter-deck stair, and street-to-deck ramp collision components.
+- [x] Keep the elevated-access components documented as first-pass connections; graphical traversal and full junction continuity remain unverified.
+
+## Six-task elevated access pass
+- [x] Add a segmented inclined access ramp from street level toward the first elevated sky-lane.
+- [x] Reuse instanced deck segments, guard rails, and structural supports rather than creating a unique mesh for each segment.
+- [x] Align the ramp geometry to its incline direction for a coherent sloped surface.
+- [x] Add collision shapes for ramp deck segments only in collision-enabled active chunks.
+- [x] Keep ramp generation deterministic and chunk-local so streaming districts can repeat the same infrastructure recipe.
+- [x] Document the current access route and its limits: the ramp reaches the first elevated level, but does not yet connect every stacked deck or building entrance.
+- [ ] Validate ramp walkability and collision in a graphical session; headless parsing cannot prove a player can traverse the incline comfortably.
+
+## Six-task stacked infrastructure pass
+- [x] Add three repeatable elevated deck heights at 27, 49, and 73 metres in each streamed district.
+- [x] Lay decks along both district axes so the vertical network is not limited to one direction.
+- [x] Add reusable guard beams with neon emissive accents to give elevated routes a readable silhouette.
+- [x] Add structural pylons at deterministic intervals to visually support each deck.
+- [x] Add slim elevated utility conduits to suggest power and service routing above the street canyon.
+- [x] Keep all new pieces in MultiMesh batches and reuse existing box geometry/material handling to limit draw-call growth.
+- [ ] Check deck intersections, silhouettes, and frame time in graphical play; these decks are currently visual infrastructure and do not yet provide walkable collision or route navigation.
+
+## Six-task vertical abyss scale pass
+- [x] Raise procedural tower height to 18–42 floors so each block holds substantially more rentable homes.
+- [x] Increase facade window-grid frequency to every second floor for a denser inhabited-window rhythm.
+- [x] Stack sky-lane bridges at 48%, 72%, and 90% of each eligible tower pair's shared height.
+- [x] Apply the same stacked connections across both district axes to avoid a one-direction-only skyline.
+- [x] Reuse the existing bridge and neon-trim meshes so the added skyline layers do not require unique assets per bridge.
+- [ ] Validate skyline silhouettes and frame time in a graphical session; the taller towers and denser windows add rendering work.
+- [ ] Next: add varied intermediate podiums, occupied mid-level infrastructure, and a true distant vertical city backdrop without spawning ambient NPCs.
+
+## Six-task registered building-use pass
+- [x] Derive one deterministic use-profile key for each generated building: retail, residential lobby, maintenance, or loading.
+- [x] Store the profile in the authoritative local building registry alongside footprint, floor height and lift coordinates.
+- [x] Preserve the four-unit-per-floor rental model for every building regardless of its ground-floor frontage.
+- [x] Display the registered ground-floor use in the housing exchange so the visual profile and building record can be compared during playtests.
+- [x] Keep the profile argument backward-compatible for any other registration callers by providing a residential-lobby default.
+- [ ] Validate the registry label against generated frontages and rental kiosk positions in a graphical Godot session.
+- [ ] Follow-up: wire actual entrance access states to doors and collision; these profile labels are metadata, not functional locks or shutters.

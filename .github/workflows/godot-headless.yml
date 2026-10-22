@@ -1,0 +1,35 @@
+name: Godot headless validation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  headless-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Godot 4.4.1
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+      - name: Import project and parse scripts
+        run: godot --headless --editor --path . --quit
+      - name: Verify generated building registration
+        run: godot --headless --path . --script tests/headless_city_smoke.gd
+      - name: Run project startup smoke test
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 90s godot --headless --path . --quit-after 120 2>&1 | tee /tmp/godot-smoke.log
+          if grep -E 'SCRIPT ERROR:|Parse Error:|Invalid call\.|Attempt to call function .* on a null instance' /tmp/godot-smoke.log; then
+            echo "Godot runtime errors detected."
+            exit 1
+          fi
