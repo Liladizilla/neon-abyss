@@ -292,4 +292,4 @@ This pass improves the legibility and physical threshold at the existing side en
 - Keep threshold collision limited to active collision-enabled chunks.
 - Extend smoke coverage for exact canopy/light counts and anchor-to-threshold alignment.
 
-The anchor now sits on the side facing the central arterial, but this is not yet proof that the shell's wall opening is aligned with the entrance or that a continuous, unobstructed walk strip reaches it. Those require a graphical walk-through and a follow-up geometry/collision pass.
+The entrance anchor has now been moved onto the centered -Z ground-floor doorway cut into the hollow tower shell. The canopy, threshold, rental interaction, terminal and employment board are positioned from that same anchor; the terminal screen is rotated to face outward. The smoke test checks the anchor against the registered building footprint and threshold collider. This still does **not** prove a continuous, unobstructed sidewalk-to-door route or visually correct alignment under Godot rendering; those require a graphical walk-through.
